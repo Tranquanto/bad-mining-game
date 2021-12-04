@@ -20,6 +20,14 @@
         <p id="alertMessage" style="position: relative; top: 12px; left: 12px;">Your inventory is full!</p>
         <p id="closeAlertBtn" onclick="document.getElementById('alert').style.display = 'none';">X</p>
     </div>
+    <div id="mobileControls" style="text-align: center;">
+        <button class="controlsBtn" onclick="move('u');">↑</button>
+        <br>
+        <button class="controlsBtn" onclick="move('l');">←</button>
+        <button class="controlsBtn" onclick="move('r');">→</button>
+        <br>
+        <button class="controlsBtn" onclick="move('d');">↓</button>
+    </div>
     <p id="health">100 HP</p>
     <div id="healthBarBorder" style="border-color: black; border-width: 2px; border-style: solid; height: 10px;">
         <img id="healthBar" src="health.jpg" style="width: 100%; height: 10px;" alt="Health Bar">
