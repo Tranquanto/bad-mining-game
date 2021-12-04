@@ -270,6 +270,25 @@ function die(deathMessage) {
     updateRecipeBook();
 }
 
+if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+    document.getElementById("controls").innerHTML = "<h1>Controls</h1>\n" +
+        "<p>Open/Close Inventory: Open/Close Inventory Button</p>\n" +
+        "<p>Move Up: ↑ Button</p>\n" +
+        "<p>Move Down: ↓ Button</p>\n" +
+        "<p>Move Left: ← Button</p>\n" +
+        "<p>Move Right: → Button</p>\n" +
+        "<button onClick=\"start();\" style=\"height: 200px; font-size: 48px; border-radius: 400px;\">Play!</button>";
+} else {
+    document.getElementById("controls").innerHTML = "<h1>Controls</h1>\n" +
+        "<p>Open/Close Inventory: E</p>\n" +
+        "<p>Move Up: W / Up Arrow</p>\n" +
+        "<p>Move Down: S / Down Arrow</p>\n" +
+        "<p>Move Left: A / Left Arrow</p>\n" +
+        "<p>Move Right: D / Right Arrow</p>\n" +
+        "<button onClick=\"start();\" style=\"height: 200px; font-size: 48px; border-radius: 400px;\">Play!</button>";
+}
+
+
 setInterval(function () {
     // Healing
     if (health < 100) {

@@ -33,8 +33,14 @@ function addItem(id, count) {
         });
         for (let i = 0; i < inventory.length; i++) {
             if (Math.round(inventory[i].count.number() * 10000) / 10000 > 0) {
-                const itemSize = simplify(inventory[i].count.number() * items[String(inventory[i].id)].size)
-                output += `<fieldset class='inventoryItem' onclick='addItem("${inventory[i].id}", -1);' oncontextmenu='addItem("${inventory[i].id}", ${-inventory[i].count.number()});'><p>${items[inventory[i].id].name}</p><p class='clickToDrop'>Click to drop one<br>Right Click to drop all</p><p class='inventoryItemCount'>${simplify(inventory[i].count)} (${itemSize} lbs | ${(itemSize >= (maxSize * 0.5)) ? "Very Heavy" : (itemSize >= (maxSize * 0.25)) ? "Heavy" : (itemSize >= (maxSize * 0.1)) ? "Medium" : (itemSize >= (maxSize * 0.05)) ? "Light" : (itemSize >= (maxSize * 0.001)) ? "Very Light" : "Weightless"})</p></fieldset>`;
+                const itemSize = simplify(inventory[i].count.number() * items[String(inventory[i].id)].size);
+                let message;
+                if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    message = "<p class='clickToDrop'>Tap to drop one<br>Hold to drop all</p>";
+                } else {
+                    message = "<p class='clickToDrop'>Click to drop one<br>Right click to drop all</p>";
+                }
+                output += `<fieldset class='inventoryItem' onclick='addItem("${inventory[i].id}", -1);' oncontextmenu='addItem("${inventory[i].id}", ${-inventory[i].count.number()});'><p>${items[inventory[i].id].name}</p>${message}<p class='inventoryItemCount'>${simplify(inventory[i].count)} (${itemSize} lbs | ${(itemSize >= (maxSize * 0.5)) ? "Very Heavy" : (itemSize >= (maxSize * 0.25)) ? "Heavy" : (itemSize >= (maxSize * 0.1)) ? "Medium" : (itemSize >= (maxSize * 0.05)) ? "Light" : (itemSize >= (maxSize * 0.001)) ? "Very Light" : "Weightless"})</p></fieldset>`;
             } else {
                 inventory[i].count = new hugeNumber(0);
             }
