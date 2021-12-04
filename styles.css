@@ -1,0 +1,116 @@
+body {
+    background-color: rgb(0, 200, 255);
+    font-family: sans-serif;
+    user-select: none;
+}
+
+
+button {
+    border-radius: 40px;
+    height: 40px;
+    width: 100%;
+    background-color: white;
+    border-style: solid;
+    border-color: black;
+    font-family: sans-serif;
+    transition: background-color 250ms;
+    transition-timing-function: ease;
+}
+
+button:hover {
+    background-color: #c0c0c0;
+    border-color: white;
+}
+
+.inventoryItem, .recipe {
+    width: 180px;
+    height: 120px;
+    border-color: gray;
+    background-color: black;
+    color: white;
+    border-style: solid;
+    border-width: 3px;
+    text-align: center;
+    vertical-align: top;
+    float: left;
+    font-family: Arial, sans-serif;
+    transition: color 250ms, background-color 250ms;
+}
+
+.inventoryItem:hover {
+    background-color: #606060;
+    color: gray;
+}
+
+.recipe {
+    height: fit-content;
+}
+
+.recipeIngredient {
+    color: lightblue;
+}
+
+.inventoryItemCount {
+    position: relative;
+    top: -10%;
+    font-size: 14px;
+}
+
+.clickToDrop {
+    color: black;
+}
+
+#inventory, #recipes, #vision {
+    border-color: gray;
+    border-width: 3px;
+    border-style: solid;
+}
+
+legend {
+    color: gray;
+}
+
+#respawnBtn {
+    background-color: #600000;
+    border-color: red;
+    color: #FF8080;
+    font-size: 60px;
+    height: fit-content;
+    position: relative;
+    top: 40%;
+}
+
+#respawnBtn:hover {
+    background-color: red;
+    border-color: #FF8080;
+    color: white;
+}
+
+#youDiedMessage {
+    font-size: 96px;
+    text-align: center;
+    position: relative;
+    top: 30%;
+}
+
+#deathMessageText {
+    font-size: 36px;
+    text-align: center;
+    position: relative;
+    top: 35%;
+    color: #FF4040;
+}
+
+#closeAlertBtn {
+    cursor: pointer;
+    position: relative;
+    left: 97.5%;
+    top: -40.5px;
+    width: 20px;
+    transition: color 250ms;
+    font-size: 28px;
+}
+
+#closeAlertBtn:hover {
+    color: gray;
+}
