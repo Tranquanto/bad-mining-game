@@ -302,7 +302,7 @@ function ruinTheFun() {
     maxSize = Infinity;
     health = Infinity;
     for (let i = 0; i < Object.keys(items).length; i++) {
-        addItem(Object.keys(items)[i], 1e100);
+        addItem(Object.keys(items)[i], 1e300);
     }
     updateRecipeBook();
 }
