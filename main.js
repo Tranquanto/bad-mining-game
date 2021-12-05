@@ -16,15 +16,24 @@ for (let i = 0; i < ores.length; i++) {
         ores[i].foundAbove = Infinity;
     }
 }
-for (let j = 0; j < recipes.length; j++) {
-    if (items[recipes[j].output.id].size === undefined) {
-        let size = 0;
-        for (let i = 0; i < recipes[j].ingredients.length; i++) {
-            size += items[recipes[j].ingredients[i].id].size * recipes[j].ingredients[i].count;
+function sizeOfItemsUpdate() {
+    for (let j = 0; j < recipes.length; j++) {
+        if (items[recipes[j].output.id].size === undefined) {
+            let size = 0;
+            for (let i = 0; i < recipes[j].ingredients.length; i++) {
+                size += items[recipes[j].ingredients[i].id].size * recipes[j].ingredients[i].count;
+            }
+            items[recipes[j].output.id].size = size;
         }
-        items[recipes[j].output.id].size = size;
+    }
+    for (let i = 0; i < recipes.length; i++) {
+        if (items[recipes[i].output.id].size === undefined) {
+            sizeOfItemsUpdate();
+            break;
+        }
     }
 }
+sizeOfItemsUpdate();
 const healthText = document.getElementById("health");
 const healthBar = document.getElementById("healthBar");
 const inventoryGui = document.getElementById("inventory");
@@ -178,7 +187,7 @@ function move(direction) {
     }
     updateVision();
     document.body.style.backgroundColor = `hsl(${193 + Math.abs(pos.y) / 1000}, 100%, ${50 - Math.abs(pos.y) / 1000}%)`;
-    document.getElementById("altitude").innerText = `Altitude: ${pos.y} ft | Position: ${(pos.x >= 0) ? pos.x.toLocaleString() + " ft" + " east" : -pos.x.toLocaleString() + " ft" + " west"}`;
+    document.getElementById("altitude").innerText = `Altitude: ${pos.y} ft | Position: ${(pos.x >= 0) ? pos.x + " ft" + " east" : -pos.x + " ft" + " west"}`;
 }
 
 function buildBelow() {

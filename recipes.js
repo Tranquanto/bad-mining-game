@@ -836,7 +836,24 @@ let recipes = [
                 maxSize += 10000000;
             }
         }
+    },
+    {
+        ingredients: [
+            {
+                id: "unobtainium",
+                count: 40
+            },
+            {
+                id: "diamond",
+                count: 500000
+            }
+        ],
+        output: {
+            id: "infinityBox",
+            count: 0,
+            function: () => {
+                maxSize = Infinity;
+            }
+        }
     }
-
-
 ];

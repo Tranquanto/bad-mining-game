@@ -28,6 +28,7 @@ const ores = [
     {id: "sapphire", hardness: 8, commonness: 3, foundBelow: -24115, foundAbove: -3001000},
     {id: "ruby", hardness: 9, commonness: 1, foundBelow: -37621, foundAbove: -6123123},
     {id: "diamond", hardness: 10, commonness: 0.21, foundBelow: -91291, foundAbove: -19292294},
+    {id: "unobtainium", hardness: 10, commonness: 0.001, foundBelow: -666, foundAbove: -666},
 
     {id: "wood", hardness: 1},
     {id: "stoneBlock", hardness: 2},
@@ -74,11 +75,11 @@ let items = {
     // Blocks
 
     wood: {name: "Wood", size: 1, type: "block"},
-    stoneBlock: {name: "Stone Block", size: 2, type: "block"},
-    graniteBlock: {name: "Granite Block", size: 2, type: "block"},
-    andesiteBlock: {name: "Andesite Block", size: 2, type: "block"},
-    dioriteBlock: {name: "Diorite Block", size: 2, type: "block"},
-    pumiceBlock: {name: "Pumice Block", size: 0.75, type: "block"},
+    stoneBlock: {name: "Stone Block", type: "block"},
+    graniteBlock: {name: "Granite Block", type: "block"},
+    andesiteBlock: {name: "Andesite Block", type: "block"},
+    dioriteBlock: {name: "Diorite Block", type: "block"},
+    pumiceBlock: {name: "Pumice Block", type: "block"},
     airBlock: {name: "Air Block", size: 0, type: "block"},
 
     // Other Crafted Items
@@ -205,25 +206,25 @@ let items = {
     diamondPickaxe: {
         name: "Diamond Pickaxe",
         durability: 10000,
-        strength: 10
+        strength: 10,
+        type: "pickaxe"
     },
-    shoppingBag: {name: "Shopping Bag", storage: 100},
+    shoppingBag: {name: "Shopping Bag"},
     box: {
-        name: "Box",
-        storage: 200
+        name: "Box"
     },
     backpack: {
-        name: "Backpack",
-        storage: 400
+        name: "Backpack"
     },
     bucket: {
-        name: "Bucket",
-        storage: 1000
+        name: "Bucket"
     },
-    vault: {name: "Vault", storage: 2500},
-    chest: {name: "Chest", storage: 8000},
+    vault: {name: "Vault"},
+    chest: {name: "Chest"},
     veryExpensiveEnormousBox: {
-        name: "Very Expensive Enormous Box",
-        storage: 6553600
+        name: "Very Expensive Enormous Box"
+    },
+    infinityBox: {
+        name: "Infinity Box"
     }
 };
