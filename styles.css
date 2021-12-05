@@ -1,7 +1,8 @@
 body {
-    background-color: rgb(0, 200, 255);
+    background-color: hsl(193, 100%, 50%);
     font-family: sans-serif;
     user-select: none;
+    color: white;
 }
 
 button {
@@ -42,7 +43,7 @@ button:hover {
 }
 
 .recipe {
-    height: fit-content;
+    height: 180px;
 }
 
 .recipeIngredient {
@@ -59,7 +60,7 @@ button:hover {
     color: black;
 }
 
-#inventory, #recipes, #vision {
+#inventory, #recipes, #vision, #recipeCheatSheet {
     border-color: gray;
     border-width: 3px;
     border-style: solid;

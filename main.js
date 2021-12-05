@@ -3,6 +3,7 @@ let pos = {x: 0, y: 0};
 let oreLocations = [];
 let pickaxe = items.stickPickaxe;
 let axe = items.stickAxe;
+let funRuined = false;
 for (let i = 0; i < ores.length; i++) {
     if (items[ores[i].id] === undefined) {
         console.log(i);
@@ -36,7 +37,7 @@ function start() {
     document.getElementById('main').style.display = '';
     document.getElementById('music').play();
     document.getElementById('music').volume = 0.5;
-    addItem("airBlock", 99);
+    addItem("airBlock", 100);
 }
 
 function openInventory() {
@@ -167,7 +168,21 @@ function move(direction) {
         }
     }
     updateVision();
-    document.getElementById("altitude").innerText = `Altitude: ${pos.y} ft | Position: ${(pos.x >= 0) ? pos.x + " ft" + " east" : -pos.x + " ft" + " west"}`;
+    document.body.style.backgroundColor = `hsl(${193 + Math.abs(pos.y) / 1000}, 100%, ${50 - Math.abs(pos.y) / 1000}%)`;
+    document.getElementById("altitude").innerText = `Altitude: ${pos.y} ft | Position: ${(pos.x >= 0) ? pos.x.toLocaleString() + " ft" + " east" : -pos.x.toLocaleString() + " ft" + " west"}`;
+}
+
+function buildBelow() {
+    let placed = false;
+    for (let i = 0; i < inventory.length; i++) {
+        if (items[inventory[i].id].type === "block" && inventory[i].count.gten(1)) {
+            oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] = inventory[i].id;
+            addItem(inventory[i].id, -1);
+            placed = true;
+            break;
+        }
+    }
+    return placed;
 }
 
 function updateVision() {
@@ -270,7 +285,18 @@ function die(deathMessage) {
     updateRecipeBook();
 }
 
-setInterval(function () {
+function ruinTheFun() {
+    funRuined = true;
+    pickaxe.name = "Ruined Fun Pickaxe";
+    pickaxe.durability = Infinity;
+    pickaxe.strength = Infinity;
+    axe.name = "Ruined Fun Axe";
+    axe.durability = Infinity;
+    maxSize = Infinity;
+    health = Infinity;
+}
+
+setInterval(() => {
     // Healing
     if (health < 100) {
         health++;
@@ -280,23 +306,14 @@ setInterval(function () {
     // save();
 }, 1000);
 
-function buildBelow() {
-    let placed = false;
-    for (let i = 0; i < inventory.length; i++) {
-        if (items[inventory[i].id].type === "block" && inventory[i].count.gten(1)) {
-            oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] = inventory[i].id;
-            addItem(inventory[i].id, -1);
-            placed = true;
-            break;
-        }
-    }
-    return placed;
-}
-
 setInterval(() => {
     if (oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] === "air") {
         let placed;
-        placed = buildBelow();
+        if (funRuined) {
+            placed = true;
+        } else {
+            placed = buildBelow();
+        }
         if (!placed) {
             move("d");
         }

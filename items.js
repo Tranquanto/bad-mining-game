@@ -79,7 +79,7 @@ let items = {
     andesiteBlock: {name: "Andesite Block", size: 2, type: "block"},
     dioriteBlock: {name: "Diorite Block", size: 2, type: "block"},
     pumiceBlock: {name: "Pumice Block", size: 0.75, type: "block"},
-    airBlock: {name: "Air", size: 0, type: "block"},
+    airBlock: {name: "Air Block", size: 0, type: "block"},
 
     // Other Crafted Items
 
