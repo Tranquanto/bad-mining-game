@@ -16,6 +16,15 @@ for (let i = 0; i < ores.length; i++) {
         ores[i].foundAbove = Infinity;
     }
 }
+for (let j = 0; j < recipes.length; j++) {
+    if (items[recipes[j].output.id].size === undefined) {
+        let size = 0;
+        for (let i = 0; i < recipes[j].ingredients.length; i++) {
+            size += items[recipes[j].ingredients[i].id].size * recipes[j].ingredients[i].count;
+        }
+        items[recipes[j].output.id].size = size;
+    }
+}
 const healthText = document.getElementById("health");
 const healthBar = document.getElementById("healthBar");
 const inventoryGui = document.getElementById("inventory");
@@ -287,13 +296,15 @@ function die(deathMessage) {
 
 function ruinTheFun() {
     funRuined = true;
-    pickaxe.name = "Ruined Fun Pickaxe";
     pickaxe.durability = Infinity;
     pickaxe.strength = Infinity;
-    axe.name = "Ruined Fun Axe";
     axe.durability = Infinity;
     maxSize = Infinity;
     health = Infinity;
+    for (let i = 0; i < Object.keys(items).length; i++) {
+        addItem(Object.keys(items)[i], 1e100);
+    }
+    updateRecipeBook();
 }
 
 setInterval(() => {

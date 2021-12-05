@@ -94,170 +94,136 @@ let items = {
 
     // Tools
 
-    stickAxe: {name: "Long Stick", size: 1, type: "axe", durability: 8},
-    woodAxe: {name: "Wood Axe", size: 1, type: "axe", durability: 15},
-    stoneAxe: {name: "Stone Axe", size: 1, type: "axe", durability: 40, recipe: {"stone": 6, "stick": 3}},
-    talcAxe: {name: "Talc Axe", size: 1, type: "axe", durability: 40, recipe: {"talc": 6, "stick": 3}},
-    ironAxe: {name: "Iron Axe", size: 1, type: "axe", durability: 100, recipe: {"ironBar": 4, "stick": 4}},
-    copperAxe: {name: "Copper Axe", size: 1, type: "axe", durability: 120, recipe: {"copperBar": 4, "stick": 4}},
-    silverAxe: {name: "Silver Axe", size: 1, type: "axe", durability: 200, recipe: {"silverBar": 4, "stick": 4}},
-    titaniumAxe: {name: "Titanium Axe", size: 1, type: "axe", durability: 300, recipe: {"titaniumBar": 5, "stick": 6}},
-    goldAxe: {name: "Gold Axe", size: 1, type: "axe", durability: 60, recipe: {"goldBar": 4, "stick": 5}},
-    apatiteAxe: {name: "Apatite Axe", size: 1, type: "axe", durability: 500, recipe: {"apatite": 4, "stick": 3}},
-    bariumAxe: {name: "Barium Axe", size: 1, type: "axe", durability: 1000, recipe: {"bariumBar": 8, "stick": 5}},
-    garnetAxe: {name: "Garnet Axe", size: 1, type: "axe", durability: 4250, recipe: {"garnet": 12, "stick": 18}},
-    topazAxe: {name: "Topaz Axe", size: 1, type: "axe", durability: 6010, recipe: {"topaz": 18, "stick": 22}},
+    stickAxe: {name: "Long Stick", type: "axe", durability: 8},
+    woodAxe: {name: "Wood Axe", type: "axe", durability: 15},
+    stoneAxe: {name: "Stone Axe", type: "axe", durability: 40},
+    talcAxe: {name: "Talc Axe", type: "axe", durability: 40},
+    ironAxe: {name: "Iron Axe", type: "axe", durability: 100},
+    copperAxe: {name: "Copper Axe", type: "axe", durability: 120},
+    silverAxe: {name: "Silver Axe", type: "axe", durability: 200},
+    titaniumAxe: {name: "Titanium Axe", type: "axe", durability: 300},
+    goldAxe: {name: "Gold Axe", type: "axe", durability: 60},
+    apatiteAxe: {name: "Apatite Axe", type: "axe", durability: 500},
+    bariumAxe: {name: "Barium Axe", type: "axe", durability: 1000},
+    garnetAxe: {name: "Garnet Axe", type: "axe", durability: 4250},
+    topazAxe: {name: "Topaz Axe", type: "axe", durability: 6010},
     corundumAxe: {
         name: "Corundum Axe",
-        size: 1,
         type: "axe",
-        durability: 7880,
-        recipe: {"sapphire": 12, "ruby": 12, "stick": 10}
+        durability: 7880
     },
     diamondAxe: {
         name: "Diamond Axe",
-        size: 1,
         type: "axe",
-        durability: 10000,
-        recipe: {"diamond": 10, "topaz": 1, "stick": 12}
+        durability: 10000
     },
 
     stickPickaxe: {
         name: "Long Sharp Stick",
         strength: 1,
-        size: 1,
         type: "pickaxe",
         durability: 8
     },
     woodPickaxe: {
         name: "Wood Pickaxe",
         durability: 15,
-        size: 1,
         type: "pickaxe",
-        strength: 2,
-        recipe: {"wood": 6, "stick": 3}
+        strength: 2
     },
     stonePickaxe: {
         name: "Stone Pickaxe",
         durability: 40,
-        size: 1,
         type: "pickaxe",
-        strength: 3,
-        recipe: {"stone": 6, "stick": 3}
+        strength: 3
     },
     talcPickaxe: {
         name: "Talc Pickaxe",
         durability: 40,
-        size: 1,
         type: "pickaxe",
-        strength: 4,
-        recipe: {"talc": 6, "stick": 3}
+        strength: 4
     },
     ironPickaxe: {
         name: "Iron Pickaxe",
         durability: 100,
-        size: 1,
         type: "pickaxe",
-        strength: 5,
-        recipe: {"ironBar": 4, "stick": 4}
+        strength: 5
     },
     copperPickaxe: {
         name: "Copper Pickaxe",
         durability: 120,
-        size: 1,
         type: "pickaxe",
-        strength: 6,
-        recipe: {"copperBar": 4, "stick": 4}
+        strength: 6
     },
     silverPickaxe: {
         name: "Silver Pickaxe",
         durability: 200,
-        size: 1,
         type: "pickaxe",
-        strength: 6,
-        recipe: {"silverBar": 4, "stick": 4}
+        strength: 6
     },
     titaniumPickaxe: {
         name: "Titanium Pickaxe",
         durability: 300,
-        size: 1,
         type: "pickaxe",
-        strength: 7,
-        recipe: {"titaniumBar": 5, "stick": 6}
+        strength: 7
     },
     goldPickaxe: {
         name: "Gold Pickaxe",
         durability: 60,
-        size: 1,
         type: "pickaxe",
-        strength: 4,
-        recipe: {"goldBar": 4, "stick": 5}
+        strength: 4
     },
     apatitePickaxe: {
         name: "Apatite Pickaxe",
         durability: 500,
-        size: 1,
         type: "pickaxe",
-        strength: 7,
-        recipe: {"apatite": 4, "stick": 3}
+        strength: 7
     },
     bariumPickaxe: {
         name: "Barium Pickaxe",
         durability: 1000,
-        size: 1,
         type: "pickaxe",
-        strength: 8,
-        recipe: {"bariumBar": 8, "stick": 5}
+        strength: 8
     },
     garnetPickaxe: {
         name: "Garnet Pickaxe",
         durability: 4250,
-        size: 1,
         type: "pickaxe",
-        strength: 9,
-        recipe: {"garnet": 12, "stick": 18}
+        strength: 9
     },
     topazPickaxe: {
         name: "Topaz Pickaxe",
         durability: 6010,
-        size: 1,
         type: "pickaxe",
-        strength: 9,
-        recipe: {"topaz": 18, "stick": 22}
+        strength: 9
     },
     corundumPickaxe: {
         name: "Corundum Pickaxe",
         durability: 7880,
-        strength: 10, size: 1, type: "pickaxe",
-        recipe: {"sapphire": 12, "ruby": 12, "stick": 10}
+        strength: 10,
+        type: "pickaxe"
     },
     diamondPickaxe: {
         name: "Diamond Pickaxe",
         durability: 10000,
-        strength: 10,
-        recipe: {"diamond": 10, "topaz": 1, "stick": 12}
+        strength: 10
     },
     shoppingBag: {name: "Shopping Bag", storage: 100},
     box: {
         name: "Box",
-        storage: 200,
-        recipe: [{id: "stone", count: 6}, {id: "granite", count: 3}, {id: "wood", count: 7}]
+        storage: 200
     },
     backpack: {
         name: "Backpack",
-        storage: 400,
-        recipe: [{id: "ironBar", count: 2}, {id: "granite", count: 12}, {id: "pumice", count: 3}]
+        storage: 400
     },
     bucket: {
         name: "Bucket",
-        storage: 1000,
-        recipe: [{id: "silverBar", count: 28}, {id: "stone", count: 13}, {id: "stick", count: 4}]
+        storage: 1000
     },
-    vault: {name: "Vault", storage: 2500, recipe: [{id: "apatite", count: 16}, {id: "goldBar", count: 80}]},
-    chest: {name: "Chest", storage: 8000, recipe: [{"ruby": 1, "garnet": 56, "stone": 100}]},
+    vault: {name: "Vault", storage: 2500},
+    chest: {name: "Chest", storage: 8000},
     veryExpensiveEnormousBox: {
         name: "Very Expensive Enormous Box",
-        storage: 6553600,
-        recipe: [{"diamond": 200, "topaz": 225}]
+        storage: 6553600
     }
 };

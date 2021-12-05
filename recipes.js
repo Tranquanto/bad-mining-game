@@ -30,6 +30,22 @@ let recipes = [
     {
         ingredients: [
             {
+                id: "stone",
+                count: 6
+            },
+            {
+                id: "stick",
+                count: 3
+            }
+        ],
+        output: {
+            id: "stoneAxe",
+            count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
                 id: "talc",
                 count: 6
             },
@@ -253,6 +269,22 @@ let recipes = [
         ],
         output: {
             id: "woodPickaxe",
+            count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "stone",
+                count: 6
+            },
+            {
+                id: "stick",
+                count: 3
+            }
+        ],
+        output: {
+            id: "stonePickaxe",
             count: 1
         }
     },
@@ -654,6 +686,25 @@ let recipes = [
         output: {
             id: "flotuBar",
             count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "dirt",
+                count: 2
+            },
+            {
+                id: "talc",
+                count: 4
+            }
+        ],
+        output: {
+            id: "shoppingBag",
+            count: 0,
+            function: () => {
+                maxSize += 100;
+            }
         }
     },
     {
