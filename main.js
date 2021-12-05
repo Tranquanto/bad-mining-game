@@ -4,24 +4,29 @@ let oreLocations = [];
 let pickaxe = items.stickPickaxe;
 let axe = items.stickAxe;
 let funRuined = false;
-for (let i = 0; i < ores.length; i++) {
-    if (items[ores[i].id] === undefined) {
-        console.log(i);
-        items[ores[i].id] = {name: capitalize(ores[i].id), size: (ores[i].size === undefined) ? 1 : ores[i].size};
-    }
-    if (ores[i].foundBelow === undefined) {
-        ores[i].foundBelow = Infinity;
-    }
-    if (ores[i].foundAbove === undefined) {
-        ores[i].foundAbove = Infinity;
+let text;
+
+function addItemsToOres() {
+    for (let i = 0; i < ores.length; i++) {
+        if (items[ores[i].id] === undefined) {
+            console.log(i);
+            items[ores[i].id] = {name: capitalize(camelCaseToRegular(ores[i].id)), size: (ores[i].size === undefined) ? 1 : ores[i].size};
+        }
+        if (ores[i].foundBelow === undefined) {
+            ores[i].foundBelow = Infinity;
+        }
+        if (ores[i].foundAbove === undefined) {
+            ores[i].foundAbove = Infinity;
+        }
     }
 }
+
 function sizeOfItemsUpdate() {
     for (let j = 0; j < recipes.length; j++) {
         if (items[recipes[j].output.id].size === undefined) {
             let size = 0;
             for (let i = 0; i < recipes[j].ingredients.length; i++) {
-                size += items[recipes[j].ingredients[i].id].size * recipes[j].ingredients[i].count;
+                size += items[recipes[j].ingredients[i].id].size * recipes[j].ingredients[i].count / ((recipes[j].output.count !== 0) ? recipes[j].output.count : 1);
             }
             items[recipes[j].output.id].size = size;
         }
@@ -33,6 +38,8 @@ function sizeOfItemsUpdate() {
         }
     }
 }
+
+addItemsToOres();
 sizeOfItemsUpdate();
 const healthText = document.getElementById("health");
 const healthBar = document.getElementById("healthBar");
@@ -186,7 +193,7 @@ function move(direction) {
         }
     }
     updateVision();
-    document.body.style.backgroundColor = `hsl(${193 + Math.abs(pos.y) / 1000}, 100%, ${50 - Math.abs(pos.y) / 1000}%)`;
+    document.body.style.backgroundColor = `hsl(${193 + Math.abs(pos.y) / 1000}, ${100 + pos.y / 100}%, ${50 - Math.abs(pos.y) / 1000}%)`;
     document.getElementById("altitude").innerText = `Altitude: ${pos.y} ft | Position: ${(pos.x >= 0) ? pos.x + " ft" + " east" : -pos.x + " ft" + " west"}`;
 }
 
@@ -218,6 +225,14 @@ function capitalize(word) {
     }
     return allWords.join(" ");
 }
+function uncapitalize(word) {
+    const allWords = word.split(" ");
+    for (let i = 0; i < allWords.length; i++) {
+        const firstLetter = allWords[i].slice(0, 1);
+        allWords[i] = firstLetter.toLowerCase() + allWords[i].slice(1);
+    }
+    return allWords.join(" ");
+}
 
 function camelCase(string) {
     const allWords1 = string.split(" ");
@@ -232,7 +247,7 @@ function camelCaseToRegular(string) {
         const index = string.match(/[A-Z]/).index;
         const part1 = string.slice(0, index);
         const part2 = string.slice(index);
-        string = `${part1} ${part2.toLowerCase()}`;
+        string = `${uncapitalize(part1)} ${uncapitalize(part2)}`;
     }
     return string;
 }
@@ -242,7 +257,7 @@ function generateOre(x, y) {
     let possibleOres = [];
     let maxCommonness = 0;
     for (let o = 0; o < ores.length; o++) {
-        if (pos.y + y >= ores[o].foundAbove && pos.y + y <= ores[o].foundBelow) {
+        if (y >= ores[o].foundAbove && y <= ores[o].foundBelow) {
             const possibleOreLength = possibleOres.length;
             possibleOres.push(ores[o]);
             maxCommonness += ores[o].commonness;
@@ -316,10 +331,49 @@ function ruinTheFun() {
     updateRecipeBook();
 }
 
+async function loadMod(mod, variable) {
+    let add = false;
+    let text;
+    if (variable !== "other") {
+        add = confirm("Add to current variable? (OK for appending, Cancel to replace)");
+        text = JSON.parse(await mod.text());
+    }
+    const scriptText = await mod.text();
+    if (!add) {
+        eval(`${variable} = text`);
+    } else {
+        if (variable === "items") {
+            const keys = Object.keys(text);
+            for (let i = 0; i < keys.length; i++) {
+                items[keys[i]] = text[keys[i]];
+            }
+        } else if (variable === "recipes") {
+            for (let i = 0; i < text.length; i++) {
+                if (text[i].output.function !== undefined) {
+                    text[i].output.function = eval(text[i].output.function);
+                }
+            }
+            recipes = recipes.concat(text);
+        } else if (variable === "ores") {
+            ores = ores.concat(text);
+        } else if (variable === "other") {
+            eval(scriptText);
+        }
+    }
+    addItemsToOres();
+    sizeOfItemsUpdate();
+}
+async function loadScript(script) {
+    eval(await script.text());
+}
+
 setInterval(() => {
     // Healing
     if (health < 100) {
         health++;
+    }
+    if (health <= 0) {
+        die();
     }
     healthText.innerHTML = `${Math.round(health).toLocaleString()} HP`;
     healthBar.style.width = `${health}%`;

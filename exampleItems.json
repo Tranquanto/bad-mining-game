@@ -1,0 +1,7 @@
+{
+  "example": {
+    "__comment": "Items are pretty simple",
+    "name": "Name of Item",
+    "size": 24
+  }
+}

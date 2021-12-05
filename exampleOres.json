@@ -1,0 +1,19 @@
+[
+  {
+    "__comment": "You don't have to make an item for the ore unless you want to; otherwise it'll create one automatically.",
+    "id": "basicOreExample",
+    "hardness": 1,
+    "commonness": 10,
+    "foundBelow": 0,
+    "foundAbove": -1000
+  },
+  {
+    "__comment": "The deadliness will subtract the specified amount of HP when the ore is mined.",
+    "id": "harmfulOreExample",
+    "hardness": 2,
+    "commonness": 40,
+    "foundBelow": 0,
+    "foundAbove": -100000,
+    "deadliness": 20
+  }
+]

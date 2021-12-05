@@ -1,4 +1,4 @@
-const ores = [
+let ores = [
     {id: "air", hardness: 0, commonness: 100, foundBelow: 39000, foundAbove: 1},
     {id: "dirt", hardness: 0.5, commonness: 90, foundBelow: 2500, foundAbove: -20739440},
     {id: "log", hardness: 1, commonness: 60, foundBelow: 2500, foundAbove: 1},
@@ -53,17 +53,17 @@ let items = {
     pumice: {name: "Pumice", size: 0.75},
     talc: {name: "Talc", size: 2},
     coal: {name: "Coal", size: 1.5},
-    limonite: {name: "Limonite", size: 3},
+    limonite: {name: "Limonite (Iron Ore)", size: 3},
     copper: {name: "Copper Ore", size: 3},
-    chromite: {name: "Chromite", size: 3},
+    chromite: {name: "Chromite (Chromium Ore)", size: 3},
     silver: {name: "Silver Ore", size: 3},
-    titanite: {name: "Titanite", size: 2},
+    titanite: {name: "Titanite (Titanium Ore)", size: 2},
     gold: {name: "Gold Ore", size: 4},
-    hematite: {name: "Hematite", size: 4},
+    hematite: {name: "Hematite (Heavy Iron Ore)", size: 4},
     apatite: {name: "Apatite", size: 1},
     mercury: {name: "Mercury", size: 1.2},
-    barite: {name: "Barite", size: 1.1},
-    floacite: {name: "Floacite", size: 0.3},
+    barite: {name: "Barite (Barium Ore)", size: 1.1},
+    floacite: {name: "Floacite (Flotu Ore)", size: 0.3},
     trimium: {name: "Trimium", size: 1.75},
     arsenopyrite: {name: "Arsenopyrite", size: 2},
     garnet: {name: "Garnet", size: 1},
@@ -71,6 +71,7 @@ let items = {
     sapphire: {name: "Sapphire", size: 1},
     ruby: {name: "Ruby", size: 1.1},
     diamond: {name: "Diamond", size: 1},
+    unobtainium: {name: "Unobtainium", size: 10},
 
     // Blocks
 
@@ -86,12 +87,14 @@ let items = {
 
     ironBar: {name: "Iron Bar", size: 6},
     copperBar: {name: "Copper Bar", size: 6},
+    chromeBar: {name: "Chrome Bar", size: 6},
     silverBar: {name: "Silver Bar", size: 6},
     titaniumBar: {name: "Titanium Bar", size: 4},
     goldBar: {name: "Gold Bar", size: 8},
     heavyIronBar: {name: "Heavy Iron Bar", size: 8},
     bariumBar: {name: "Barium Bar", size: 2.2},
     flotuBar: {name: "Flotu Bar", size: 0.6},
+    unobtainableBar: {name: "Unobtainable Bar"},
 
     // Tools
 

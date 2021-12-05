@@ -595,6 +595,22 @@ let recipes = [
     {
         ingredients: [
             {
+                id: "chromite",
+                count: 2
+            },
+            {
+                id: "coal",
+                count: 5
+            }
+        ],
+        output: {
+            id: "chromeBar",
+            count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
                 id: "silver",
                 count: 2
             },
@@ -685,6 +701,42 @@ let recipes = [
         ],
         output: {
             id: "flotuBar",
+            count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "unobtainium",
+                count: 10
+            },
+            {
+                id: "trimium",
+                count: 25
+            },
+            {
+                id: "chromeBar",
+                count: 50
+            },
+            {
+                id: "diamond",
+                count: 25
+            },
+            {
+                id: "garnet",
+                count: 100
+            },
+            {
+                id: "flotuBar",
+                count: 300
+            },
+            {
+                id: "arsenopyrite",
+                count: 50
+            }
+        ],
+        output: {
+            id: "unobtainableBar",
             count: 1
         }
     },
@@ -840,8 +892,12 @@ let recipes = [
     {
         ingredients: [
             {
-                id: "unobtainium",
-                count: 40
+                id: "unobtainableBar",
+                count: 2
+            },
+            {
+                id: "trimium",
+                count: 10000
             },
             {
                 id: "diamond",

@@ -1,0 +1,33 @@
+[
+  {
+    "ingredients": [
+      {
+        "__comment": "IMPORTANT: USE ID OF ITEM, NOT NAME",
+        "id": "wood",
+        "count": 1
+      }
+    ],
+    "output": {
+      "id": "dirt",
+      "count": 4
+    }
+  },
+  {
+    "ingredients": [
+      {
+        "id": "stone",
+        "count": 3
+      },
+      {
+        "id": "unobtainium",
+        "count": 1.5
+      }
+    ],
+    "output": {
+      "__comment": "you can assign a js function that runs after the object is crafted",
+      "id": "stoneBlock",
+      "count": 10000,
+      "function": "() => {maxSize += 100}"
+    }
+  }
+]
