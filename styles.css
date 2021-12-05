@@ -43,7 +43,7 @@ button:hover {
 }
 
 .recipe {
-    height: 180px;
+    height: fit-content;
 }
 
 .recipeIngredient {
