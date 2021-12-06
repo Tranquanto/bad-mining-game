@@ -12,8 +12,12 @@ function addItemsToOres() {
             console.log(`Adding item to ore with id: ${i}`);
             items[ores[i].id] = {
                 name: capitalize(camelCaseToRegular(ores[i].id)),
-                size: (ores[i].size === undefined) ? 1 : ores[i].size
+                size: (ores[i].size === undefined) ? 1 : ores[i].size,
+                type: (ores[i].commonness === undefined) ? undefined : "block"
             };
+            if (ores[i].excludeSize) {
+                items[ores[i].id].size = undefined;
+            }
         }
         if (ores[i].foundBelow === undefined) {
             ores[i].foundBelow = Infinity;
@@ -410,6 +414,7 @@ function ruinTheFun() {
 
 function addBlocks(json) {
     ores = ores.concat(json);
+    addItemsToOres();
 }
 
 function addItems(json) {
@@ -421,6 +426,20 @@ function addItems(json) {
 
 function addRecipes(json) {
     recipes = recipes.concat(json);
+    sizeOfItemsUpdate();
+}
+
+function updateCheatSheets() {
+    let output = "<legend>Recipe Cheat Sheet</legend>";
+    for (let i = 0; i < recipes.length; i++) {
+        const recipe = recipes[i];
+        output += `<fieldset class="recipe"><p>${items[String(recipe.output.id)].name} (${recipe.output.count})</p>`;
+        for (let c = 0; c < recipe.ingredients.length; c++) {
+            output += `<p class='recipeIngredient'>${items[recipe.ingredients[c].id].name} (${(recipe.ingredients[c].count > 0) ? recipe.ingredients[c].count : "1"})</p>`;
+        }
+        output += `</fieldset>`;
+    }
+    document.getElementById("recipeCheatSheet").innerHTML = output.replaceAll("undefined", "");
 }
 
 async function loadMod(mod, variable) {
@@ -454,12 +473,16 @@ async function loadMod(mod, variable) {
     }
     addItemsToOres();
     sizeOfItemsUpdate();
+    updateCheatSheets();
+    updateInventory();
 }
 
 async function loadScript(script) {
     eval(await script.text());
     addItemsToOres();
     sizeOfItemsUpdate();
+    updateCheatSheets();
+    updateInventory();
 }
 
 setInterval(() => {
@@ -491,4 +514,4 @@ setInterval(() => {
         }
     }
     updateVision();
-}, 100);
+}, 1);

@@ -92,16 +92,7 @@
     <script src="recipes.js"></script>
     <script src="main.js"></script>
     <script>
-        let output = "<legend>Recipe Cheat Sheet</legend>";
-        for (let i = 0; i < recipes.length; i++) {
-            const recipe = recipes[i];
-            output += `<fieldset class="recipe"><p>${items[String(recipe.output.id)].name} (${recipe.output.count})</p>`;
-            for (let c = 0; c < recipe.ingredients.length; c++) {
-                output += `<p class='recipeIngredient'>${items[recipe.ingredients[c].id].name} (${(recipe.ingredients[c].count > 0) ? recipe.ingredients[c].count : "1"})</p>`;
-            }
-            output += `</fieldset>`;
-        }
-        document.getElementById("recipeCheatSheet").innerHTML = output.replaceAll("undefined", "");
+        updateCheatSheets();
     </script>
 </div>
 <div id="deathMessage" style="width: 100%; height: 100%; display: none; color: red;">

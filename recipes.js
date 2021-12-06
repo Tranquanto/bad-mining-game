@@ -627,6 +627,66 @@ let recipes = [
     {
         ingredients: [
             {
+                id: "stoneBlock",
+                count: 1
+            }
+        ],
+        output: {
+            id: "stone",
+            count: 4
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "graniteBlock",
+                count: 1
+            }
+        ],
+        output: {
+            id: "granite",
+            count: 4
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "andesiteBlock",
+                count: 1
+            }
+        ],
+        output: {
+            id: "andesite",
+            count: 4
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "dioriteBlock",
+                count: 1
+            }
+        ],
+        output: {
+            id: "diorite",
+            count: 4
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "pumiceBlock",
+                count: 1
+            }
+        ],
+        output: {
+            id: "pumice",
+            count: 4
+        }
+    },
+    {
+        ingredients: [
+            {
                 id: "limonite",
                 count: 2
             },

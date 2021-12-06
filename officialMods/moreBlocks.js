@@ -1,99 +1,123 @@
 addBlocks([
     {
         id: "dirtBlock",
-        hardness: 0.5
+        hardness: 0.5,
+        type: "block"
     },
     {
         id: "talcBlock",
-        hardness: 2
+        hardness: 2,
+        type: "block"
     },
     {
         id: "coalBlock",
-        hardness: 2
+        hardness: 2,
+        type: "block"
     },
     {
         id: "ironBlock",
-        hardness: 3
+        hardness: 3,
+        type: "block"
     },
     {
         id: "copperBlock",
-        hardness: 3
+        hardness: 3,
+        type: "block"
     },
     {
         id: "bronzeBlock",
-        hardness: 3
+        hardness: 3,
+        type: "block"
     },
     {
         id: "tinBlock",
-        hardness: 4
+        hardness: 4,
+        type: "block"
     },
     {
         id: "chromeBlock",
-        hardness: 3
+        hardness: 3,
+        type: "block"
     },
     {
         id: "silverBlock",
-        hardness: 4
+        hardness: 4,
+        type: "block"
     },
     {
         id: "titaniumBlock",
-        hardness: 4
+        hardness: 4,
+        type: "block"
     },
     {
         id: "goldBlock",
-        hardness: 4
+        hardness: 4,
+        type: "block"
     },
     {
         id: "heavyIronBlock",
-        hardness: 5
+        hardness: 5,
+        type: "block"
     },
     {
         id: "apatiteBlock",
-        hardness: 5
+        hardness: 5,
+        type: "block"
     },
     {
         id: "mercuryBlock",
-        hardness: 5
+        hardness: 5,
+        type: "block"
     },
     {
         id: "bariumBlock",
-        hardness: 6
+        hardness: 6,
+        type: "block"
     },
     {
         id: "flotuBlock",
-        hardness: 6
+        hardness: 6,
+        type: "block"
     },
     {
         id: "trimiumBlock",
-        hardness: 6
+        hardness: 6,
+        type: "block"
     },
     {
         id: "arsenopyriteBlock",
-        hardness: 7
+        hardness: 7,
+        type: "block"
     },
     {
         id: "garnetBlock",
-        hardness: 7
+        hardness: 7,
+        type: "block"
     },
     {
         id: "topazBlock",
-        hardness: 8
+        hardness: 8,
+        type: "block"
     },
     {
         id: "sapphireBlock",
-        hardness: 8
+        hardness: 8,
+        type: "block"
     },
     {
         id: "rubyBlock",
-        hardness: 9
+        hardness: 9,
+        type: "block"
     },
     {
         id: "diamondBlock",
-        hardness: 10
+        hardness: 10,
+        type: "block"
     },
     {
         id: "unobtainableBlock",
-        hardness: 10
+        hardness: 10,
+        type: "block"
     }
 ]);
 
