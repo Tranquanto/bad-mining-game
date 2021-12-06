@@ -5,7 +5,7 @@ let pickaxe = items.stickPickaxe;
 let axe = items.stickAxe;
 let flight = false;
 let text;
-let lastSave = 0;
+let lastSave = localStorage.getItem("lastSave");
 
 function addItemsToOres() {
     for (let i = 0; i < ores.length; i++) {
@@ -313,13 +313,6 @@ document.onkeydown = (e) => {
     }
 }
 
-/* function save() {
-    localStorage.setItem("inventory", JSON.stringify(inventory));
-    localStorage.setItem("inventoryHTML", document.getElementById("inventory").innerHTML);
-    localStorage.setItem("recipesHTML", document.getElementById("recipes").innerHTML);
-    localStorage.setItem("maxSize", String(maxSize));
-} */
-
 function exportSave() {
     let output = {};
     output.inventory = inventory;
@@ -334,10 +327,11 @@ function exportSave() {
 
     navigator.clipboard.writeText(btoa(JSON.stringify(output))).then(() => {
         alert("Copied save to clipboard! (Auto-adds modded items, ores, and recipes, but it is still recommended to load mods again before importing save data.");
-        lastSave = 0;
+        lastSave = Date.now();
     }, () => {
         alert("Save failed! Try again later, or report it at https://github.com/Dragon77mathbye/bad-mining-game/issues");
     });
+    localStorage.setItem("lastSave", lastSave);
 }
 
 function importSave() {
@@ -516,16 +510,6 @@ function navigateTo(location) {
     }
 }
 
-window.addEventListener("beforeunload", function (e) {
-    if (!(lastSave <= 30)) {
-        const confirmationMessage = "You haven't saved in a while."
-            + "If you leave before saving, your changes will be lost.";
-
-        (e || window.event).returnValue = confirmationMessage; //Gecko + IE
-        return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
-    }
-});
-
 setInterval(() => {
     // Healing
     if (health < 100) {
@@ -539,8 +523,27 @@ setInterval(() => {
     }
     healthText.innerHTML = `${Math.round(health).toLocaleString()} HP`;
     healthBar.style.width = `${health}%`;
-    lastSave++;
+    const lastSaveRelative = (String(localStorage.getItem("lastSave")) !== "null") ? `${(Date.now() - lastSave) / 1000} ago` : "never";
+    document.getElementById("exportSave").innerText = `Export Save (Last saved ${secondsToOtherUnits(lastSaveRelative)})`;
 }, 1000);
+
+function secondsToOtherUnits(n) {
+    if (typeof n === "number") {
+        if (n < 60) {
+            return `${Math.floor(n)} sec`;
+        } else if (n < 3600) {
+            return `${Math.floor(n / 60)} min`;
+        } else if (n < 172800) {
+            return `${Math.floor(n / 3600)} hr`;
+        } else if (n < 315576000) {
+            return `${Math.floor(n / 86400)} d`;
+        } else {
+            return `${Math.floor(n / 31557600)} yr`;
+        }
+    } else {
+        return n;
+    }
+}
 
 setInterval(() => {
     if (oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] === "air") {
