@@ -444,7 +444,7 @@ function updateCheatSheets() {
     output = "<legend>Ore Cheat Sheet</legend>";
     for (let i = 0; i < ores.length; i++) {
         if (ores[i].commonness !== undefined) {
-            output += `<fieldset class="recipe"><p><b>${items[ores[i].id].name}</b></p><p>Hardness: ${ores[i].hardness}</p><p>Commonness: ${ores[i].commonness}</p><p>Obtainable Height Range: ${ores[i].foundBelow} ft to ${ores[i].foundAbove} ft</p></fieldset>`;
+            output += `<fieldset class="recipe"><p><b>${items[ores[i].id].name}</b></p><p>Hardness: ${ores[i].hardness}</p><p>Commonness: ${ores[i].commonness}</p><p>Obtainable Height Range: ${ores[i].foundAbove} ft to ${ores[i].foundBelow} ft</p></fieldset>`;
         }
     }
     document.getElementById("oreCheatSheet").innerHTML = output.replaceAll(undefined, "");
