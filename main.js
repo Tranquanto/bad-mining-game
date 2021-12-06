@@ -5,24 +5,25 @@ let pickaxe = items.stickPickaxe;
 let axe = items.stickAxe;
 let flight = false;
 let text;
+let lastSave = 0;
 
 function addItemsToOres() {
     for (let i = 0; i < ores.length; i++) {
-        if (items[ores[i].id] === undefined) {
+        if (items[ores[i].id] === undefined || items[ores[i].id] === null) {
             console.log(`Adding item to ore with id: ${i}`);
             items[ores[i].id] = {
                 name: capitalize(camelCaseToRegular(ores[i].id)),
-                size: (ores[i].size === undefined) ? 1 : ores[i].size,
-                type: (ores[i].commonness === undefined) ? undefined : "block"
+                size: (ores[i].size === undefined || ores[i].size === null) ? 1 : ores[i].size,
+                type: (ores[i].commonness === undefined || ores[i].commonness === null) ? undefined : "block"
             };
             if (ores[i].excludeSize) {
                 items[ores[i].id].size = undefined;
             }
         }
-        if (ores[i].foundBelow === undefined) {
+        if (ores[i].foundBelow === undefined || ores[i].foundBelow === null) {
             ores[i].foundBelow = Infinity;
         }
-        if (ores[i].foundAbove === undefined) {
+        if (ores[i].foundAbove === undefined || ores[i].foundAbove === null) {
             ores[i].foundAbove = Infinity;
         }
     }
@@ -31,7 +32,7 @@ function addItemsToOres() {
 function sizeOfItemsUpdate() {
     for (let j = 0; j < recipes.length; j++) {
         console.log(`Updating item size with recipe id: ${j}`);
-        if (items[recipes[j].output.id].size === undefined) {
+        if (items[recipes[j].output.id].size === undefined || items[recipes[j].output.id].size === null) {
             let size = 0;
             for (let i = 0; i < recipes[j].ingredients.length; i++) {
                 size += items[recipes[j].ingredients[i].id].size * recipes[j].ingredients[i].count / ((recipes[j].output.count !== 0) ? recipes[j].output.count : 1);
@@ -40,7 +41,7 @@ function sizeOfItemsUpdate() {
         }
     }
     for (let i = 0; i < recipes.length; i++) {
-        if (items[recipes[i].output.id].size === undefined) {
+        if (items[recipes[i].output.id].size === undefined || items[recipes[i].output.id].size === null) {
             sizeOfItemsUpdate();
             break;
         }
@@ -97,7 +98,7 @@ function craft(recipe) {
             addItem(canCraft[i].id, -canCraft[i].count);
         }
         addItem(recipe.output.id, recipe.output.count);
-        if (recipe.output.function !== undefined) {
+        if (recipe.output.function !== undefined && recipe.output.function !== null) {
             recipe.output.function();
             addItem("dirt", 0);
         }
@@ -148,30 +149,30 @@ function move(direction) {
     } else if (direction === "d") {
         pos.y--;
     }
-    if (oreLocations[pos.x + 1e9] === undefined || oreLocations[pos.x + 1e9][pos.y + 1e9] === undefined) {
+    if (oreLocations[pos.x + 1e9] === undefined || oreLocations[pos.x + 1e9][pos.y + 1e9] === undefined || oreLocations[pos.x + 1e9] === null || oreLocations[pos.x + 1e9][pos.y + 1e9] === null) {
         generateOre(pos.x, pos.y);
     }
-    if (oreLocations[pos.x + 1e9 - 1] === undefined || oreLocations[pos.x + 1e9 - 1][pos.y + 1e9] === undefined) {
+    if (oreLocations[pos.x + 1e9 - 1] === undefined || oreLocations[pos.x + 1e9 - 1][pos.y + 1e9] === undefined || oreLocations[pos.x + 1e9 - 1] === null || oreLocations[pos.x + 1e9 - 1][pos.y + 1e9] === null) {
         generateOre(pos.x - 1, pos.y);
     }
-    if (oreLocations[pos.x + 1e9 + 1] === undefined || oreLocations[pos.x + 1e9 + 1][pos.y + 1e9] === undefined) {
+    if (oreLocations[pos.x + 1e9 + 1] === undefined || oreLocations[pos.x + 1e9 + 1][pos.y + 1e9] === undefined || oreLocations[pos.x + 1e9 + 1] === null || oreLocations[pos.x + 1e9 + 1][pos.y + 1e9] === null) {
         generateOre(pos.x + 1, pos.y);
     }
-    if (oreLocations[pos.x + 1e9] === undefined || oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] === undefined) {
+    if (oreLocations[pos.x + 1e9] === undefined || oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] === undefined || oreLocations[pos.x + 1e9] === null || oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] === null) {
         generateOre(pos.x, pos.y - 1);
     }
-    if (oreLocations[pos.x + 1e9] === undefined || oreLocations[pos.x + 1e9][pos.y + 1e9 + 1] === undefined) {
+    if (oreLocations[pos.x + 1e9] === undefined || oreLocations[pos.x + 1e9][pos.y + 1e9 + 1] === undefined || oreLocations[pos.x + 1e9] === null || oreLocations[pos.x + 1e9][pos.y + 1e9 + 1] === null) {
         generateOre(pos.x, pos.y + 1);
     }
     let canMine = false;
     for (let i = 0; i < ores.length; i++) {
-        if (oreLocations[pos.x + 1e9] !== undefined && ores[i].id === oreLocations[pos.x + 1e9][pos.y + 1e9] && pickaxe.strength >= ores[i].hardness) {
+        if ((oreLocations[pos.x + 1e9] !== undefined && oreLocations[pos.x + 1e9] !== null) && ores[i].id === oreLocations[pos.x + 1e9][pos.y + 1e9] && pickaxe.strength >= ores[i].hardness) {
             canMine = true;
             if (oreLocations[pos.x + 1e9][pos.y + 1e9] !== "air") {
                 addItem(oreLocations[pos.x + 1e9][pos.y + 1e9], 1);
                 for (let i = 0; i < ores.length; i++) {
                     if (ores[i].id === oreLocations[pos.x + 1e9][pos.y + 1e9]) {
-                        if (ores[i].deadliness === undefined) {
+                        if (ores[i].deadliness === undefined || ores[i].deadliness === null) {
                             break;
                         } else {
                             health -= ores[i].deadliness;
@@ -288,7 +289,7 @@ function generateOre(x, y) {
             break;
         }
     }
-    if (oreLocations[x + 1e9] === undefined) {
+    if (oreLocations[x + 1e9] === undefined || oreLocations[x + 1e9] === null) {
         oreLocations[x + 1e9] = [];
     }
     oreLocations[x + 1e9][y + 1e9] = ore.id;
@@ -327,9 +328,16 @@ function exportSave() {
     output.maxSize = maxSize;
     output.health = health;
     output.flight = flight;
+    output.items = items;
+    output.recipes = recipes;
+    output.ores = ores;
 
-    navigator.clipboard.writeText(btoa(JSON.stringify(output)));
-    alert("Copied save to clipboard! (IMPORTANT: If you have mods installed, load them BEFORE you import again!)");
+    navigator.clipboard.writeText(btoa(JSON.stringify(output))).then(() => {
+        alert("Copied save to clipboard! (Auto-adds modded items, ores, and recipes, but it is still recommended to load mods again before importing save data.");
+        lastSave = 0;
+    }, () => {
+        alert("Save failed! Try again later, or report it at https://github.com/Dragon77mathbye/bad-mining-game/issues");
+    });
 }
 
 function importSave() {
@@ -345,6 +353,9 @@ function importSave() {
     maxSize = input.maxSize;
     health = input.health;
     flight = input.flight;
+    items = input.items;
+    ores = input.ores;
+    recipes = input.recipes;
     addItemsToOres();
     sizeOfItemsUpdate();
     updateRecipeBook();
@@ -384,7 +395,7 @@ function updateInventory() {
 }
 
 function die(deathMessage) {
-    if (deathMessage === undefined) {
+    if (deathMessage === undefined || deathMessage === null) {
         deathMessage = "";
     }
     health = 100;
@@ -443,7 +454,7 @@ function updateCheatSheets() {
 
     output = "<legend>Ore Cheat Sheet</legend>";
     for (let i = 0; i < ores.length; i++) {
-        if (ores[i].commonness !== undefined) {
+        if (ores[i].commonness !== undefined && ores[i].commonness !== null) {
             output += `<fieldset class="recipe"><p><b>${items[ores[i].id].name}</b></p><p>Hardness: ${ores[i].hardness}</p><p>Commonness: ${ores[i].commonness}</p><p>Obtainable Height Range: ${ores[i].foundAbove} ft to ${ores[i].foundBelow} ft</p></fieldset>`;
         }
     }
@@ -468,7 +479,7 @@ async function loadMod(mod, variable) {
             }
         } else if (variable === "recipes") {
             for (let i = 0; i < text.length; i++) {
-                if (text[i].output.function !== undefined) {
+                if (text[i].output.function !== undefined && text[i].output.function !== null) {
                     text[i].output.function = eval(text[i].output.function);
                 }
             }
@@ -505,6 +516,16 @@ function navigateTo(location) {
     }
 }
 
+window.addEventListener("beforeunload", function (e) {
+    if (!(lastSave <= 30)) {
+        const confirmationMessage = "You haven't saved in a while."
+            + "If you leave before saving, your changes will be lost.";
+
+        (e || window.event).returnValue = confirmationMessage; //Gecko + IE
+        return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+    }
+});
+
 setInterval(() => {
     // Healing
     if (health < 100) {
@@ -518,7 +539,7 @@ setInterval(() => {
     }
     healthText.innerHTML = `${Math.round(health).toLocaleString()} HP`;
     healthBar.style.width = `${health}%`;
-    // save();
+    lastSave++;
 }, 1000);
 
 setInterval(() => {

@@ -1,5 +1,5 @@
 function addItem(id, count) {
-    if (count === undefined) {
+    if (count === undefined || count === null) {
         count = 1;
     }
     if (count !== 0) {
@@ -75,13 +75,13 @@ class hugeNumber {
             this.mul = num.mul;
         } else {
             num = String(num);
-            if (num.split("e")[1] !== undefined) {
+            if (num.split("e")[1] !== undefined && num.split("e")[1] !== null) {
                 this.exponent = Number(num.split("e")[1]);
                 this.mul = Number(num.split("e")[0]);
             } else {
                 const bd = num.split(".")[0];
                 let ad = num.split(".")[1];
-                if (ad === undefined) {
+                if (ad === undefined || ad === null) {
                     ad = "0";
                 }
                 this.exponent = bd.length - 1;
@@ -95,7 +95,7 @@ class hugeNumber {
     }
 
     add(num, ab) {
-        if (ab === undefined) {
+        if (ab === undefined || ab === null) {
             ab = false;
         }
         let difference;
