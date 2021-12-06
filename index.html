@@ -36,6 +36,7 @@
     </fieldset>
     <button onclick="openInventory();" id="openInventory">Open Inventory</button>
     <button onclick="closeInventory();" id="closeInventory" style="display: none;">Close Inventory</button>
+    <button onclick="navigateTo('options');">Options</button>
     <fieldset id="inventory" style="display: none;">
         <legend>Inventory</legend>
     </fieldset>
@@ -46,27 +47,16 @@
             onclick="document.getElementById('recipeCheatSheet').style.display = (document.getElementById('recipeCheatSheet').style.display === '') ? 'none' : ''; document.getElementById('openRecipeCheatSheet').innerText = (document.getElementById('openRecipeCheatSheet').innerText === 'Open Recipe Cheat Sheet') ? 'Close Recipe Cheat Sheet' : 'Open Recipe Cheat Sheet'">
         Open Recipe Cheat Sheet
     </button>
+    <button id="openOreCheatSheet"
+            onclick="document.getElementById('oreCheatSheet').style.display = (document.getElementById('oreCheatSheet').style.display === '') ? 'none' : ''; document.getElementById('openOreCheatSheet').innerText = (document.getElementById('openOreCheatSheet').innerText === 'Open Ore Cheat Sheet') ? 'Close Ore Cheat Sheet' : 'Open Ore Cheat Sheet'">
+        Open Ore Cheat Sheet
+    </button>
     <fieldset id="recipeCheatSheet" style="display: none;">
         <legend>Recipe Cheat Sheet</legend>
     </fieldset>
-    <button onclick="exportSave();">Export Save</button>
-    <button onclick="importSave();">Import Save</button>
-    <div id="uploadMods">
-        <h1 style="text-align: center;">Upload Mods</h1>
-        <h2 style="text-align: center;">Note: You can load multiple of each type!</h2>
-        <br>
-        <span>Items: </span>
-        <input type="file" onchange="loadMod(this.files[0], 'items');">
-        <br>
-        <span>Ores/Blocks: </span>
-        <input type="file" onchange="loadMod(this.files[0], 'ores');">
-        <br>
-        <span>Recipes: </span>
-        <input type="file" onchange="loadMod(this.files[0], 'recipes');">
-        <br>
-        <span>Other Scripts: </span>
-        <input type="file" onchange="loadScript(this.files[0]);">
-    </div>
+    <fieldset id="oreCheatSheet" style="display: none;">
+        <legend>Ore Cheat Sheet</legend>
+    </fieldset>
     <script>
         if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             document.getElementById("controls").innerHTML = "<h1>Controls</h1>\n" +
@@ -102,6 +92,27 @@
             id="respawnBtn">
         Respawn
     </button>
+</div>
+<div id="options" style="display: none;">
+    <button onclick="navigateTo('main');" style="margin-top: 30px; position: relative; top: -30px;">Back</button>
+    <button onclick="exportSave();">Export Save</button>
+    <button onclick="importSave();">Import Save</button>
+    <div id="uploadMods">
+        <h1 style="text-align: center;">Upload Mods</h1>
+        <h2 style="text-align: center;">Note: You can load multiple of each type!</h2>
+        <br>
+        <span>Items: </span>
+        <input type="file" onchange="loadMod(this.files[0], 'items');">
+        <br>
+        <span>Ores/Blocks: </span>
+        <input type="file" onchange="loadMod(this.files[0], 'ores');">
+        <br>
+        <span>Recipes: </span>
+        <input type="file" onchange="loadMod(this.files[0], 'recipes');">
+        <br>
+        <span>Other Scripts: </span>
+        <input type="file" onchange="loadScript(this.files[0]);">
+    </div>
 </div>
 </body>
 </html>

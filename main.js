@@ -440,6 +440,14 @@ function updateCheatSheets() {
         output += `</fieldset>`;
     }
     document.getElementById("recipeCheatSheet").innerHTML = output.replaceAll("undefined", "");
+
+    output = "<legend>Ore Cheat Sheet</legend>";
+    for (let i = 0; i < ores.length; i++) {
+        if (ores[i].commonness !== undefined) {
+            output += `<fieldset class="recipe"><p><b>${items[ores[i].id].name}</b></p><p>Hardness: ${ores[i].hardness}</p><p>Commonness: ${ores[i].commonness}</p><p>Obtainable Height Range: ${ores[i].foundBelow} ft to ${ores[i].foundAbove} ft</p></fieldset>`;
+        }
+    }
+    document.getElementById("oreCheatSheet").innerHTML = output.replaceAll(undefined, "");
 }
 
 async function loadMod(mod, variable) {
@@ -471,6 +479,10 @@ async function loadMod(mod, variable) {
             eval(scriptText);
         }
     }
+    reload();
+}
+
+function reload() {
     addItemsToOres();
     sizeOfItemsUpdate();
     updateCheatSheets();
@@ -479,10 +491,18 @@ async function loadMod(mod, variable) {
 
 async function loadScript(script) {
     eval(await script.text());
-    addItemsToOres();
-    sizeOfItemsUpdate();
-    updateCheatSheets();
-    updateInventory();
+    reload();
+}
+
+function navigateTo(location) {
+    const locations = ["main", "options"];
+    for (let i = 0; i < locations.length; i++) {
+        if (locations[i] === location) {
+            document.getElementById(locations[i]).style.display = "";
+        } else {
+            document.getElementById(locations[i]).style.display = "none";
+        }
+    }
 }
 
 setInterval(() => {
