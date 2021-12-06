@@ -50,6 +50,7 @@ const healthBar = document.getElementById("healthBar");
 const inventoryGui = document.getElementById("inventory");
 const openInventoryBtn = document.getElementById("openInventory");
 let isInventoryOpen = false;
+generateOre(pos.x, pos.y);
 generateOre(pos.x - 1, pos.y);
 generateOre(pos.x + 1, pos.y);
 generateOre(pos.x, pos.y - 1);
@@ -314,6 +315,70 @@ document.onkeydown = (e) => {
     localStorage.setItem("maxSize", String(maxSize));
 } */
 
+function exportSave() {
+    let output = {};
+    output.inventory = inventory;
+    output.pickaxe = pickaxe;
+    output.axe = axe;
+    output.maxSize = maxSize;
+    output.health = health;
+    output.flight = flight;
+
+    navigator.clipboard.writeText(btoa(JSON.stringify(output)));
+    alert("Copied save to clipboard! (IMPORTANT: If you have mods installed, load them BEFORE you import again!)");
+}
+
+function importSave() {
+    const save = prompt("Save?");
+    let input = JSON.parse(atob(save));
+    for (let i = 0; i < input.inventory.length; i++) {
+        input.inventory[i].count = new hugeNumber(input.inventory[i].count);
+    }
+    console.log(input);
+    inventory = input.inventory;
+    pickaxe = input.pickaxe;
+    axe = input.axe;
+    maxSize = input.maxSize;
+    health = input.health;
+    flight = input.flight;
+    addItemsToOres();
+    sizeOfItemsUpdate();
+    updateRecipeBook();
+    updateInventory();
+}
+
+function updateInventory() {
+    let totalSize = new hugeNumber(0);
+    for (let i = 0; i < inventory.length; i++) {
+        totalSize = totalSize.add(inventory[i].count.number() * items[String(inventory[i].id)].size);
+    }
+    if (totalSize.gt(maxSize)) {
+        inventory[placeInInv].count = inventory[placeInInv].count.add((maxSize - totalSize.number()) / items[String(inventory[placeInInv].id)].size);
+        totalSize = new hugeNumber(maxSize);
+    }
+    let output = "";
+    inventory.sort(function (a, b) {
+        let textA = a.id.toUpperCase();
+        let textB = b.id.toUpperCase();
+        return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+    });
+    for (let i = 0; i < inventory.length; i++) {
+        if (Math.round(inventory[i].count.number() * 10000) / 10000 > 0) {
+            const itemSize = simplify(inventory[i].count.number() * items[String(inventory[i].id)].size);
+            let message;
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                message = "<p class='clickToDrop'>Tap to drop one<br>Hold to drop all</p>";
+            } else {
+                message = "<p class='clickToDrop'>Click to drop one<br>Right click to drop all</p>";
+            }
+            output += `<fieldset class='inventoryItem' onclick='addItem("${inventory[i].id}", -1);' oncontextmenu='addItem("${inventory[i].id}", ${-inventory[i].count.number()}); updateRecipeBook();'><p>${items[inventory[i].id].name}</p>${message}<p class='inventoryItemCount'>${simplify(inventory[i].count)} (${itemSize} lbs | ${(itemSize >= (maxSize * 0.5)) ? "Very Heavy" : (itemSize >= (maxSize * 0.25)) ? "Heavy" : (itemSize >= (maxSize * 0.1)) ? "Medium" : (itemSize >= (maxSize * 0.05)) ? "Light" : (itemSize >= (maxSize * 0.001)) ? "Very Light" : "Weightless"})</p></fieldset>`;
+        } else {
+            inventory[i].count = new hugeNumber(0);
+        }
+    }
+    document.getElementById("inventory").innerHTML = `<legend>Inventory (${totalSize.print()} / ${maxSize.toLocaleString()} lbs full)</legend>${output}<div style='clear: both'></div>`;
+}
+
 function die(deathMessage) {
     if (deathMessage === undefined) {
         deathMessage = "";
@@ -426,4 +491,4 @@ setInterval(() => {
         }
     }
     updateVision();
-}, 1);
+}, 100);
