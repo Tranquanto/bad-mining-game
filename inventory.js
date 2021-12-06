@@ -47,7 +47,7 @@ function addItem(id, count) {
         }
         document.getElementById("openInventory").style.backgroundColor = "";
         document.getElementById("closeInventory").style.backgroundColor = "";
-        document.getElementById("inventory").innerHTML = "<legend>Inventory (" + totalSize.print() + " / " + maxSize + " lbs full)</legend>" + output + "<div style='clear: both'></div>";
+        document.getElementById("inventory").innerHTML = "<legend>Inventory (" + totalSize.print() + " / " + maxSize.toLocaleString() + " lbs full)</legend>" + output + "<div style='clear: both'></div>";
         if (totalSize.number() >= maxSize) {
 //            document.getElementById("alert").style.display = "";
             document.getElementById("openInventory").style.backgroundColor = "darkred";

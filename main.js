@@ -3,14 +3,17 @@ let pos = {x: 0, y: 0};
 let oreLocations = [];
 let pickaxe = items.stickPickaxe;
 let axe = items.stickAxe;
-let funRuined = false;
+let flight = false;
 let text;
 
 function addItemsToOres() {
     for (let i = 0; i < ores.length; i++) {
         if (items[ores[i].id] === undefined) {
-            console.log(i);
-            items[ores[i].id] = {name: capitalize(camelCaseToRegular(ores[i].id)), size: (ores[i].size === undefined) ? 1 : ores[i].size};
+            console.log(`Adding item to ore with id: ${i}`);
+            items[ores[i].id] = {
+                name: capitalize(camelCaseToRegular(ores[i].id)),
+                size: (ores[i].size === undefined) ? 1 : ores[i].size
+            };
         }
         if (ores[i].foundBelow === undefined) {
             ores[i].foundBelow = Infinity;
@@ -23,6 +26,7 @@ function addItemsToOres() {
 
 function sizeOfItemsUpdate() {
     for (let j = 0; j < recipes.length; j++) {
+        console.log(`Updating item size with recipe id: ${j}`);
         if (items[recipes[j].output.id].size === undefined) {
             let size = 0;
             for (let i = 0; i < recipes[j].ingredients.length; i++) {
@@ -136,7 +140,6 @@ function move(direction) {
         pos.x++;
     } else if (direction === "u") {
         pos.y++;
-        buildBelow();
     } else if (direction === "d") {
         pos.y--;
     }
@@ -191,6 +194,10 @@ function move(direction) {
         } else if (direction === "d") {
             pos.y++;
         }
+    } else {
+        if (direction === "u") {
+            buildBelow();
+        }
     }
     updateVision();
     document.body.style.backgroundColor = `hsl(${193 + Math.abs(pos.y) / 1000}, ${100 + pos.y / 100}%, ${50 - Math.abs(pos.y) / 1000}%)`;
@@ -199,13 +206,17 @@ function move(direction) {
 
 function buildBelow() {
     let placed = false;
-    for (let i = 0; i < inventory.length; i++) {
-        if (items[inventory[i].id].type === "block" && inventory[i].count.gten(1)) {
-            oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] = inventory[i].id;
-            addItem(inventory[i].id, -1);
-            placed = true;
-            break;
+    if (!flight) {
+        for (let i = 0; i < inventory.length; i++) {
+            if (items[inventory[i].id].type === "block" && inventory[i].count.gten(1)) {
+                oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] = inventory[i].id;
+                addItem(inventory[i].id, -1);
+                placed = true;
+                break;
+            }
         }
+    } else {
+        placed = true;
     }
     return placed;
 }
@@ -225,6 +236,7 @@ function capitalize(word) {
     }
     return allWords.join(" ");
 }
+
 function uncapitalize(word) {
     const allWords = word.split(" ");
     for (let i = 0; i < allWords.length; i++) {
@@ -319,7 +331,7 @@ function die(deathMessage) {
 }
 
 function ruinTheFun() {
-    funRuined = true;
+    flight = true;
     pickaxe.durability = Infinity;
     pickaxe.strength = Infinity;
     axe.durability = Infinity;
@@ -329,6 +341,21 @@ function ruinTheFun() {
         addItem(Object.keys(items)[i], 1e300);
     }
     updateRecipeBook();
+}
+
+function addBlocks(json) {
+    ores = ores.concat(json);
+}
+
+function addItems(json) {
+    const keys = Object.keys(json);
+    for (let i = 0; i < keys.length; i++) {
+        items[keys[i]] = json[keys[i]];
+    }
+}
+
+function addRecipes(json) {
+    recipes = recipes.concat(json);
 }
 
 async function loadMod(mod, variable) {
@@ -363,8 +390,11 @@ async function loadMod(mod, variable) {
     addItemsToOres();
     sizeOfItemsUpdate();
 }
+
 async function loadScript(script) {
     eval(await script.text());
+    addItemsToOres();
+    sizeOfItemsUpdate();
 }
 
 setInterval(() => {
@@ -375,6 +405,9 @@ setInterval(() => {
     if (health <= 0) {
         die();
     }
+    if (health > 100) {
+        health = 100;
+    }
     healthText.innerHTML = `${Math.round(health).toLocaleString()} HP`;
     healthBar.style.width = `${health}%`;
     // save();
@@ -383,7 +416,7 @@ setInterval(() => {
 setInterval(() => {
     if (oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] === "air") {
         let placed;
-        if (funRuined) {
+        if (flight) {
             placed = true;
         } else {
             placed = buildBelow();

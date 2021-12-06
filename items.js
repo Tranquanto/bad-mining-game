@@ -12,6 +12,7 @@ let ores = [
     {id: "coal", hardness: 2, commonness: 60, foundBelow: 0, foundAbove: -20739840},
     {id: "limonite", hardness: 3, commonness: 50, foundBelow: -5, foundAbove: -20739840},
     {id: "copper", hardness: 3, commonness: 45, foundBelow: -38, foundAbove: -20144206},
+    {id: "cassiterite", hardness: 4, commonness: 45, foundBelow: -64, foundAbove: -20739840},
     {id: "chromite", hardness: 3, commonness: 50, foundBelow: -253, foundAbove: -13299},
     {id: "silver", hardness: 4, commonness: 40, foundBelow: -212, foundAbove: -913},
     {id: "titanite", hardness: 4, commonness: 42, foundBelow: -1614, foundAbove: -3723182},
@@ -55,6 +56,7 @@ let items = {
     coal: {name: "Coal", size: 1.5},
     limonite: {name: "Limonite (Iron Ore)", size: 3},
     copper: {name: "Copper Ore", size: 3},
+    cassiterite: {name: "Cassiterite (Tin Ore)", size: 2.5},
     chromite: {name: "Chromite (Chromium Ore)", size: 3},
     silver: {name: "Silver Ore", size: 3},
     titanite: {name: "Titanite (Titanium Ore)", size: 2},
@@ -87,6 +89,8 @@ let items = {
 
     ironBar: {name: "Iron Bar", size: 6},
     copperBar: {name: "Copper Bar", size: 6},
+    bronzeBar: {name: "Bronze Bar", size: 7},
+    tinBar: {name: "Tin Bar", size: 5},
     chromeBar: {name: "Chrome Bar", size: 6},
     silverBar: {name: "Silver Bar", size: 6},
     titaniumBar: {name: "Titanium Bar", size: 4},
@@ -103,7 +107,9 @@ let items = {
     stoneAxe: {name: "Stone Axe", type: "axe", durability: 40},
     talcAxe: {name: "Talc Axe", type: "axe", durability: 40},
     ironAxe: {name: "Iron Axe", type: "axe", durability: 100},
-    copperAxe: {name: "Copper Axe", type: "axe", durability: 120},
+    copperAxe: {name: "Copper Axe", type: "axe", durability: 80},
+    bronzeAxe: {name: "Bronze Axe", type: "axe", durability: 240},
+    tinAxe: {name: "Tin Axe", type: "axe", durability: 90},
     silverAxe: {name: "Silver Axe", type: "axe", durability: 200},
     titaniumAxe: {name: "Titanium Axe", type: "axe", durability: 300},
     goldAxe: {name: "Gold Axe", type: "axe", durability: 60},
@@ -154,9 +160,21 @@ let items = {
     },
     copperPickaxe: {
         name: "Copper Pickaxe",
-        durability: 120,
+        durability: 80,
         type: "pickaxe",
         strength: 6
+    },
+    bronzePickaxe: {
+        name: "Bronze Pickaxe",
+        durability: 240,
+        type: "pickaxe",
+        strength: 7
+    },
+    tinPickaxe: {
+        name: "Tin Pickaxe",
+        durability: 90,
+        type: "pickaxe",
+        strength: 5
     },
     silverPickaxe: {
         name: "Silver Pickaxe",
@@ -229,5 +247,6 @@ let items = {
     },
     infinityBox: {
         name: "Infinity Box"
-    }
+    },
+    rocketBoots: {name: "Rocket Boots"}
 };

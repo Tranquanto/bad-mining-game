@@ -94,6 +94,38 @@ let recipes = [
     {
         ingredients: [
             {
+                id: "bronzeBar",
+                count: 6
+            },
+            {
+                id: "stick",
+                count: 3
+            }
+        ],
+        output: {
+            id: "bronzeAxe",
+            count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "tinBar",
+                count: 4
+            },
+            {
+                id: "stick",
+                count: 4
+            }
+        ],
+        output: {
+            id: "tinAxe",
+            count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
                 id: "silverBar",
                 count: 4
             },
@@ -333,6 +365,38 @@ let recipes = [
         ],
         output: {
             id: "copperPickaxe",
+            count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "bronzeBar",
+                count: 6
+            },
+            {
+                id: "stick",
+                count: 3
+            }
+        ],
+        output: {
+            id: "bronzePickaxe",
+            count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "tinBar",
+                count: 4
+            },
+            {
+                id: "stick",
+                count: 4
+            }
+        ],
+        output: {
+            id: "tinPickaxe",
             count: 1
         }
     },
@@ -589,6 +653,42 @@ let recipes = [
         ],
         output: {
             id: "copperBar",
+            count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "copper",
+                count: 1.8
+            },
+            {
+                id: "cassiterite",
+                count: 0.2
+            },
+            {
+                id: "coal",
+                count: 1
+            }
+        ],
+        output: {
+            id: "bronzeBar",
+            count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "cassiterite",
+                count: 2
+            },
+            {
+                id: "coal",
+                count: 1
+            }
+        ],
+        output: {
+            id: "tinBar",
             count: 1
         }
     },
@@ -909,6 +1009,33 @@ let recipes = [
             count: 0,
             function: () => {
                 maxSize = Infinity;
+            }
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "flotuBar",
+                count: 10
+            },
+            {
+                id: "talc",
+                count: 15
+            },
+            {
+                id: "goldBar",
+                count: 20
+            },
+            {
+                id: "diamond",
+                count: 10
+            }
+        ],
+        output: {
+            id: "rocketBoots",
+            count: 1,
+            function: () => {
+                flight = true;
             }
         }
     }

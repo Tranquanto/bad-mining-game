@@ -7,3 +7,33 @@ setInterval(() => {
         health--;
     }
 }, 200);
+addItems({
+    uselessItem: {
+        name: "Useless Item",
+        size: 2
+    },
+    uselessItem2: {
+        name: "Useless Item 2",
+        size: 4
+    }
+});
+addRecipes([
+    {
+        ingredients: [
+            {
+                id: "trimium",
+                count: 4
+            }
+        ],
+        output: {
+            id: "flotuBar",
+            count: 20
+        }
+    }
+]);
+addBlocks([
+    {
+        id: "exampleBlock",
+        hardness: 3
+    }
+]);
