@@ -60,7 +60,7 @@ button:hover {
     color: black;
 }
 
-#inventory, #recipes, #vision, #recipeCheatSheet {
+#inventory, #recipes, #vision, #recipeCheatSheet, #oreCheatSheet {
     border-color: gray;
     border-width: 3px;
     border-style: solid;
