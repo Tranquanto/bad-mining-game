@@ -434,16 +434,17 @@ function addRecipes(json) {
     sizeOfItemsUpdate();
 }
 
-function addMaterial(id, hasOre, recipeCost, commonness, low, high, hardness, size, hasBar, hasBlock, deadliness) {
+function addMaterial(id, power, size, hasOre, hasBar, hasBlock, low, high) {
+    const hardness = power / 10;
+    const recipeCost = Math.round(power / 16);
     if (hasOre) {
         addBlocks([
             {
                 id: id,
-                commonness: commonness,
+                commonness: 100 - power,
                 hardness: hardness,
                 foundAbove: low,
-                foundBelow: high,
-                deadliness: deadliness
+                foundBelow: high
             }
         ]);
     }
@@ -486,7 +487,7 @@ function addMaterial(id, hasOre, recipeCost, commonness, low, high, hardness, si
         ]);
     }
     if (hasBar) {
-        eval(`addItems({${id}Bar: {name: capitalize(camelCaseToRegular(id)), size: size * 2}});`);
+        eval(`addItems({${id}Bar: {name: capitalize(camelCaseToRegular(id + "Bar")), size: size * 2}});`);
         addRecipes([
             {
                 ingredients: [
@@ -673,8 +674,8 @@ setInterval(() => {
     }
     healthText.innerHTML = `${Math.round(health).toLocaleString()} HP`;
     healthBar.style.width = `${health}%`;
-    const lastSaveRelative = (String(localStorage.getItem("lastSave")) !== "null") ? `${(Date.now() - lastSave) / 1000} ago` : "never";
-    document.getElementById("exportSave").innerText = `Export Save (Last saved ${secondsToOtherUnits(lastSaveRelative)})`;
+    const lastSaveRelative = (String(localStorage.getItem("lastSave")) !== "null") ? (Date.now() - lastSave) / 1000 : "never";
+    document.getElementById("exportSave").innerText = `Export Save (Last saved ${secondsToOtherUnits(lastSaveRelative)} ago)`;
 }, 1000);
 
 function secondsToOtherUnits(n) {

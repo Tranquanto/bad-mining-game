@@ -102,16 +102,16 @@
         <h2 style="text-align: center;">Note: You can load multiple of each type!</h2>
         <br>
         <span>Items: </span>
-        <input type="file" onchange="loadMod(this.files[0], 'items');">
+        <input type="file" accept=".json" onchange="loadMod(this.files[0], 'items');">
         <br>
         <span>Ores/Blocks: </span>
-        <input type="file" onchange="loadMod(this.files[0], 'ores');">
+        <input type="file" accept=".json" onchange="loadMod(this.files[0], 'ores');">
         <br>
         <span>Recipes: </span>
-        <input type="file" onchange="loadMod(this.files[0], 'recipes');">
+        <input type="file" accept=".json" onchange="loadMod(this.files[0], 'recipes');">
         <br>
         <span>Other Scripts: </span>
-        <input type="file" onchange="loadScript(this.files[0]);">
+        <input type="file" accept=".js" onchange="loadScript(this.files[0]);">
     </div>
 </div>
 </body>
