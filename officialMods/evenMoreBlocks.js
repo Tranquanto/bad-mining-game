@@ -35,7 +35,7 @@ for (let i = 0; i < oresLength; i++) {
                 }
             }
         ]);
-    };
+    }
 }
 const itemLength = Object.keys(items).length;
 for (let i = 0; i < itemLength; i++) {

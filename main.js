@@ -4,7 +4,6 @@ let oreLocations = [];
 let pickaxe = items.stickPickaxe;
 let axe = items.stickAxe;
 let flight = false;
-let text;
 let lastSave = localStorage.getItem("lastSave");
 
 function addItemsToOres() {
@@ -55,7 +54,8 @@ const healthBar = document.getElementById("healthBar");
 const inventoryGui = document.getElementById("inventory");
 const openInventoryBtn = document.getElementById("openInventory");
 let isInventoryOpen = false;
-generateOre(pos.x, pos.y);
+oreLocations[1e9] = [];
+oreLocations[1e9][1e9] = "air";
 generateOre(pos.x - 1, pos.y);
 generateOre(pos.x + 1, pos.y);
 generateOre(pos.x, pos.y - 1);
@@ -434,6 +434,148 @@ function addRecipes(json) {
     sizeOfItemsUpdate();
 }
 
+function addMaterial(id, hasOre, recipeCost, commonness, low, high, hardness, size, hasBar, hasBlock, deadliness) {
+    if (hasOre) {
+        addBlocks([
+            {
+                id: id,
+                commonness: commonness,
+                hardness: hardness,
+                foundAbove: low,
+                foundBelow: high,
+                deadliness: deadliness
+            }
+        ]);
+    }
+    eval(`addItems({${id}: {name: capitalize(camelCaseToRegular(id)), size: size}});`);
+    eval(`addItems({${id}Pickaxe: {name: capitalize(camelCaseToRegular(id + "Pickaxe")), strength: (hardness < 10) ? hardness + 1 : 10}});`);
+    eval(`addItems({${id}Axe: {name: capitalize(camelCaseToRegular(id + "Axe"))}});`);
+    if (hasBlock) {
+        addBlocks([
+            {
+                id: `${id}Block`,
+                hardness: hardness
+            }
+        ]);
+        eval(`addItems({${id}Block: {name: capitalize(camelCaseToRegular(id)) + " Block", size: size * 4}});`);
+        addRecipes([
+            {
+                ingredients: [
+                    {
+                        id: id,
+                        count: 4
+                    }
+                ],
+                output: {
+                    id: `${id}Block`,
+                    count: 1
+                }
+            },
+            {
+                ingredients: [
+                    {
+                        id: `${id}Block`,
+                        count: 1
+                    }
+                ],
+                output: {
+                    id: id,
+                    count: 4
+                }
+            }
+        ]);
+    }
+    if (hasBar) {
+        eval(`addItems({${id}Bar: {name: capitalize(camelCaseToRegular(id)), size: size * 2}});`);
+        addRecipes([
+            {
+                ingredients: [
+                    {
+                        id: id,
+                        count: 2
+                    },
+                    {
+                        id: "coal",
+                        count: Math.floor(recipeCost / 2)
+                    }
+                ],
+                output: {
+                    id: `${id}Bar`,
+                    count: 1
+                }
+            },
+            {
+                ingredients: [
+                    {
+                        id: `${id}Bar`,
+                        count: recipeCost
+                    },
+                    {
+                        id: "stick",
+                        count: Math.round(recipeCost * 0.75)
+                    }
+                ],
+                output: {
+                    id: `${id}Pickaxe`,
+                    count: 1
+                }
+            },
+            {
+                ingredients: [
+                    {
+                        id: `${id}Bar`,
+                        count: recipeCost
+                    },
+                    {
+                        id: "stick",
+                        count: Math.round(recipeCost * 0.75)
+                    }
+                ],
+                output: {
+                    id: `${id}Axe`,
+                    count: 1
+                }
+            }
+        ]);
+    } else {
+        addRecipes([
+            {
+                ingredients: [
+                    {
+                        id: id,
+                        count: recipeCost
+                    },
+                    {
+                        id: "stick",
+                        count: Math.round(recipeCost * 0.75)
+                    }
+                ],
+                output: {
+                    id: `${id}Pickaxe`,
+                    count: 1
+                }
+            },
+            {
+                ingredients: [
+                    {
+                        id: id,
+                        count: recipeCost
+                    },
+                    {
+                        id: "stick",
+                        count: Math.round(recipeCost * 0.75)
+                    }
+                ],
+                output: {
+                    id: `${id}Axe`,
+                    count: 1
+                }
+            }
+        ]);
+    }
+    reload();
+}
+
 function updateCheatSheets() {
     let output = "<legend>Recipe Cheat Sheet</legend>";
     for (let i = 0; i < recipes.length; i++) {
@@ -449,7 +591,15 @@ function updateCheatSheets() {
     output = "<legend>Ore Cheat Sheet</legend>";
     for (let i = 0; i < ores.length; i++) {
         if (ores[i].commonness !== undefined && ores[i].commonness !== null) {
-            output += `<fieldset class="recipe"><p><b>${items[ores[i].id].name}</b></p><p>Hardness: ${ores[i].hardness}</p><p>Commonness: ${ores[i].commonness}</p><p>Obtainable Height Range: ${ores[i].foundAbove} ft to ${ores[i].foundBelow} ft</p></fieldset>`;
+            let heightRange;
+            if (ores[i].foundAbove === -Infinity) {
+                heightRange = `Below ${ores[i].foundBelow} ft`;
+            } else if (ores[i].foundBelow === Infinity) {
+                heightRange = `Above ${ores[i].foundAbove} ft`;
+            } else {
+                heightRange = `${ores[i].foundAbove} ft to ${ores[i].foundBelow} ft`;
+            }
+            output += `<fieldset class="recipe"><p><b>${items[ores[i].id].name}</b></p><p>Hardness: ${ores[i].hardness}</p><p>Commonness: ${ores[i].commonness}</p><p>Obtainable Height Range: ${heightRange}</p></fieldset>`;
         }
     }
     document.getElementById("oreCheatSheet").innerHTML = output.replaceAll(undefined, "");
