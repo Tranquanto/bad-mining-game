@@ -9,7 +9,6 @@ let lastSave = localStorage.getItem("lastSave");
 function addItemsToOres() {
     for (let i = 0; i < ores.length; i++) {
         if (items[ores[i].id] === undefined || items[ores[i].id] === null) {
-            console.log(`Adding item to ore with id: ${i}`);
             items[ores[i].id] = {
                 name: capitalize(camelCaseToRegular(ores[i].id)),
                 size: (ores[i].size === undefined || ores[i].size === null) ? 1 : ores[i].size,
@@ -28,9 +27,8 @@ function addItemsToOres() {
     }
 }
 
-function sizeOfItemsUpdate() {
+function itemsUpdate() {
     for (let j = 0; j < recipes.length; j++) {
-        console.log(`Updating item size with recipe id: ${j}`);
         if (items[recipes[j].output.id].size === undefined || items[recipes[j].output.id].size === null) {
             let size = 0;
             for (let i = 0; i < recipes[j].ingredients.length; i++) {
@@ -38,17 +36,27 @@ function sizeOfItemsUpdate() {
             }
             items[recipes[j].output.id].size = size;
         }
+        if (items[recipes[j].output.id].rarity === undefined || items[recipes[j].output.id].rarity === null) {
+            const rarities = {Common: 0, Uncommon: 1, Rare: 2, Epic: 3, Legendary: 4};
+            let highestRarity = 0;
+            for (let i = 0; i < recipes[j].ingredients.length; i++) {
+                if (rarities[items[recipes[j].ingredients[i].id].rarity] > highestRarity) {
+                    highestRarity = rarities[items[recipes[j].ingredients[i].id].rarity];
+                }
+            }
+            items[recipes[j].output.id].rarity = (highestRarity === 4) ? "Legendary" : (highestRarity === 3) ? "Epic" : (highestRarity === 2) ? "Rare" : (highestRarity === 1) ? "Uncommon" : "Common";
+        }
     }
     for (let i = 0; i < recipes.length; i++) {
-        if (items[recipes[i].output.id].size === undefined || items[recipes[i].output.id].size === null) {
-            sizeOfItemsUpdate();
+        if (items[recipes[i].output.id].size === undefined || items[recipes[i].output.id].size === null || items[recipes[i].output.id].rarity === undefined || items[recipes[i].output.id].rarity === null) {
+            itemsUpdate();
             break;
         }
     }
 }
 
 addItemsToOres();
-sizeOfItemsUpdate();
+itemsUpdate();
 const healthText = document.getElementById("health");
 const healthBar = document.getElementById("healthBar");
 const inventoryGui = document.getElementById("inventory");
@@ -111,6 +119,20 @@ function craft(recipe) {
     }
 }
 
+function rarityColor(rarity) {
+    if (rarity === "Legendary") {
+        return "#f80";
+    } else if (rarity === "Epic") {
+        return "#f0f";
+    } else if (rarity === "Rare") {
+        return "#0ff";
+    } else if (rarity === "Uncommon") {
+        return "#ff4";
+    } else {
+        return "#fff";
+    }
+}
+
 function updateRecipeBook() {
     let output = "";
     for (let r = 0; r < recipes.length; r++) {
@@ -118,11 +140,14 @@ function updateRecipeBook() {
             const recipe = recipes[r];
             output += `<button class='recipe' onclick='craft(recipes[${r}]); updateRecipeBook();' oncontextmenu='while (checkForIngredients(recipes[${r}])[0]) {craft(recipes[${r}]); updateRecipeBook();}'><p>${items[String(recipe.output.id)].name} (${recipe.output.count})</p>`;
             for (let c = 0; c < recipe.ingredients.length; c++) {
-                output += `<p class='recipeIngredient'>${items[recipe.ingredients[c].id].name} (${(recipe.ingredients[c].count > 0) ? recipe.ingredients[c].count : "1"})</p>`;
+                const rarity = items[recipe.ingredients[c].id].rarity;
+                let color = rarityColor(rarity);
+                output += `<p class='recipeIngredient' style="color: ${color};">${items[recipe.ingredients[c].id].name} (${(recipe.ingredients[c].count > 0) ? recipe.ingredients[c].count : "1"})</p>`;
             }
             output += "</button>";
         }
     }
+
     document.getElementById("recipes").innerHTML = "<legend>Recipe Book</legend>" + String(output).replace("undefined", "");
 }
 
@@ -351,7 +376,7 @@ function importSave() {
     ores = input.ores;
     recipes = input.recipes;
     addItemsToOres();
-    sizeOfItemsUpdate();
+    itemsUpdate();
     updateRecipeBook();
     updateInventory();
 }
@@ -431,7 +456,7 @@ function addItems(json) {
 
 function addRecipes(json) {
     recipes = recipes.concat(json);
-    sizeOfItemsUpdate();
+    itemsUpdate();
 }
 
 function addMaterial(id, power, size, hasOre, hasBar, hasBlock, low, high) {
@@ -583,7 +608,8 @@ function updateCheatSheets() {
         const recipe = recipes[i];
         output += `<fieldset class="recipe"><p>${items[String(recipe.output.id)].name} (${recipe.output.count})</p>`;
         for (let c = 0; c < recipe.ingredients.length; c++) {
-            output += `<p class='recipeIngredient'>${items[recipe.ingredients[c].id].name} (${(recipe.ingredients[c].count > 0) ? recipe.ingredients[c].count : "1"})</p>`;
+            const color = rarityColor(items[recipe.ingredients[c].id].rarity);
+            output += `<p class='recipeIngredient' style="color: ${color};">${items[recipe.ingredients[c].id].name} (${(recipe.ingredients[c].count > 0) ? recipe.ingredients[c].count : "1"})</p>`;
         }
         output += `</fieldset>`;
     }
@@ -640,7 +666,7 @@ async function loadMod(mod, variable) {
 
 function reload() {
     addItemsToOres();
-    sizeOfItemsUpdate();
+    itemsUpdate();
     updateCheatSheets();
     updateInventory();
 }

@@ -11,4 +11,5 @@
 .idea/discord.xml
 .idea/.name
 main1.js
-/other mods/
+/pointless mods/
+*.xml
