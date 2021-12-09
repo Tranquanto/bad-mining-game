@@ -28,6 +28,29 @@ function addItemsToOres() {
 }
 
 function itemsUpdate() {
+    for (let o = 0; o < ores.length; o++) {
+        const minHeight = (ores[o].foundAbove !== -Infinity) ? ores[o].foundAbove : -1000000;
+        const maxHeight = (ores[o].foundBelow !== Infinity) ? ores[o].foundBelow : 1000000;
+        const distanceFrom0 = (Math.abs(ores[o].foundBelow) > Math.abs(ores[o].foundAbove)) ? Math.abs(ores[o].foundAbove) : Math.abs(ores[o].foundBelow);
+        const overallCommonness = ores[o].commonness * (maxHeight - minHeight + 1) - distanceFrom0;
+        let setRarity;
+        if (overallCommonness >= 2000000) {
+            setRarity = "Common";
+        } else if (overallCommonness >= 60000) {
+            setRarity = "Uncommon";
+        } else if (overallCommonness >= 15000) {
+            setRarity = "Rare";
+        } else if (overallCommonness >= 5000) {
+            setRarity = "Epic";
+        } else if (overallCommonness >= -50000) {
+            setRarity = "Legendary";
+        } else {
+            setRarity = "Mythical";
+        }
+        if (items[ores[o].id].type === undefined) {
+            items[ores[o].id].rarity = setRarity;
+        }
+    }
     for (let j = 0; j < recipes.length; j++) {
         if (items[recipes[j].output.id].size === undefined || items[recipes[j].output.id].size === null) {
             let size = 0;
@@ -37,14 +60,17 @@ function itemsUpdate() {
             items[recipes[j].output.id].size = size;
         }
         if (items[recipes[j].output.id].rarity === undefined || items[recipes[j].output.id].rarity === null) {
-            const rarities = {Common: 0, Uncommon: 1, Rare: 2, Epic: 3, Legendary: 4};
-            let highestRarity = 0;
+            const rarities = {undefined: -1, Common: 0, Uncommon: 1, Rare: 2, Epic: 3, Legendary: 4, Mythical: 5};
+            let highestRarity = -1;
             for (let i = 0; i < recipes[j].ingredients.length; i++) {
-                if (rarities[items[recipes[j].ingredients[i].id].rarity] > highestRarity) {
+                if (rarities[String(items[recipes[j].ingredients[i].id].rarity)] > highestRarity) {
+                    if (rarities[String(items[recipes[j].ingredients[i].id].rarity)] === -1) {
+                        itemsUpdate();
+                    }
                     highestRarity = rarities[items[recipes[j].ingredients[i].id].rarity];
                 }
             }
-            items[recipes[j].output.id].rarity = (highestRarity === 4) ? "Legendary" : (highestRarity === 3) ? "Epic" : (highestRarity === 2) ? "Rare" : (highestRarity === 1) ? "Uncommon" : "Common";
+            items[recipes[j].output.id].rarity = (highestRarity === 5) ? "Mythical" : (highestRarity === 4) ? "Legendary" : (highestRarity === 3) ? "Epic" : (highestRarity === 2) ? "Rare" : (highestRarity === 1) ? "Uncommon" : (highestRarity === 0) ? "Common" : undefined;
         }
     }
     for (let i = 0; i < recipes.length; i++) {
@@ -54,9 +80,6 @@ function itemsUpdate() {
         }
     }
 }
-
-addItemsToOres();
-itemsUpdate();
 const healthText = document.getElementById("health");
 const healthBar = document.getElementById("healthBar");
 const inventoryGui = document.getElementById("inventory");
@@ -120,7 +143,9 @@ function craft(recipe) {
 }
 
 function rarityColor(rarity) {
-    if (rarity === "Legendary") {
+    if (rarity === "Mythical") {
+        return "#08f";
+    } else if (rarity === "Legendary") {
         return "#f80";
     } else if (rarity === "Epic") {
         return "#f0f";
@@ -138,7 +163,8 @@ function updateRecipeBook() {
     for (let r = 0; r < recipes.length; r++) {
         if (checkForIngredients(recipes[r])[0]) {
             const recipe = recipes[r];
-            output += `<button class='recipe' onclick='craft(recipes[${r}]); updateRecipeBook();' oncontextmenu='while (checkForIngredients(recipes[${r}])[0]) {craft(recipes[${r}]); updateRecipeBook();}'><p>${items[String(recipe.output.id)].name} (${recipe.output.count})</p>`;
+            const rarityColor1 = rarityColor(items[recipe.output.id].rarity);
+            output += `<button class='recipe' onclick='craft(recipes[${r}]); updateRecipeBook();' oncontextmenu='while (checkForIngredients(recipes[${r}])[0]) {craft(recipes[${r}]); updateRecipeBook();}'><p style="color: ${rarityColor1};">${items[String(recipe.output.id)].name} (${recipe.output.count})</p>`;
             for (let c = 0; c < recipe.ingredients.length; c++) {
                 const rarity = items[recipe.ingredients[c].id].rarity;
                 let color = rarityColor(rarity);
@@ -474,7 +500,12 @@ function addMaterial(id, power, size, hasOre, hasBar, hasBlock, low, high) {
         ]);
     }
     eval(`addItems({${id}: {name: capitalize(camelCaseToRegular(id)), size: size}});`);
-    eval(`addItems({${id}Pickaxe: {name: capitalize(camelCaseToRegular(id + "Pickaxe")), strength: (hardness < 10) ? hardness + 1 : 10}});`);
+    eval(`addItems({
+        ${id}Pickaxe: {
+            name: capitalize(camelCaseToRegular(id + "Pickaxe")),
+            strength: (hardness < 10) ? hardness + 1 : 10
+        }
+    });`);
     eval(`addItems({${id}Axe: {name: capitalize(camelCaseToRegular(id + "Axe"))}});`);
     if (hasBlock) {
         addBlocks([
@@ -606,7 +637,7 @@ function updateCheatSheets() {
     let output = "<legend>Recipe Cheat Sheet</legend>";
     for (let i = 0; i < recipes.length; i++) {
         const recipe = recipes[i];
-        output += `<fieldset class="recipe"><p>${items[String(recipe.output.id)].name} (${recipe.output.count})</p>`;
+        output += `<fieldset class="recipe"><p style="color: ${rarityColor(items[recipe.output.id].rarity)}">${items[String(recipe.output.id)].name} (${recipe.output.count})</p>`;
         for (let c = 0; c < recipe.ingredients.length; c++) {
             const color = rarityColor(items[recipe.ingredients[c].id].rarity);
             output += `<p class='recipeIngredient' style="color: ${color};">${items[recipe.ingredients[c].id].name} (${(recipe.ingredients[c].count > 0) ? recipe.ingredients[c].count : "1"})</p>`;
@@ -687,23 +718,6 @@ function navigateTo(location) {
     }
 }
 
-setInterval(() => {
-    // Healing
-    if (health < 100) {
-        health++;
-    }
-    if (health <= 0) {
-        die();
-    }
-    if (health > 100) {
-        health = 100;
-    }
-    healthText.innerHTML = `${Math.round(health).toLocaleString()} HP`;
-    healthBar.style.width = `${health}%`;
-    const lastSaveRelative = (String(localStorage.getItem("lastSave")) !== "null") ? (Date.now() - lastSave) / 1000 : "never";
-    document.getElementById("exportSave").innerText = `Export Save (Last saved ${secondsToOtherUnits(lastSaveRelative)} ago)`;
-}, 1000);
-
 function secondsToOtherUnits(n) {
     if (typeof n === "number") {
         if (n < 60) {
@@ -721,6 +735,25 @@ function secondsToOtherUnits(n) {
         return n;
     }
 }
+
+reload();
+
+setInterval(() => {
+    // Healing
+    if (health < 100) {
+        health++;
+    }
+    if (health <= 0) {
+        die();
+    }
+    if (health > 100) {
+        health = 100;
+    }
+    healthText.innerHTML = `${Math.round(health).toLocaleString()} HP`;
+    healthBar.style.width = `${health}%`;
+    const lastSaveRelative = (String(localStorage.getItem("lastSave")) !== "null") ? (Date.now() - lastSave) / 1000 : "never";
+    document.getElementById("exportSave").innerText = `Export Save (Last saved ${secondsToOtherUnits(lastSaveRelative)} ago)`;
+}, 1000);
 
 setInterval(() => {
     if (oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] === "air") {
