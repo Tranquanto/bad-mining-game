@@ -80,6 +80,7 @@ function itemsUpdate() {
         }
     }
 }
+
 const healthText = document.getElementById("health");
 const healthBar = document.getElementById("healthBar");
 const inventoryGui = document.getElementById("inventory");
@@ -503,10 +504,11 @@ function addMaterial(id, power, size, hasOre, hasBar, hasBlock, low, high) {
     eval(`addItems({
         ${id}Pickaxe: {
             name: capitalize(camelCaseToRegular(id + "Pickaxe")),
-            strength: (hardness < 10) ? hardness + 1 : 10
+            strength: (hardness < 10) ? hardness + 1 : 10,
+            type: "pickaxe"
         }
     });`);
-    eval(`addItems({${id}Axe: {name: capitalize(camelCaseToRegular(id + "Axe"))}});`);
+    eval(`addItems({${id}Axe: {name: capitalize(camelCaseToRegular(id + "Axe")), type: "axe"}});`);
     if (hasBlock) {
         addBlocks([
             {
