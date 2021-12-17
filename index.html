@@ -77,6 +77,7 @@
                 "<button onClick=\"start();\" style=\"height: 200px; font-size: 48px; border-radius: 400px;\">Play!</button>";
         }
     </script>
+    <script src="toNumberName.js"></script>
     <script src="inventory.js"></script>
     <script src="items.js"></script>
     <script src="recipes.js"></script>
@@ -111,7 +112,7 @@
         <input type="file" accept=".json" onchange="loadMod(this.files[0], 'recipes');">
         <br>
         <span>Other Scripts: </span>
-        <input type="file" accept=".js" onchange="loadScript(this.files[0]);">
+        <input type="file" accept=".js" onchange="loadScript(this.files[0]); this.value = '';">
     </div>
 </div>
 </body>

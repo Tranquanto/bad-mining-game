@@ -49,7 +49,7 @@ function addItem(id, count) {
         }
         document.getElementById("openInventory").style.backgroundColor = "";
         document.getElementById("closeInventory").style.backgroundColor = "";
-        document.getElementById("inventory").innerHTML = "<legend>Inventory (" + totalSize.print() + " / " + maxSize.toLocaleString() + " lbs full)</legend>" + output + "<div style='clear: both'></div>";
+        document.getElementById("inventory").innerHTML = `<legend>Inventory (${simplify(totalSize)} / ${maxSize.toLocaleString()} lbs full)</legend>${output}<div style='clear: both'></div>`;
         if (totalSize.number() >= maxSize) {
 //            document.getElementById("alert").style.display = "";
             document.getElementById("openInventory").style.backgroundColor = "darkred";
@@ -60,10 +60,10 @@ function addItem(id, count) {
 
 function simplify(n) {
     if (typeof n === "object") {
-        return n.print();
+        return toNumberName(n.toString(), true, 2);
     }
     if (n >= 1e9) {
-        return (10 ** (Math.log10(n) - Math.floor(Math.log10(n)))).toFixed(2) + " * 10^" + Math.floor(Math.log10(n));
+        return toNumberName((10 ** (Math.log10(n) - Math.floor(Math.log10(n)))).toFixed(2) + "e" + Math.floor(Math.log10(n)), true, 2);
     } else {
         return n.toLocaleString();
     }
@@ -124,11 +124,11 @@ class hugeNumber {
         if (num.exponent === this.exponent) {
             num.mul += this.mul;
         } else if (num.exponent > this.exponent) {
-            num.mul += this.mul / 10 ** Number(new hugeNumber(difference).print());
+            num.mul += this.mul / 10 ** Number(new hugeNumber(difference).toString());
         } else {
             let b = num;
             num = this;
-            num.mul += b.mul / 10 ** Number(new hugeNumber(difference2).print());
+            num.mul += b.mul / 10 ** Number(new hugeNumber(difference2).toString());
         }
         if (num.mul >= 10) {
             while (num.mul >= 10) {
@@ -196,10 +196,10 @@ class hugeNumber {
         return n;
     }
 
-    print() {
+    toString() {
         let n;
-        if (this.exponent >= 10) {
-            return this.mul.toFixed(2) + " × 10^" + this.exponent;
+        if (this.exponent >= 6) {
+            return `${this.mul.toFixed(2)}e${this.exponent}`;
         } else {
             n = Math.round(this.mul * 10 ** this.exponent * 100) / 100;
             return n.toLocaleString();

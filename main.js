@@ -259,7 +259,7 @@ function move(direction) {
     }
     updateVision();
     document.body.style.backgroundColor = `hsl(${193 + Math.abs(pos.y) / 1000}, ${100 + pos.y / 100}%, ${50 - Math.abs(pos.y) / 1000}%)`;
-    document.getElementById("altitude").innerText = `Altitude: ${pos.y} ft | Position: ${(pos.x >= 0) ? pos.x + " ft" + " east" : -pos.x + " ft" + " west"}`;
+    document.getElementById("altitude").innerText = `Altitude: ${simplify(pos.y)} ft | Position: ${(pos.x >= 0) ? simplify(pos.x) + " ft" + " east" : simplify(-pos.x) + " ft" + " west"}`;
 }
 
 function buildBelow() {
@@ -389,11 +389,10 @@ function exportSave() {
 function importSave() {
     const save = prompt("Save?");
     let input = JSON.parse(atob(save));
-    for (let i = 0; i < input.inventory.length; i++) {
-        input.inventory[i].count = new hugeNumber(input.inventory[i].count);
-    }
-    console.log(input);
     inventory = input.inventory;
+    for (let i = 0; i < inventory.length; i++) {
+        inventory[i].count = new hugeNumber(inventory[i].count);
+    }
     pickaxe = input.pickaxe;
     axe = input.axe;
     maxSize = input.maxSize;
@@ -412,10 +411,6 @@ function updateInventory() {
     let totalSize = new hugeNumber(0);
     for (let i = 0; i < inventory.length; i++) {
         totalSize = totalSize.add(inventory[i].count.number() * items[String(inventory[i].id)].size);
-    }
-    if (totalSize.gt(maxSize)) {
-        inventory[placeInInv].count = inventory[placeInInv].count.add((maxSize - totalSize.number()) / items[String(inventory[placeInInv].id)].size);
-        totalSize = new hugeNumber(maxSize);
     }
     let output = "";
     inventory.sort(function (a, b) {
@@ -437,7 +432,7 @@ function updateInventory() {
             inventory[i].count = new hugeNumber(0);
         }
     }
-    document.getElementById("inventory").innerHTML = `<legend>Inventory (${totalSize.print()} / ${maxSize.toLocaleString()} lbs full)</legend>${output}<div style='clear: both'></div>`;
+    document.getElementById("inventory").innerHTML = `<legend>Inventory (${toNumberName(totalSize, true, 0)} / ${simplify(maxSize)} lbs full)</legend>${output}<div style='clear: both'></div>`;
 }
 
 function die(deathMessage) {
