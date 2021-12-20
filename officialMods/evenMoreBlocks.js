@@ -39,7 +39,7 @@ for (let i = 0; i < oresLength; i++) {
 }
 const itemLength = Object.keys(items).length;
 for (let i = 0; i < itemLength; i++) {
-    if (items[Object.keys(items)[i]].type !== "block") {
+    if (!(items[Object.keys(items)[i]].types.includes("block"))) {
         addBlocks([
             {
                 id: `${camelCase(items[Object.keys(items)[i]].name)}Block`,

@@ -1,4 +1,5 @@
 let health = 100;
+let foodPoints = 100;
 let pos = {x: 0, y: 0};
 let oreLocations = [];
 let pickaxe = items.stickPickaxe;
@@ -12,7 +13,7 @@ function addItemsToOres() {
             items[ores[i].id] = {
                 name: capitalize(camelCaseToRegular(ores[i].id)),
                 size: (ores[i].size === undefined || ores[i].size === null) ? 1 : ores[i].size,
-                type: (ores[i].commonness === undefined || ores[i].commonness === null) ? undefined : "block"
+                types: (ores[i].commonness === undefined || ores[i].commonness === null) ? [] : ["block"]
             };
             if (ores[i].excludeSize) {
                 items[ores[i].id].size = undefined;
@@ -28,6 +29,11 @@ function addItemsToOres() {
 }
 
 function itemsUpdate() {
+    for (const key in items) {
+        if (items[key].types === undefined) {
+            items[key].types = [];
+        }
+    }
     for (let o = 0; o < ores.length; o++) {
         const minHeight = (ores[o].foundAbove !== -Infinity) ? ores[o].foundAbove : -1000000;
         const maxHeight = (ores[o].foundBelow !== Infinity) ? ores[o].foundBelow : 1000000;
@@ -47,7 +53,7 @@ function itemsUpdate() {
         } else {
             setRarity = "Mythical";
         }
-        if (items[ores[o].id].type === undefined) {
+        if (!(items[ores[o].id].types.includes("block"))) {
             items[ores[o].id].rarity = setRarity;
         }
     }
@@ -134,10 +140,10 @@ function craft(recipe) {
             recipe.output.function();
             addItem("dirt", 0);
         }
-        if (items[recipe.output.id].type === "pickaxe" && items[recipe.output.id].strength >= pickaxe.strength) {
+        if (items[recipe.output.id].types.includes("pickaxe") && items[recipe.output.id].strength >= pickaxe.strength) {
             pickaxe = items[recipe.output.id];
         }
-        if (items[recipe.output.id].type === "axe" && items[recipe.output.id].durability >= axe.durability) {
+        if (items[recipe.output.id].types.includes("axe") && items[recipe.output.id].durability >= axe.durability) {
             axe = items[recipe.output.id];
         }
     }
@@ -266,7 +272,7 @@ function buildBelow() {
     let placed = false;
     if (!flight) {
         for (let i = 0; i < inventory.length; i++) {
-            if (items[inventory[i].id].type === "block" && inventory[i].count.gten(1)) {
+            if (items[inventory[i].id].types.includes("block") && inventory[i].count.gten(1)) {
                 oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] = inventory[i].id;
                 addItem(inventory[i].id, -1);
                 placed = true;
@@ -440,6 +446,7 @@ function die(deathMessage) {
         deathMessage = "";
     }
     health = 100;
+    foodPoints = 100;
     inventory = [];
     pos = {x: 0, y: 0};
     addItem("dirt", 1);
@@ -484,6 +491,12 @@ function addRecipes(json) {
 function addMaterial(id, power, size, hasOre, hasBar, hasBlock, low, high) {
     const hardness = power / 10;
     const recipeCost = Math.round(power / 16);
+    if (low === undefined) {
+        low = -20000000;
+    }
+    if (high === undefined) {
+        high = Math.round(-(1.25 ** power));
+    }
     if (hasOre) {
         addBlocks([
             {
@@ -500,10 +513,10 @@ function addMaterial(id, power, size, hasOre, hasBar, hasBlock, low, high) {
         ${id}Pickaxe: {
             name: capitalize(camelCaseToRegular(id + "Pickaxe")),
             strength: (hardness < 10) ? hardness + 1 : 10,
-            type: "pickaxe"
+            types: ["pickaxe"]
         }
     });`);
-    eval(`addItems({${id}Axe: {name: capitalize(camelCaseToRegular(id + "Axe")), type: "axe"}});`);
+    eval(`addItems({${id}Axe: {name: capitalize(camelCaseToRegular(id + "Axe")), types: ["axe"]}});`);
     if (hasBlock) {
         addBlocks([
             {
@@ -630,6 +643,22 @@ function addMaterial(id, power, size, hasOre, hasBar, hasBlock, low, high) {
     reload();
 }
 
+function rename(id, name) {
+    items[id].name = name;
+}
+
+function changeId(oldId, newId) {
+    items[newId] = items[oldId];
+    delete items[oldId];
+    for (let i = 0; i < recipes.length; i++) {
+        for (let j = 0; j < recipes[i].ingredients.length; j++) {
+            if (recipes[i].ingredients[j].id === oldId) {
+                recipes[i].ingredients[j].id = newId;
+            }
+        }
+    }
+}
+
 function updateCheatSheets() {
     let output = "<legend>Recipe Cheat Sheet</legend>";
     for (let i = 0; i < recipes.length; i++) {
@@ -736,18 +765,23 @@ function secondsToOtherUnits(n) {
 reload();
 
 setInterval(() => {
-    // Healing
-    if (health < 100) {
-        health++;
+    // Health and Food System
+    if (health < 100 && foodPoints >= 10) health++;
+    if (health <= 0) die();
+    if (health > 100) health = 100;
+    if (foodPoints <= 0) {
+        health--;
+        if (health <= 0) {
+            die("You starved to death!");
+        }
     }
-    if (health <= 0) {
-        die();
-    }
-    if (health > 100) {
-        health = 100;
-    }
+    if (foodPoints > 100) foodPoints = 100;
+    if (foodPoints >= 0) foodPoints -= 0.1;
+
     healthText.innerHTML = `${Math.round(health).toLocaleString()} HP`;
     healthBar.style.width = `${health}%`;
+    document.getElementById("food").innerHTML = `${Math.abs(Math.round(foodPoints)).toLocaleString()}% Food`;
+    document.getElementById("foodBar").style.width = `${foodPoints}%`;
     const lastSaveRelative = (String(localStorage.getItem("lastSave")) !== "null") ? (Date.now() - lastSave) / 1000 : "never";
     document.getElementById("exportSave").innerText = `Export Save (Last saved ${secondsToOtherUnits(lastSaveRelative)} ago)`;
 }, 1000);

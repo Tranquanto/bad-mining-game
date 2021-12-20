@@ -2,6 +2,7 @@ let ores = [
     {id: "air", hardness: 0, commonness: 100, foundBelow: 39000, foundAbove: 1},
     {id: "dirt", hardness: 0.5, commonness: 90, foundBelow: 2500, foundAbove: -20739440},
     {id: "log", hardness: 1, commonness: 60, foundBelow: 2500, foundAbove: 1},
+    {id: "apple", hardness: 1, commonness: 60, foundBelow: 2500, foundAbove: 1},
     {id: "stick", hardness: 1, commonness: 80, foundBelow: 2500, foundAbove: 1},
     {id: "stone", hardness: 2, commonness: 100, foundBelow: 0, foundAbove: -20739840},
     {id: "granite", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -43760},
@@ -77,13 +78,13 @@ let items = {
 
     // Blocks
 
-    wood: {name: "Wood", size: 1, type: "block"},
-    stoneBlock: {name: "Stone Block", type: "block"},
-    graniteBlock: {name: "Granite Block", type: "block"},
-    andesiteBlock: {name: "Andesite Block", type: "block"},
-    dioriteBlock: {name: "Diorite Block", type: "block"},
-    pumiceBlock: {name: "Pumice Block", type: "block"},
-    airBlock: {name: "Air Block", size: 0, type: "block"},
+    wood: {name: "Wood", size: 1, types: ["block"]},
+    stoneBlock: {name: "Stone Block", types: ["block"]},
+    graniteBlock: {name: "Granite Block", types: ["block"]},
+    andesiteBlock: {name: "Andesite Block", types: ["block"]},
+    dioriteBlock: {name: "Diorite Block", types: ["block"]},
+    pumiceBlock: {name: "Pumice Block", types: ["block"]},
+    airBlock: {name: "Air Block", size: 0, types: ["block"]},
 
     // Other Crafted Items
 
@@ -102,133 +103,133 @@ let items = {
 
     // Tools
 
-    stickAxe: {name: "Long Stick", type: "axe", durability: 8},
-    woodAxe: {name: "Wood Axe", type: "axe", durability: 15},
-    stoneAxe: {name: "Stone Axe", type: "axe", durability: 40},
-    talcAxe: {name: "Talc Axe", type: "axe", durability: 40},
-    ironAxe: {name: "Iron Axe", type: "axe", durability: 100},
-    copperAxe: {name: "Copper Axe", type: "axe", durability: 80},
-    bronzeAxe: {name: "Bronze Axe", type: "axe", durability: 240},
-    tinAxe: {name: "Tin Axe", type: "axe", durability: 90},
-    silverAxe: {name: "Silver Axe", type: "axe", durability: 200},
-    titaniumAxe: {name: "Titanium Axe", type: "axe", durability: 300},
-    goldAxe: {name: "Gold Axe", type: "axe", durability: 60},
-    apatiteAxe: {name: "Apatite Axe", type: "axe", durability: 500},
-    bariumAxe: {name: "Barium Axe", type: "axe", durability: 1000},
-    garnetAxe: {name: "Garnet Axe", type: "axe", durability: 4250},
-    topazAxe: {name: "Topaz Axe", type: "axe", durability: 6010},
+    stickAxe: {name: "Long Stick", types: ["axe"], durability: 8},
+    woodAxe: {name: "Wood Axe", types: ["axe"], durability: 15},
+    stoneAxe: {name: "Stone Axe", types: ["axe"], durability: 40},
+    talcAxe: {name: "Talc Axe", types: ["axe"], durability: 40},
+    ironAxe: {name: "Iron Axe", types: ["axe"], durability: 100},
+    copperAxe: {name: "Copper Axe", types: ["axe"], durability: 80},
+    bronzeAxe: {name: "Bronze Axe", types: ["axe"], durability: 240},
+    tinAxe: {name: "Tin Axe", types: ["axe"], durability: 90},
+    silverAxe: {name: "Silver Axe", types: ["axe"], durability: 200},
+    titaniumAxe: {name: "Titanium Axe", types: ["axe"], durability: 300},
+    goldAxe: {name: "Gold Axe", types: ["axe"], durability: 60},
+    apatiteAxe: {name: "Apatite Axe", types: ["axe"], durability: 500},
+    bariumAxe: {name: "Barium Axe", types: ["axe"], durability: 1000},
+    garnetAxe: {name: "Garnet Axe", types: ["axe"], durability: 4250},
+    topazAxe: {name: "Topaz Axe", types: ["axe"], durability: 6010},
     corundumAxe: {
         name: "Corundum Axe",
-        type: "axe",
+        types: ["axe"],
         durability: 7880
     },
     diamondAxe: {
         name: "Diamond Axe",
-        type: "axe",
+        types: ["axe"],
         durability: 10000
     },
 
     stickPickaxe: {
         name: "Long Sharp Stick",
         strength: 1,
-        type: "pickaxe",
+        types: ["pickaxe"],
         durability: 8
     },
     woodPickaxe: {
         name: "Wood Pickaxe",
         durability: 15,
-        type: "pickaxe",
+        types: ["pickaxe"],
         strength: 2
     },
     stonePickaxe: {
         name: "Stone Pickaxe",
         durability: 40,
-        type: "pickaxe",
+        types: ["pickaxe"],
         strength: 3
     },
     talcPickaxe: {
         name: "Talc Pickaxe",
         durability: 40,
-        type: "pickaxe",
+        types: ["pickaxe"],
         strength: 4
     },
     ironPickaxe: {
         name: "Iron Pickaxe",
         durability: 100,
-        type: "pickaxe",
+        types: ["pickaxe"],
         strength: 5
     },
     copperPickaxe: {
         name: "Copper Pickaxe",
         durability: 80,
-        type: "pickaxe",
+        types: ["pickaxe"],
         strength: 6
     },
     bronzePickaxe: {
         name: "Bronze Pickaxe",
         durability: 240,
-        type: "pickaxe",
+        types: ["pickaxe"],
         strength: 7
     },
     tinPickaxe: {
         name: "Tin Pickaxe",
         durability: 90,
-        type: "pickaxe",
+        types: ["pickaxe"],
         strength: 5
     },
     silverPickaxe: {
         name: "Silver Pickaxe",
         durability: 200,
-        type: "pickaxe",
+        types: ["pickaxe"],
         strength: 6
     },
     titaniumPickaxe: {
         name: "Titanium Pickaxe",
         durability: 300,
-        type: "pickaxe",
+        types: ["pickaxe"],
         strength: 7
     },
     goldPickaxe: {
         name: "Gold Pickaxe",
         durability: 60,
-        type: "pickaxe",
+        types: ["pickaxe"],
         strength: 4
     },
     apatitePickaxe: {
         name: "Apatite Pickaxe",
         durability: 500,
-        type: "pickaxe",
+        types: ["pickaxe"],
         strength: 7
     },
     bariumPickaxe: {
         name: "Barium Pickaxe",
         durability: 1000,
-        type: "pickaxe",
+        types: ["pickaxe"],
         strength: 8
     },
     garnetPickaxe: {
         name: "Garnet Pickaxe",
         durability: 4250,
-        type: "pickaxe",
+        types: ["pickaxe"],
         strength: 9
     },
     topazPickaxe: {
         name: "Topaz Pickaxe",
         durability: 6010,
-        type: "pickaxe",
+        types: ["pickaxe"],
         strength: 9
     },
     corundumPickaxe: {
         name: "Corundum Pickaxe",
         durability: 7880,
         strength: 10,
-        type: "pickaxe"
+        types: ["pickaxe"]
     },
     diamondPickaxe: {
         name: "Diamond Pickaxe",
         durability: 10000,
         strength: 10,
-        type: "pickaxe"
+        types: ["pickaxe"]
     },
     shoppingBag: {name: "Shopping Bag"},
     box: {
@@ -248,5 +249,20 @@ let items = {
     infinityBox: {
         name: "Infinity Box"
     },
-    rocketBoots: {name: "Rocket Boots"}
+    rocketBoots: {name: "Rocket Boots"},
+
+    apple: {
+        name: "Apple",
+        size: 0.2,
+        types: ["food"],
+        foodValue: 10
+    },
+
+    steak: {
+        name: "Steak",
+        size: 1,
+        types: ["food"],
+        foodValue: 30,
+        needsToBeCooked: true
+    }
 };

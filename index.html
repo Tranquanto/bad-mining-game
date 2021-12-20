@@ -22,10 +22,19 @@
         <br>
         <button class="controlsBtn" onclick="move('d');">↓</button>
     </div>
-    <p id="health">100 HP</p>
-    <div id="healthBarBorder" style="border-color: black; border-width: 2px; border-style: solid; height: 10px;">
-        <img id="healthBar" src="health.jpg" style="width: 100%; height: 10px;" alt="Health Bar">
-    </div>
+    <fieldset>
+        <legend>Health and Food</legend>
+        <span id="health">100 HP</span>
+        <div id="healthBarBorder" class="barBorder">
+            <img id="healthBar" src="health.jpg" style="width: 100%; height: 10px;" class="bar" alt="Health Bar">
+        </div>
+        <br>
+        <br>
+        <span id="food">100% Food</span>
+        <div id="foodBarBorder" class="barBorder">
+            <img id="foodBar" src="food.jpg" style="width: 100%; height: 10px;" class="bar" alt="Health Bar">
+        </div>
+    </fieldset>
     <p id="altitude">Altitude: 0 ft | Position: 0 ft east</p>
     <fieldset id="vision">
         <legend>Vision</legend>
@@ -43,6 +52,9 @@
     <fieldset id="recipes" style="display: none;">
         <legend>Recipe Book</legend>
     </fieldset>
+    <!--<fieldset id="counter"></fieldset>
+    <fieldset id="oven"></fieldset>
+    <fieldset id="fridge"></fieldset>-->
     <button id="openRecipeCheatSheet"
             onclick="document.getElementById('recipeCheatSheet').style.display = (document.getElementById('recipeCheatSheet').style.display === '') ? 'none' : ''; document.getElementById('openRecipeCheatSheet').innerText = (document.getElementById('openRecipeCheatSheet').innerText === 'Open Recipe Cheat Sheet') ? 'Close Recipe Cheat Sheet' : 'Open Recipe Cheat Sheet'">
         Open Recipe Cheat Sheet
@@ -57,6 +69,7 @@
     <fieldset id="oreCheatSheet" style="display: none;">
         <legend>Ore Cheat Sheet</legend>
     </fieldset>
+
     <script>
         if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             document.getElementById("controls").innerHTML = "<h1>Controls</h1>\n" +
@@ -81,6 +94,7 @@
     <script src="inventory.js"></script>
     <script src="items.js"></script>
     <script src="recipes.js"></script>
+    <script src="food.js"></script>
     <script src="main.js"></script>
     <script>
         updateCheatSheets();
@@ -115,5 +129,6 @@
         <input type="file" accept=".js" onchange="loadScript(this.files[0]); this.value = '';">
     </div>
 </div>
+
 </body>
 </html>

@@ -26,7 +26,7 @@ function addItem(id, count) {
             totalSize = new hugeNumber(maxSize);
         }
         let output = "";
-        inventory.sort(function (a, b) {
+        inventory.sort((a, b) => {
             let textA = a.id.toUpperCase();
             let textB = b.id.toUpperCase();
             return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
@@ -42,7 +42,7 @@ function addItem(id, count) {
                 }
                 const rarity = items[inventory[i].id].rarity;
                 let color = rarityColor(rarity);
-                output += `<fieldset class='inventoryItem' title='${items[inventory[i].id].name} | ${(rarity !== undefined) ? rarity : "Common"}' onclick='addItem("${inventory[i].id}", -1);' oncontextmenu='addItem("${inventory[i].id}", ${-inventory[i].count.number()}); updateRecipeBook();'><p style="color: ${color};">${items[inventory[i].id].name}</p>${message}<p class='inventoryItemCount'>${simplify(inventory[i].count)} (${itemSize} lbs | ${(itemSize >= (maxSize * 0.5)) ? "Very Heavy" : (itemSize >= (maxSize * 0.25)) ? "Heavy" : (itemSize >= (maxSize * 0.1)) ? "Medium" : (itemSize >= (maxSize * 0.05)) ? "Light" : (itemSize >= (maxSize * 0.001)) ? "Very Light" : "Weightless"})</p></fieldset>`;
+                output += `<fieldset class='inventoryItem' title='${items[inventory[i].id].name} | ${rarity !== undefined ? rarity : "Common"}' onclick='addItem("${inventory[i].id}", -1);' oncontextmenu='addItem("${inventory[i].id}", ${-inventory[i].count.number()}); updateRecipeBook();'><p style="color: ${color};">${items[inventory[i].id].name}</p>${message}<p class='inventoryItemCount'>${simplify(inventory[i].count)} (${itemSize} lbs | ${itemSize >= (maxSize * 0.5) ? "Very Heavy" : itemSize >= (maxSize * 0.25) ? "Heavy" : itemSize >= (maxSize * 0.1) ? "Medium" : itemSize >= (maxSize * 0.05) ? "Light" : itemSize >= (maxSize * 0.001) ? "Very Light" : "Weightless"})</p>${(items[inventory[i].id].foodValue !== undefined) ? `<button class='recipe' onclick='if (!items[inventory[${i}].id].needsToBeCooked) {foodPoints += items[inventory[${i}].id].foodValue} else {if (items[inventory[${i}].id].cooked >= 80 && items[inventory[${i}].id].cooked <= 120) {foodPoints += items[inventory[${i}].id].foodValue} else {health -= 10;}}'>Eat</button>` : ""}</fieldset>`;
             } else {
                 inventory[i].count = new hugeNumber(0);
             }
@@ -88,7 +88,7 @@ class hugeNumber {
                 }
                 this.exponent = bd.length - 1;
                 if (this.exponent > 0) {
-                    this.mul = Number(bd.slice(0, 0 - this.exponent) + "." + bd.slice(1) + ad);
+                    this.mul = Number(bd.slice(0, -this.exponent) + "." + bd.slice(1) + ad);
                 } else {
                     this.mul = Number(num);
                 }
@@ -111,7 +111,7 @@ class hugeNumber {
             if (typeof a === "object") {
                 return a.opposite();
             } else {
-                return 0 - a;
+                return -a;
             }
         }
         if (ab) {
@@ -192,7 +192,7 @@ class hugeNumber {
 
     opposite() {
         let n = this;
-        n.mul = 0 - n.mul;
+        n.mul = -n.mul;
         return n;
     }
 
