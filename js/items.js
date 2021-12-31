@@ -1,45 +1,58 @@
 let ores = [
-    {id: "air", hardness: 0, commonness: 100, foundBelow: 39000, foundAbove: 1},
-    {id: "dirt", hardness: 0.5, commonness: 90, foundBelow: 2500, foundAbove: -20739440},
-    {id: "log", hardness: 1, commonness: 60, foundBelow: 2500, foundAbove: 1},
-    {id: "apple", hardness: 1, commonness: 60, foundBelow: 2500, foundAbove: 1},
-    {id: "stick", hardness: 1, commonness: 80, foundBelow: 2500, foundAbove: 1},
-    {id: "stone", hardness: 2, commonness: 100, foundBelow: 0, foundAbove: -20739840},
-    {id: "granite", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -43760},
-    {id: "andesite", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -43760},
-    {id: "diorite", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -43760},
-    {id: "pumice", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -43760},
-    {id: "talc", hardness: 2, commonness: 40, foundBelow: -3, foundAbove: -10293110},
-    {id: "coal", hardness: 2, commonness: 60, foundBelow: 0, foundAbove: -Infinity},
-    {id: "limonite", hardness: 3, commonness: 50, foundBelow: -5, foundAbove: -Infinity},
-    {id: "copper", hardness: 3, commonness: 45, foundBelow: -38, foundAbove: -Infinity},
-    {id: "cassiterite", hardness: 4, commonness: 45, foundBelow: -64, foundAbove: -Infinity},
-    {id: "chromite", hardness: 3, commonness: 50, foundBelow: -253, foundAbove: -13299},
-    {id: "silver", hardness: 4, commonness: 40, foundBelow: -212, foundAbove: -913},
-    {id: "titanite", hardness: 4, commonness: 42, foundBelow: -1614, foundAbove: -3723182},
-    {id: "gold", hardness: 4, commonness: 30, foundBelow: -4061, foundAbove: -5317},
-    {id: "hematite", hardness: 5, commonness: 40, foundBelow: -15611, foundAbove: -18222},
-    {id: "apatite", hardness: 5, commonness: 40, foundBelow: -23812, foundAbove: -24000},
-    {id: "mercury", hardness: 5, commonness: 25, foundBelow: -10, foundAbove: -30, deadliness: 50},
-    {id: "barite", hardness: 6, commonness: 20, foundBelow: -24036, foundAbove: -93285},
-    {id: "floacite", hardness: 6, commonness: 5, foundBelow: 3051, foundAbove: 252},
-    {id: "trimium", hardness: 6, commonness: 12, foundBelow: -10315119, foundAbove: -10315200},
-    {id: "arsenopyrite", hardness: 7, commonness: 15, foundBelow: -11912, foundAbove: -12036, deadliness: 25},
-    {id: "garnet", hardness: 7, commonness: 4, foundBelow: -12929, foundAbove: -19291},
-    {id: "topaz", hardness: 8, commonness: 4, foundBelow: -20333, foundAbove: -813213},
-    {id: "sapphire", hardness: 8, commonness: 3, foundBelow: -24115, foundAbove: -3001000},
-    {id: "ruby", hardness: 9, commonness: 1, foundBelow: -37621, foundAbove: -6123123},
-    {id: "diamond", hardness: 10, commonness: 0.21, foundBelow: -91291, foundAbove: -Infinity},
-    {id: "unobtainium", hardness: 10, commonness: 0.001, foundBelow: -666, foundAbove: -666},
+    {id: "air", hardness: 0, commonness: 100, foundBelow: 39000, foundAbove: 1, color: "#ffffff00"},
+    {id: "dirt", hardness: 0.5, commonness: 90, foundBelow: 2500, foundAbove: -20739440, color: "#3d291d"},
+    {id: "log", hardness: 1, commonness: 60, foundBelow: 2500, foundAbove: 1, color: "#361e0d"},
+    {id: "apple", hardness: 1, commonness: 60, foundBelow: 2500, foundAbove: 1, color: "#ff0000"},
+    {id: "stick", hardness: 1, commonness: 80, foundBelow: 2500, foundAbove: 1, color: "#4a2d18"},
+    {id: "stone", hardness: 2, commonness: 100, foundBelow: 0, foundAbove: -20739840, color: "#474747"},
+    {id: "granite", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -44000, color: "#7e5d5d"},
+    {id: "andesite", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -44000, color: "#ababab"},
+    {id: "diorite", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -44000, color: "#dbdbdb"},
+    {id: "pumice", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -44000, color: "#a19d3d"},
+    {id: "talc", hardness: 2, commonness: 40, foundBelow: -3, foundAbove: -10000000, color: "#607054"},
+    {id: "coal", hardness: 2, commonness: 60, foundBelow: 0, foundAbove: -Infinity, color: "#281f1b"},
+    {id: "limonite", hardness: 3, commonness: 50, foundBelow: -5, foundAbove: -Infinity, color: "#9b5632"},
+    {id: "copper", hardness: 3, commonness: 45, foundBelow: -38, foundAbove: -Infinity, color: "#ff7300"},
+    {id: "cassiterite", hardness: 4, commonness: 45, foundBelow: -64, foundAbove: -Infinity, color: "#a4b7bb"},
+    {id: "chromite", hardness: 3, commonness: 50, foundBelow: -250, foundAbove: -13300, color: "#a1fff2"},
+    {id: "silver", hardness: 4, commonness: 40, foundBelow: -210, foundAbove: -900, color: "#beffff"},
+    {id: "titanite", hardness: 4, commonness: 42, foundBelow: -1600, foundAbove: -3700000, color: "#7496f5"},
+    {id: "gold", hardness: 4, commonness: 30, foundBelow: -4100, foundAbove: -5300, color: "#ffd500"},
+    {id: "hematite", hardness: 5, commonness: 40, foundBelow: -16000, foundAbove: -18000, color: "#25004d"},
+    {id: "apatite", hardness: 5, commonness: 40, foundBelow: -24000, foundAbove: -24000, color: "#7332c2"},
+    {id: "barite", hardness: 6, commonness: 20, foundBelow: -24000, foundAbove: -93300, color: "#a49474"},
+    {id: "floacite", hardness: 6, commonness: 5, foundBelow: 3050, foundAbove: 250, color: "#fba7ff"},
+    {id: "trimium", hardness: 6, commonness: 12, foundBelow: -10315120, foundAbove: -10315200, color: "#762827"},
+    {id: "arsenopyrite", hardness: 7, commonness: 15, foundBelow: -12000, foundAbove: -12036, deadliness: 25, color: "#ffe462"},
+    {id: "garnet", hardness: 7, commonness: 4, foundBelow: -13000, foundAbove: -19291, color: "#ff2626"},
+    {id: "topaz", hardness: 8, commonness: 4, foundBelow: -20000, foundAbove: -813213, color: "#ff9900"},
+    {id: "sapphire", hardness: 8, commonness: 3, foundBelow: -24000, foundAbove: -3000000, color: "#4f4fff"},
+    {id: "ruby", hardness: 9, commonness: 1, foundBelow: -38000, foundAbove: -6000000, color: "#ff0040"},
+    {id: "diamond", hardness: 10, commonness: 0.21, foundBelow: -90000, foundAbove: -Infinity, color: "#7cdcff"},
+    {id: "unobtainium", hardness: 10, commonness: 0.001, foundBelow: -666, foundAbove: -666, color: "#ff00ff"},
 
-    {id: "wood", hardness: 1},
-    {id: "stoneBlock", hardness: 2},
-    {id: "graniteBlock", hardness: 2},
-    {id: "andesiteBlock", hardness: 2},
-    {id: "dioriteBlock", hardness: 2},
-    {id: "pumiceBlock", hardness: 2},
-    {id: "airBlock", hardness: 0},
+    {id: "wood", hardness: 1, color: "#573218"},
+    {id: "stoneBlock", hardness: 2, color: "#646464"},
+    {id: "graniteBlock", hardness: 2, color: "#a27878"},
+    {id: "andesiteBlock", hardness: 2, color: "#c0c0c0"},
+    {id: "dioriteBlock", hardness: 2, color: "#e8e8e8"},
+    {id: "pumiceBlock", hardness: 2, color: "#d5d059"},
+    {id: "airBlock", hardness: 0, color: "#ffffff60"},
+    // Viscosity = milliseconds to move to a new block
+    {id: "water", types: ["liquid"], viscosity: 200, commonness: 60, foundBelow: 1, foundAbove: -1000000, color: "#005ac0"},
+    {id: "oil", types: ["liquid"], viscosity: 300, commonness: 30, foundBelow: 20, foundAbove: -300, color: "#31302c"},
+    {id: "lava", types: ["liquid"], viscosity: 1500, commonness: 10, foundBelow: -6000, foundAbove: -1000000, deadliness: 40, color: "#ff4d00"},
+    {id: "mercury", types: ["liquid"], viscosity: 150, commonness: 25, foundBelow: -10, foundAbove: -30, deadliness: 50, color: "#d9d5bc"}
 ];
+
+for (let i = 0; i < ores.length; i++) {
+    if (ores[i].hardness === undefined || ores[i].hardness === null) {
+        ores[i].hardness = 0;
+    }
+    if (ores[i].types === undefined) {
+        ores[i].types = [];
+    }
+}
 
 let items = {
 
@@ -238,8 +251,8 @@ let items = {
     backpack: {
         name: "Backpack"
     },
-    bucket: {
-        name: "Bucket"
+    magicBucket: {
+        name: "Magic Bucket"
     },
     vault: {name: "Vault"},
     chest: {name: "Chest"},
@@ -255,9 +268,9 @@ let items = {
         name: "Apple",
         size: 0.2,
         types: ["food"],
-        foodValue: 10
+        foodValue: 10,
+        drinkValue: 5
     },
-
     steak: {
         name: "Steak",
         size: 1,

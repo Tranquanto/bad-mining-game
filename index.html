@@ -23,25 +23,30 @@
         <button class="controlsBtn" onclick="move('d');">↓</button>
     </div>
     <fieldset>
-        <legend>Health and Food</legend>
-        <span id="health">100 HP</span>
+        <legend>Health</legend>
+        <span id="health">100/100 HP</span>
         <div id="healthBarBorder" class="barBorder">
-            <img id="healthBar" src="health.jpg" style="width: 100%; height: 10px;" class="bar" alt="Health Bar">
+            <img id="healthBar" src="bar.jpg" style="width: 100%; height: 10px;" class="bar" alt="Health Bar">
         </div>
         <br>
         <br>
-        <span id="food">100% Food</span>
+        <span id="food">100/100 FP</span>
         <div id="foodBarBorder" class="barBorder">
-            <img id="foodBar" src="food.jpg" style="width: 100%; height: 10px;" class="bar" alt="Health Bar">
+            <img id="foodBar" src="bar.jpg"
+                 style="width: 100%; height: 10px; filter: hue-rotate(20deg) brightness(500%);" class="bar"
+                 alt="Health Bar">
+        </div>
+        <br>
+        <br>
+        <span id="drink">100/100 DP</span>
+        <div id="drinkBarBorder" class="barBorder">
+            <img id="drinkBar" src="bar.jpg" style="width: 100%; height: 10px; filter: hue-rotate(210deg);"
+                 class="bar" alt="Health Bar">
         </div>
     </fieldset>
     <p id="altitude">Altitude: 0 ft | Position: 0 ft east</p>
-    <fieldset id="vision">
-        <legend>Vision</legend>
-        <p id="up"></p>
-        <p id="left"></p>
-        <p id="right"></p>
-        <p id="down"></p>
+    <fieldset id="vision" style="text-align: center;">
+        <canvas width="810" height="810" id="map"></canvas>
     </fieldset>
     <button onclick="navigateTo('options');">Options</button>
     <button onclick="openInventory();" id="openInventory">Open Inventory</button>
@@ -90,12 +95,12 @@
                 "<button onClick=\"start();\" style=\"height: 200px; font-size: 48px; border-radius: 400px;\">Play!</button>";
         }
     </script>
-    <script src="toNumberName.js"></script>
-    <script src="inventory.js"></script>
-    <script src="items.js"></script>
-    <script src="recipes.js"></script>
-    <script src="food.js"></script>
-    <script src="main.js"></script>
+    <script src="js/toNumberName.js"></script>
+    <script src="js/inventory.js"></script>
+    <script src="js/items.js"></script>
+    <script src="js/recipes.js"></script>
+    <script src="js/food.js"></script>
+    <script src="js/main.js"></script>
     <script>
         updateCheatSheets();
     </script>

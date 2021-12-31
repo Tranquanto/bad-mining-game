@@ -1,11 +1,16 @@
 let health = 100;
 let foodPoints = 100;
+let drinkPoints = 100;
 let pos = {x: 0, y: 0};
+let liquidLocations = [];
 let oreLocations = [];
 let pickaxe = items.stickPickaxe;
 let axe = items.stickAxe;
 let flight = false;
 let lastSave = localStorage.getItem("lastSave");
+let maxHealth = 100;
+let maxFood = 100;
+let maxDrink = 100;
 
 function addItemsToOres() {
     for (let i = 0; i < ores.length; i++) {
@@ -197,6 +202,20 @@ function checkForIngredients(recipe) {
     return availableIngredients;
 }
 
+function isLiquid(x, y) {
+    x += 1e9;
+    y += 1e9;
+    for (let i = 0; i < ores.length; i++) {
+        if (ores[i].id === oreLocations[x][y]) {
+            if (ores[i].types !== undefined) {
+                return ores[i].types.includes("liquid");
+            } else {
+                return false;
+            }
+        }
+    }
+}
+
 function move(direction) {
     if (direction === "l") {
         pos.x--;
@@ -224,23 +243,21 @@ function move(direction) {
     }
     let canMine = false;
     for (let i = 0; i < ores.length; i++) {
-        if ((oreLocations[pos.x + 1e9] !== undefined && oreLocations[pos.x + 1e9] !== null) && ores[i].id === oreLocations[pos.x + 1e9][pos.y + 1e9] && pickaxe.strength >= ores[i].hardness) {
+        if (oreLocations[pos.x + 1e9] !== undefined && oreLocations[pos.x + 1e9] !== null && ores[i].id === oreLocations[pos.x + 1e9][pos.y + 1e9] && pickaxe.strength >= ores[i].hardness) {
             canMine = true;
-            if (oreLocations[pos.x + 1e9][pos.y + 1e9] !== "air") {
+            if (oreLocations[pos.x + 1e9][pos.y + 1e9] !== "air" && !isLiquid(pos.x, pos.y)) {
                 addItem(oreLocations[pos.x + 1e9][pos.y + 1e9], 1);
                 for (let i = 0; i < ores.length; i++) {
                     if (ores[i].id === oreLocations[pos.x + 1e9][pos.y + 1e9]) {
-                        if (ores[i].deadliness === undefined || ores[i].deadliness === null) {
-                            break;
-                        } else {
+                        if (!(ores[i].deadliness === undefined || ores[i].deadliness === null)) {
                             health -= ores[i].deadliness;
                             healthText.innerHTML = `${Math.round(health).toLocaleString()} HP`;
                             healthBar.style.width = `${health}%`;
                             if (health <= 0) {
                                 die(`You were killed by ${capitalize(camelCaseToRegular(ores[i].id))}`);
                             }
-                            break;
                         }
+                        break;
                     }
                 }
                 oreLocations[pos.x + 1e9][pos.y + 1e9] = "air";
@@ -286,10 +303,27 @@ function buildBelow() {
 }
 
 function updateVision() {
-    document.getElementById("left").innerText = `Left: ${items[oreLocations[pos.x + 1e9 - 1][pos.y + 1e9]].name}`;
-    document.getElementById("right").innerText = `Right: ${items[oreLocations[pos.x + 1e9 + 1][pos.y + 1e9]].name}`;
-    document.getElementById("up").innerText = `Up: ${items[oreLocations[pos.x + 1e9][pos.y + 1e9 + 1]].name}`;
-    document.getElementById("down").innerText = `Down: ${items[oreLocations[pos.x + 1e9][pos.y + 1e9 - 1]].name}`;
+    const ctx = document.getElementById("map").getContext("2d");
+    ctx.clearRect(0, 0, 800, 800);
+    ctx.rect(0, 0, 800, 800);
+    ctx.stroke();
+    for (let x = pos.x + 1e9 - 40; x < pos.x + 1e9 + 40; x++) {
+        for (let y = pos.y + 1e9 - 40; y < pos.y + 1e9 + 40; y++) {
+            if (oreLocations[x] !== undefined && oreLocations[x][y] !== undefined) {
+                for (let i = 0; i < ores.length; i++) {
+                    if (ores[i].id === oreLocations[x][y]) {
+                        ctx.fillStyle = ores[i].color;
+                        break;
+                    }
+                }
+                ctx.fillRect((x - pos.x - 1e9) * 10 + 400, 810 - ((y - pos.y - 1e9) * 10 + 400), 10, 10);
+                ctx.fillStyle = "#ff0";
+                ctx.beginPath();
+                ctx.arc(405, 415, 4, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+        }
+    }
 }
 
 function capitalize(word) {
@@ -351,6 +385,7 @@ function generateOre(x, y) {
         oreLocations[x + 1e9] = [];
     }
     oreLocations[x + 1e9][y + 1e9] = ore.id;
+    if (isLiquid(x, y) && !liquidLocations.includes(`${x},${y} ♸${oreLocations[x + 1e9][y + 1e9]}♸`)) liquidLocations.push(`${x},${y} ♸${oreLocations[x + 1e9][y + 1e9]}♸`);
 }
 
 document.onkeydown = (e) => {
@@ -378,6 +413,7 @@ function exportSave() {
     output.axe = axe;
     output.maxSize = maxSize;
     output.health = health;
+    output.foodPoints = foodPoints;
     output.flight = flight;
     output.items = items;
     output.recipes = recipes;
@@ -403,6 +439,7 @@ function importSave() {
     axe = input.axe;
     maxSize = input.maxSize;
     health = input.health;
+    foodPoints = input.foodPoints;
     flight = input.flight;
     items = input.items;
     ores = input.ores;
@@ -458,13 +495,14 @@ function die(deathMessage) {
     updateRecipeBook();
 }
 
-function ruinTheFun() {
+function godMode() {
     flight = true;
     pickaxe.durability = Infinity;
     pickaxe.strength = Infinity;
     axe.durability = Infinity;
     maxSize = Infinity;
     health = Infinity;
+    foodPoints = Infinity;
     for (let i = 0; i < Object.keys(items).length; i++) {
         addItem(Object.keys(items)[i], 1e300);
     }
@@ -765,23 +803,32 @@ function secondsToOtherUnits(n) {
 reload();
 
 setInterval(() => {
-    // Health and Food System
+    // Health System
     if (health < 100 && foodPoints >= 10) health++;
     if (health <= 0) die();
-    if (health > 100) health = 100;
+    if (health > maxHealth) health = maxHealth;
+
     if (foodPoints <= 0) {
         health--;
-        if (health <= 0) {
-            die("You starved to death!");
-        }
+        if (health <= 0) die("You starved to death!");
     }
-    if (foodPoints > 100) foodPoints = 100;
+    if (foodPoints > maxFood) foodPoints = maxFood;
     if (foodPoints >= 0) foodPoints -= 0.1;
 
-    healthText.innerHTML = `${Math.round(health).toLocaleString()} HP`;
-    healthBar.style.width = `${health}%`;
-    document.getElementById("food").innerHTML = `${Math.abs(Math.round(foodPoints)).toLocaleString()}% Food`;
-    document.getElementById("foodBar").style.width = `${foodPoints}%`;
+    if (drinkPoints > maxDrink) drinkPoints = maxDrink;
+    if (drinkPoints >= 0) drinkPoints -= 0.15;
+    if (drinkPoints <= 0) {
+        health -= 5;
+        if (health <= 0) die("You died of dehydration!");
+    }
+
+    healthText.innerHTML = `${Math.round(health).toLocaleString()}/${Math.round(maxHealth).toLocaleString()} HP`;
+    healthBar.style.width = `${health / maxHealth * 100}%`;
+    document.getElementById("food").innerHTML = `${Math.abs(Math.round(foodPoints)).toLocaleString()}/${Math.abs(Math.round(maxFood)).toLocaleString()} FP`;
+    document.getElementById("foodBar").style.width = `${foodPoints / maxFood * 100}%`;
+    document.getElementById("drink").innerHTML = `${Math.abs(Math.round(drinkPoints)).toLocaleString()}/${Math.abs(Math.round(maxDrink)).toLocaleString()} DP`;
+    document.getElementById("drinkBar").style.width = `${drinkPoints / maxDrink * 100}%`;
+
     const lastSaveRelative = (String(localStorage.getItem("lastSave")) !== "null") ? (Date.now() - lastSave) / 1000 : "never";
     document.getElementById("exportSave").innerText = `Export Save (Last saved ${secondsToOtherUnits(lastSaveRelative)} ago)`;
 }, 1000);
@@ -800,3 +847,55 @@ setInterval(() => {
     }
     updateVision();
 }, 1);
+
+let liquids = [];
+for (let i = 0; i < ores.length; i++) {
+    if (ores[i].types.includes("liquid")) {
+        liquids.push(ores[i].id);
+    }
+}
+
+for (let i = 0; i < liquids.length; i++) {
+    setInterval(() => {
+        // TODO Liquid Physics
+        /* if air below then move liquid down
+        if air left then if air right then move liquid one random way otherwise move left
+        if air right then move right
+        remove old liquid loc
+        add new liquid loc
+         */
+        for (let j = 0; j < liquidLocations.length; j++) {
+            if (liquidLocations[j].match(RegExp(`♸${liquids[i]}♸`)) !== null) {
+                let x = Number(liquidLocations[j].split(",")[0].split(" ")[0]);
+                let y = Number(liquidLocations[j].split(",")[1].split(" ")[0]);
+                if (oreLocations[x + 1e9 + 1] === undefined) {
+                    oreLocations[x + 1e9 + 1] = [];
+                }
+                if (oreLocations[x + 1e9 - 1] === undefined) {
+                    oreLocations[x + 1e9 - 1] = [];
+                }
+                if (oreLocations[x + 1e9] === undefined) {
+                    oreLocations[x + 1e9] = [];
+                }
+                if (oreLocations[x + 1e9][y + 1e9 - 1] === "air") {
+                    oreLocations[x + 1e9][y + 1e9 - 1] = liquids[i];
+                    oreLocations[x + 1e9][y + 1e9] = "air";
+                    liquidLocations[j] = `${Number(liquidLocations[j].split(",")[0])},${Number(liquidLocations[j].split(",")[1].split(" ")[0]) - 1} ${liquidLocations[j].split(" ")[1]}`;
+                } else if (oreLocations[x + 1e9 + 1][y + 1e9] === "air" && oreLocations[x + 1e9 - 1][y + 1e9] === "air") {
+                    liquidLocations.splice(j, 1);
+                } else if (oreLocations[x + 1e9 + 1][y + 1e9] === "air") {
+                    oreLocations[x + 1e9 + 1][y + 1e9] = liquids[i];
+                    oreLocations[x + 1e9][y + 1e9] = "air";
+                    liquidLocations[j] = `${Number(liquidLocations[j].split(",")[0]) + 1},${Number(liquidLocations[j].split(",")[1].split(" ")[0])} ${liquidLocations[j].split(" ")[1]}`;
+                } else if (oreLocations[x + 1e9 - 1][y + 1e9] === "air") {
+                    oreLocations[x + 1e9 - 1][y + 1e9] = liquids[i];
+                    oreLocations[x + 1e9][y + 1e9] = "air";
+                    liquidLocations[j] = `${Number(liquidLocations[j].split(",")[0]) - 1},${Number(liquidLocations[j].split(",")[1].split(" ")[0])} ${liquidLocations[j].split(" ")[1]}`;
+                } else {
+                    liquidLocations.splice(j, 1);
+                }
+            }
+            updateVision();
+        }
+    }, liquids[i].viscosity);
+}

@@ -981,7 +981,7 @@ let recipes = [
             }
         ],
         output: {
-            id: "bucket",
+            id: "magicBucket",
             count: 0,
             function: () => {
                 maxSize += 2000;

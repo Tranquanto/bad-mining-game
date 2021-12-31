@@ -43,4 +43,4 @@ setInterval(() => {
     if (index > -1) oven.splice(index, 1);
     document.getElementById("oven").innerHTML = output2;
     document.getElementById("fridge").innerHTML = output3;
-}, 50);
+}, 50000000);
