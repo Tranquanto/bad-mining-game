@@ -113,10 +113,14 @@
         Respawn
     </button>
 </div>
-<div id="options" style="display: none;">
+<div id="options" style="display: none; text-align: center;">
     <button onclick="navigateTo('main');" style="margin-top: 30px; position: relative; top: -30px;">Back</button>
     <button onclick="exportSave();" id="exportSave">Export Save</button>
     <button onclick="importSave();">Import Save</button>
+    <label style="">
+        <span id="mapSize">Map Size (81):</span>
+        <input type="range" style="width: 90%;" min="1" max="175" value="81" step="2" onchange="mapSize = Number(this.value); document.getElementById('mapSize').innerText = `Map Size (${mapSize}):`;">
+    </label>
     <div id="uploadMods">
         <h1 style="text-align: center;">Upload Mods</h1>
         <h2 style="text-align: center;">Note: You can load multiple of each type!</h2>

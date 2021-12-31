@@ -11,6 +11,7 @@ let lastSave = localStorage.getItem("lastSave");
 let maxHealth = 100;
 let maxFood = 100;
 let maxDrink = 100;
+let mapSize = 81;
 
 function addItemsToOres() {
     for (let i = 0; i < ores.length; i++) {
@@ -304,11 +305,12 @@ function buildBelow() {
 
 function updateVision() {
     const ctx = document.getElementById("map").getContext("2d");
-    ctx.clearRect(0, 0, 800, 800);
-    ctx.rect(0, 0, 800, 800);
+    const squareSize = 810 / mapSize;
+    ctx.clearRect(0, 0, 810, 810);
+    ctx.rect(0, 0, 810, 810);
     ctx.stroke();
-    for (let x = pos.x + 1e9 - 40; x < pos.x + 1e9 + 40; x++) {
-        for (let y = pos.y + 1e9 - 40; y < pos.y + 1e9 + 40; y++) {
+    for (let x = pos.x + 1e9 - (mapSize / 2 - 0.5); x < pos.x + 1e9 + (mapSize / 2 - 0.5); x++) {
+        for (let y = pos.y + 1e9 - (mapSize / 2 - 0.5); y < pos.y + 1e9 + (mapSize / 2 - 0.5); y++) {
             if (oreLocations[x] !== undefined && oreLocations[x][y] !== undefined) {
                 for (let i = 0; i < ores.length; i++) {
                     if (ores[i].id === oreLocations[x][y]) {
@@ -316,10 +318,10 @@ function updateVision() {
                         break;
                     }
                 }
-                ctx.fillRect((x - pos.x - 1e9) * 10 + 400, 810 - ((y - pos.y - 1e9) * 10 + 400), 10, 10);
+                ctx.fillRect((x - pos.x - 1e9) * squareSize + 400, 810 - ((y - pos.y - 1e9) * squareSize + 400), squareSize, squareSize);
                 ctx.fillStyle = "#ff0";
                 ctx.beginPath();
-                ctx.arc(405, 415, 4, 0, 2 * Math.PI);
+                ctx.arc(400 + squareSize / 2, 410 + squareSize / 2, squareSize / 2.5, 0, 2 * Math.PI);
                 ctx.fill();
             }
         }
@@ -414,6 +416,8 @@ function exportSave() {
     output.maxSize = maxSize;
     output.health = health;
     output.foodPoints = foodPoints;
+    output.drinkPoints = drinkPoints;
+    output.mapSize = mapSize;
     output.flight = flight;
     output.items = items;
     output.recipes = recipes;
@@ -440,6 +444,8 @@ function importSave() {
     maxSize = input.maxSize;
     health = input.health;
     foodPoints = input.foodPoints;
+    drinkPoints = input.drinkPoints;
+    mapSize = input.mapSize;
     flight = input.flight;
     items = input.items;
     ores = input.ores;
