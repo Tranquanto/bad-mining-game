@@ -36,12 +36,11 @@ button:hover {
     vertical-align: top;
     float: left;
     font-family: Arial, sans-serif;
-    transition: color 250ms, background-color 250ms;
+    transition: background-color 250ms;
 }
 
 .inventoryItem:hover {
-    background-color: #606060;
-    color: gray;
+    background-color: #222;
 }
 
 .recipe {
@@ -137,8 +136,4 @@ legend {
 
 .bar {
     float: right;
-}
-
-#foodBar {
-
 }

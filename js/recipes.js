@@ -915,7 +915,7 @@ let recipes = [
             id: "shoppingBag",
             count: 0,
             function: () => {
-                maxSize += 100;
+                maxSize += 25;
             }
         }
     },

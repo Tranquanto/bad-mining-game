@@ -42,11 +42,14 @@ function addItem(id, count) {
                 }
                 const rarity = items[inventory[i].id].rarity;
                 let color = rarityColor(rarity);
-                const eat = i => {
-                    foodPoints += items[inventory[i].id].foodValue;
-                    drinkPoints += items[inventory[i].id].drinkValue;
+
+                output += `<fieldset class='inventoryItem' title='${items[inventory[i].id].name} | ${rarity !== undefined ? rarity : "Common"}'><p style="color: ${color};">${items[inventory[i].id].name}</p><p><i style="color: #ccc;">${items[inventory[i].id].desc !== undefined && !settings.aiTooltips ? items[inventory[i].id].desc : items[inventory[i].id].aiTooltip}</i></p><p class='inventoryItemCount'>${simplify(inventory[i].count)} (${itemSize} lbs | ${itemSize >= maxSize * 0.5 ? "Very Heavy" : itemSize >= maxSize * 0.25 ? "Heavy" : itemSize >= maxSize * 0.1 ? "Medium" : itemSize >= maxSize * 0.05 ? "Light" : itemSize >= maxSize * 0.001 ? "Very Light" : "Weightless"})</p>${!items[inventory[i].id].types.includes("cantDrop") ? `<button onclick="addItem(inventory[${i}].id, -1);" oncontextmenu="addItem(inventory[${i}].id, -inventory[${i}].count.number());">Drop / Drop All</button>` : ''}${items[inventory[i].id].foodValue !== undefined ? `<button class='recipe' onclick='if (!items[inventory[${i}].id].needsToBeCooked) {foodPoints += items[inventory[${i}].id].foodValue; drinkPoints += items[inventory[${i}].id].drinkValue; addItem(inventory[${i}].id, -1);} else {if (items[inventory[${i}].id].cooked >= 80 && items[inventory[${i}].id].cooked <= 120) {foodPoints += items[inventory[${i}].id].foodValue; drinkPoints += items[inventory[${i}].id].drinkValue; addItem(inventory[${i}].id, -1)} else {health -= 10; if (health <= 0) die("You died of food poisoning!")}}'>Eat</button>` : ""} ${items[inventory[i].id].recycle !== undefined ? `<button class="recipe" onclick="recycle(inventory[${i}].id);">Recycle</button>` : ""}`;
+                if (items[inventory[i].id].extraFunctions !== undefined) {
+                    for (let j = 0; j < items[inventory[i].id].extraFunctions.length; j++) {
+                        output += `<button class="recipe" onclick="items[inventory[${i}].id].extraFunctions[${j}].function();">${items[inventory[i].id].extraFunctions[j].name}</button>`;
+                    }
                 }
-                output += `<fieldset class='inventoryItem' title='${items[inventory[i].id].name} | ${rarity !== undefined ? rarity : "Common"}'onclick='addItem("${inventory[i].id}", -1);' oncontextmenu='addItem("${inventory[i].id}", ${-inventory[i].count.number()}); updateRecipeBook();'><p style="color: ${color};">${items[inventory[i].id].name}</p>${message}<p class='inventoryItemCount'>${simplify(inventory[i].count)} (${itemSize} lbs | ${itemSize >= (maxSize * 0.5) ? "Very Heavy" : itemSize >= (maxSize * 0.25) ? "Heavy" : itemSize >= (maxSize * 0.1) ? "Medium" : itemSize >= (maxSize * 0.05) ? "Light" : itemSize >= (maxSize * 0.001) ? "Very Light" : "Weightless"})</p>${(items[inventory[i].id].foodValue !== undefined) ? `<button class='recipe' onclick='if (!items[inventory[${i}].id].needsToBeCooked) {foodPoints += items[inventory[${i}].id].foodValue; drinkPoints += items[inventory[${i}].id].drinkValue} else {if (items[inventory[${i}].id].cooked >= 80 && items[inventory[${i}].id].cooked <= 120) {foodPoints += items[inventory[${i}].id].foodValue; drinkPoints += items[inventory[${i}].id].drinkValue} else {health -= 10; if (health <= 0) die("You ate uncooked food and were poisoned!")}}'>Eat</button>` : ""}</fieldset>`;
+                output += "</fieldset>";
             } else {
                 inventory[i].count = new hugeNumber(0);
             }
@@ -65,7 +68,9 @@ function simplify(n) {
     if (typeof n === "object") {
         return toNumberName(n.toString(), true, 2);
     }
-    if (n >= 1e9) {
+    if (n === Infinity) {
+        return "Infinity";
+    } else if (n >= 1e9) {
         return toNumberName((10 ** (Math.log10(n) - Math.floor(Math.log10(n)))).toFixed(2) + "e" + Math.floor(Math.log10(n)), true, 2);
     } else {
         return n.toLocaleString();
@@ -146,6 +151,18 @@ class hugeNumber {
         return num;
     }
 
+    multiply(n) {
+        n = new hugeNumber(n);
+        n.exponent = this.log10().add(n.log10()).number();
+        n.mul = 10 ** (n.exponent % 1);
+        n.exponent = ~~n.exponent;
+        return n;
+    }
+
+    log10() {
+        return new hugeNumber(this.exponent + Math.log10(this.mul));
+    }
+
     gt(n) {
         n = new hugeNumber(n);
         if (n.exponent === this.exponent) {
@@ -210,7 +227,7 @@ class hugeNumber {
     }
 
     number() {
-        return Math.round(this.mul * 10000) / 10000 * 10 ** this.exponent;
+        return Math.round(this.mul * 1e12) / 1e12 * 10 ** this.exponent;
     }
 }
 

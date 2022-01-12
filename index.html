@@ -44,9 +44,19 @@
                  class="bar" alt="Health Bar">
         </div>
     </fieldset>
-    <p id="altitude">Altitude: 0 ft | Position: 0 ft east</p>
+    <br>
+    <span id="altitude" style="float: left; margin-top: -8px;">Altitude: 0 ft | Position: 0 ft east</span>
+    <span id="fps" style="float: right; margin-top: -8px;">0 FPS</span>
+    <br>
     <fieldset id="vision" style="text-align: center;">
-        <canvas width="810" height="810" id="map"></canvas>
+        <canvas width="810" height="810" id="map"
+                onmouseout="document.getElementById('mapTooltip').style.display = 'none';"></canvas>
+        <div id="mapTooltip"
+             style="background: #00000080; color: white; width: 240px; min-height: 180px; border-style: solid; border-width: 4px; position: absolute; pointer-events: none; display: none; opacity: 0.8;">
+            <br>
+            <p><b>Error</b></p>
+            <p style="color: #ccc;"><i>If you are reading this text, something went wrong!</i></p>
+        </div>
     </fieldset>
     <button onclick="navigateTo('options');">Options</button>
     <button onclick="openInventory();" id="openInventory">Open Inventory</button>
@@ -83,7 +93,8 @@
                 "<p>Move Down: ↓ Button</p>\n" +
                 "<p>Move Left: ← Button</p>\n" +
                 "<p>Move Right: → Button</p>\n" +
-                "<button onClick=\"start();\" style=\"height: 200px; font-size: 48px; border-radius: 400px;\">Play!</button>";
+                "<button onClick=\"start();\" style=\"height: 200px; font-size: 48px; border-radius: 400px;\">Play!</button>\n" +
+                "<p>If you see a button that has text like this, \"Blank / Blank\", that means that the left side is for tapping, right side is for holding.</p>";
         } else {
             document.getElementById("mobileControls").style.display = "none";
             document.getElementById("controls").innerHTML = "<h1>Controls</h1>\n" +
@@ -92,7 +103,8 @@
                 "<p>Move Down: S / Down Arrow</p>\n" +
                 "<p>Move Left: A / Left Arrow</p>\n" +
                 "<p>Move Right: D / Right Arrow</p>\n" +
-                "<button onClick=\"start();\" style=\"height: 200px; font-size: 48px; border-radius: 400px;\">Play!</button>";
+                "<button onClick=\"start();\" style=\"height: 200px; font-size: 48px; border-radius: 400px;\">Play!</button>" +
+                "<p>If you see a button that has text like this, \"Blank / Blank\", that means that the left side is for left click, right side is for right click.</p>";
         }
     </script>
     <script src="js/toNumberName.js"></script>
@@ -101,9 +113,6 @@
     <script src="js/recipes.js"></script>
     <script src="js/food.js"></script>
     <script src="js/main.js"></script>
-    <script>
-        updateCheatSheets();
-    </script>
 </div>
 <div id="deathMessage" style="width: 100%; height: 100%; display: none; color: red;">
     <p id="youDiedMessage">You Died!</p>
@@ -117,9 +126,15 @@
     <button onclick="navigateTo('main');" style="margin-top: 30px; position: relative; top: -30px;">Back</button>
     <button onclick="exportSave();" id="exportSave">Export Save</button>
     <button onclick="importSave();">Import Save</button>
-    <label style="">
-        <span id="mapSize">Map Size (81):</span>
-        <input type="range" style="width: 90%;" min="1" max="175" value="81" step="2" onchange="mapSize = Number(this.value); document.getElementById('mapSize').innerText = `Map Size (${mapSize}):`;">
+    <label>
+        AI Generated Item Descriptions?
+        <input onchange="settings.aiTooltips = this.checked;" type="checkbox">
+    </label>
+    <br>
+    <label>
+        <span id="mapSize">Map Size (15):</span>
+        <input type="range" style="width: 90%;" min="1" max="175" value="15" step="2"
+               onchange="mapSize = Number(this.value); document.getElementById('mapSize').innerText = `Map Size (${mapSize}):`;">
     </label>
     <div id="uploadMods">
         <h1 style="text-align: center;">Upload Mods</h1>
