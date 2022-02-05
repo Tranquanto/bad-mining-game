@@ -2,6 +2,75 @@
   "example": {
     "__comment": "Items are pretty simple",
     "name": "Name of Item",
+    "desc": "Optional description, if nothing here then an auto-generated description will be here.",
     "size": 24
+  },
+  "exampleBlock": {
+    "name": "Example Block Item",
+    "desc": "This is an example block item.",
+    "size": 0.5,
+    "types": [
+      "block"
+    ]
+  },
+  "exampleFood": {
+    "name": "Example Food Item",
+    "desc": "This is an example food item.",
+    "size": 2,
+    "types": [
+      "food"
+    ],
+    "foodValue": 10,
+    "drinkValue": 10
+  },
+  "examplePickaxe": {
+    "name": "Example Pickaxe Item",
+    "desc": "This is an example pickaxe item.",
+    "size": 3,
+    "types": [
+      "pickaxe"
+    ],
+    "strength": 4
+  },
+  "exampleAxe": {
+    "name": "Example Axe Item",
+    "desc": "This is an example axe item.",
+    "size": 3,
+    "types": [
+      "axe"
+    ]
+  },
+  "exampleRecyclableItem": {
+    "name": "Example Recyclable Item",
+    "desc": "This is an example item that can be recycled.",
+    "size": 10,
+    "recycle": [
+      {
+        "id": "stone",
+        "count": 2
+      },
+      {
+        "id": "dirt",
+        "count": 5
+      }
+    ]
+  },
+  "exampleMultiTypeItem": {
+    "name": "Multi-type Item",
+    "desc": "If you want you can make the item have multiple types, which will give it many uses!",
+    "size": 1.5,
+    "types": ["food", "pickaxe", "axe", "block"],
+    "foodValue": 3,
+    "drinkValue": 5,
+    "recycle": [
+      {
+        "id": "wood",
+        "count": 5
+      },
+      {
+        "id": "floacite",
+        "count": 3
+      }
+    ]
   }
 }

@@ -2,6 +2,7 @@
 /alpha (2).zip
 /alpha.zip
 /textures/
+/hidden/
 /old.txt
 .idea/workspace-DESKTOP-OSNL0OC.xml
 .idea/vcs.xml
@@ -13,3 +14,6 @@
 main1.js
 *.xml
 /saves.txt
+pointless mods/moreLiquids.js
+*.bak
+js/main-888q-R90QMZDP.js

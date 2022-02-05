@@ -18,7 +18,7 @@ setInterval(() => {
     let output = "<legend>Counter</legend>";
     for (let i = 0; i < counter.length; i++) {
         if (counter[i] !== undefined) {
-            output += `<br><span>${counter[i].name} | ${Math.round(counter[i].temp)}°F | ${Math.round(counter[i].cooked)}% Cooked</span> <button onmousedown="oven.push(counter[${i}]); delete counter[${i}];" class="foodBtn">Put in Oven</button> <button class="foodBtn" onmousedown="fridge.push(counter[${i}]); delete counter[${i}];">Put in Fridge</button> <button class="foodBtn" onmousedown="foodPoints += items[counter[${i}].name].foodValue; delete counter[${i}];">Eat</button><br>`;
+            output += `<br><span>${counter[i].name} | ${Math.round(counter[i].temp)}°F | ${Math.round(counter[i].cooked)}% Cooked</span> <button onmousedown="oven.push(counter[${i}]); delete counter[${i}];" class="foodBtn">Put in Oven</button> <button class="foodBtn" onmousedown="fridge.push(counter[${i}]); delete counter[${i}];">Put in Fridge</button> <button class="foodBtn" onmousedown="player.foodPoints += items[counter[${i}].name].foodValue; delete counter[${i}];">Eat</button><br>`;
         }
     }
     document.getElementById("counter").innerHTML = output;

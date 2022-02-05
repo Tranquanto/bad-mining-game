@@ -2,6 +2,22 @@ let recipes = [
     {
         ingredients: [
             {
+                id: "ironBar",
+                count: 3
+            },
+            {
+                id: "stick",
+                count: 1
+            }
+        ],
+        output: {
+            id: "bucket",
+            count: 4
+        }
+    },
+    {
+        ingredients: [
+            {
                 id: "stick",
                 count: 2
             }
@@ -691,7 +707,7 @@ let recipes = [
                 count: 2
             },
             {
-                id: "coal",
+                id: "fuel",
                 count: 3
             }
         ],
@@ -707,7 +723,7 @@ let recipes = [
                 count: 2
             },
             {
-                id: "coal",
+                id: "fuel",
                 count: 2
             }
         ],
@@ -727,7 +743,7 @@ let recipes = [
                 count: 0.2
             },
             {
-                id: "coal",
+                id: "fuel",
                 count: 1
             }
         ],
@@ -743,7 +759,7 @@ let recipes = [
                 count: 2
             },
             {
-                id: "coal",
+                id: "fuel",
                 count: 1
             }
         ],
@@ -759,7 +775,7 @@ let recipes = [
                 count: 2
             },
             {
-                id: "coal",
+                id: "fuel",
                 count: 5
             }
         ],
@@ -775,7 +791,7 @@ let recipes = [
                 count: 2
             },
             {
-                id: "coal",
+                id: "fuel",
                 count: 3
             }
         ],
@@ -791,7 +807,7 @@ let recipes = [
                 count: 2
             },
             {
-                id: "coal",
+                id: "fuel",
                 count: 5
             }
         ],
@@ -807,7 +823,7 @@ let recipes = [
                 count: 2
             },
             {
-                id: "coal",
+                id: "fuel",
                 count: 4
             }
         ],
@@ -823,7 +839,7 @@ let recipes = [
                 count: 2
             },
             {
-                id: "coal",
+                id: "fuel",
                 count: 3
             }
         ],
@@ -839,7 +855,7 @@ let recipes = [
                 count: 2
             },
             {
-                id: "coal",
+                id: "fuel",
                 count: 3
             }
         ],
@@ -855,7 +871,7 @@ let recipes = [
                 count: 2
             },
             {
-                id: "coal",
+                id: "fuel",
                 count: 1
             }
         ],
@@ -1095,7 +1111,85 @@ let recipes = [
             id: "rocketBoots",
             count: 1,
             function: () => {
-                flight = true;
+                player.flight = true;
+            }
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "coal",
+                count: 1
+            }
+        ],
+        output: {
+            id: "fuel",
+            count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "log",
+                count: 1
+            }
+        ],
+        output: {
+            id: "fuel",
+            count: 0.5
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "stick",
+                count: 1
+            }
+        ],
+        output: {
+            id: "fuel",
+            count: 0.125
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "wood",
+                count: 1
+            }
+        ],
+        output: {
+            id: "fuel",
+            count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "oil",
+                count: 1
+            }
+        ],
+        output: {
+            id: "fuel",
+            count: 3,
+            function: () => {
+                addItem("bucket");
+            }
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "lava",
+                count: 1
+            }
+        ],
+        output: {
+            id: "fuel",
+            count: 15,
+            function: () => {
+                addItem("bucket");
             }
         }
     }

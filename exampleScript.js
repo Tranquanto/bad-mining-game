@@ -3,37 +3,51 @@
 
 setInterval(() => {
     // This example makes the player slowly lose health, or suffocate, when they go above 50 ft altitude
-    if (pos.y >= 50) {
-        health--;
+    if (player.pos.y >= 50) {
+        player.health--;
     }
 }, 200);
 addItems({
     uselessItem: {
         name: "Useless Item",
+        desc: "hello!",
         size: 2
     },
     uselessItem2: {
         name: "Useless Item 2",
-        size: 4
+        desc: "hello there!",
+        size: 4,
+        types: ["food"],
+        foodValue: 10
     }
 });
 addRecipes([
     {
         ingredients: [
             {
-                id: "trimium",
+                id: "uselessItem",
                 count: 4
             }
         ],
         output: {
-            id: "flotuBar",
+            id: "uselessItem2",
             count: 20
         }
     }
 ]);
 addBlocks([
     {
-        id: "exampleBlock",
-        hardness: 3
+        id: "uselessBlock",
+        hardness: 3,
+        color: "#f00"
+    },
+    {
+        id: "uselessLiquid",
+        viscosity: 50,
+        types: ["liquid"],
+        commonness: 20,
+        foundBelow: -10000,
+        foundAbove: -100000,
+        color: "#00ff0040"
     }
 ]);

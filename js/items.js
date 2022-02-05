@@ -1,9 +1,26 @@
 let ores = [
-    {id: "air", hardness: 0, commonness: 100, foundBelow: 39000, foundAbove: 1, color: "#ffffff00"},
-    {id: "dirt", hardness: 0.5, commonness: 90, foundBelow: 2500, foundAbove: -20739440, color: "#3d291d"},
-    {id: "log", hardness: 1, commonness: 60, foundBelow: 2500, foundAbove: 1, color: "#361e0d"},
-    {id: "apple", hardness: 1, commonness: 60, foundBelow: 2500, foundAbove: 1, color: "#ff0000"},
-    {id: "stick", hardness: 1, commonness: 80, foundBelow: 2500, foundAbove: 1, color: "#4a2d18"},
+    {
+        id: "space",
+        hardness: 0,
+        commonness: 1e-300,
+        foundBelow: Infinity,
+        foundAbove: -Infinity,
+        color: "#00000000",
+        types: ["notSolid"]
+    },
+    {
+        id: "air",
+        hardness: 0,
+        commonness: 100,
+        foundBelow: 39000,
+        foundAbove: 1,
+        color: "#ffffff00",
+        types: ["notSolid"]
+    },
+    {id: "dirt", hardness: 0.5, commonness: 90, foundBelow: 0, foundAbove: -20739440, color: "#3d291d"},
+    {id: "log", hardness: 1, commonness: 60, foundBelow: 10, foundAbove: 1, color: "#361e0d"},
+    {id: "apple", hardness: 1, commonness: 60, foundBelow: 10, foundAbove: 1, color: "#ff0000"},
+    {id: "stick", hardness: 1, commonness: 80, foundBelow: 10, foundAbove: 1, color: "#4a2d18"},
     {id: "stone", hardness: 2, commonness: 100, foundBelow: 0, foundAbove: -20739840, color: "#474747"},
     {id: "granite", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -44000, color: "#7e5d5d"},
     {id: "andesite", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -44000, color: "#ababab"},
@@ -13,8 +30,9 @@ let ores = [
     {id: "coal", hardness: 2, commonness: 60, foundBelow: 0, foundAbove: -Infinity, color: "#281f1b"},
     {id: "limonite", hardness: 3, commonness: 50, foundBelow: -5, foundAbove: -Infinity, color: "#9b5632"},
     {id: "copper", hardness: 3, commonness: 45, foundBelow: -38, foundAbove: -Infinity, color: "#ff7300"},
-    {id: "cassiterite", hardness: 4, commonness: 45, foundBelow: -64, foundAbove: -Infinity, color: "#a4b7bb"},
     {id: "chromite", hardness: 3, commonness: 50, foundBelow: -250, foundAbove: -13300, color: "#a1fff2"},
+    {id: "petrifiedWood", hardness: 3, commonness: 5, foundBelow: -500, foundAbove: -35000, color: "#856b4b"},
+    {id: "cassiterite", hardness: 4, commonness: 45, foundBelow: -64, foundAbove: -Infinity, color: "#a4b7bb"},
     {id: "silver", hardness: 4, commonness: 40, foundBelow: -210, foundAbove: -900, color: "#beffff"},
     {id: "titanite", hardness: 4, commonness: 42, foundBelow: -1600, foundAbove: -3700000, color: "#7496f5"},
     {id: "gold", hardness: 4, commonness: 30, foundBelow: -4100, foundAbove: -5300, color: "#ffd500"},
@@ -32,11 +50,11 @@ let ores = [
         deadliness: 25,
         color: "#ffe462"
     },
-    {id: "garnet", hardness: 7, commonness: 4, foundBelow: -13000, foundAbove: -19291, color: "#ff2626"},
-    {id: "topaz", hardness: 8, commonness: 4, foundBelow: -20000, foundAbove: -813213, color: "#ff9900"},
-    {id: "sapphire", hardness: 8, commonness: 3, foundBelow: -24000, foundAbove: -3000000, color: "#4f4fff"},
-    {id: "ruby", hardness: 9, commonness: 1, foundBelow: -38000, foundAbove: -6000000, color: "#ff0040"},
-    {id: "diamond", hardness: 10, commonness: 0.21, foundBelow: -90000, foundAbove: -Infinity, color: "#7cdcff"},
+    {id: "garnet", hardness: 7, commonness: 4, foundBelow: -13000, foundAbove: -19291, color: "#ff2626d0"},
+    {id: "topaz", hardness: 8, commonness: 4, foundBelow: -20000, foundAbove: -813213, color: "#ff9900b0"},
+    {id: "sapphire", hardness: 8, commonness: 3, foundBelow: -24000, foundAbove: -3000000, color: "#4f4fffb0"},
+    {id: "ruby", hardness: 9, commonness: 1, foundBelow: -38000, foundAbove: -6000000, color: "#ff0040b0"},
+    {id: "diamond", hardness: 10, commonness: 0.21, foundBelow: -90000, foundAbove: -Infinity, color: "#7cdcffb0"},
     {id: "unobtainium", hardness: 10, commonness: 0.001, foundBelow: -666, foundAbove: -666, color: "#ff00ff"},
 
     {id: "wood", hardness: 1, color: "#573218"},
@@ -54,7 +72,10 @@ let ores = [
         commonness: 60,
         foundBelow: 1,
         foundAbove: -1000000,
-        color: "#005ac0"
+        color: "#005ac0",
+        onInteract: () => {
+            player.drinkPoints++;
+        }
     },
     {id: "oil", types: ["liquid"], viscosity: 300, commonness: 30, foundBelow: 20, foundAbove: -300, color: "#31302c"},
     {
@@ -64,7 +85,7 @@ let ores = [
         commonness: 10,
         foundBelow: -6000,
         foundAbove: -1000000,
-        deadliness: 40,
+        deadliness: 0.4,
         color: "#ff4d00"
     },
     {
@@ -74,7 +95,7 @@ let ores = [
         commonness: 25,
         foundBelow: -10,
         foundAbove: -30,
-        deadliness: 50,
+        deadliness: 0.5,
         color: "#d9d5bc"
     }
 ];
@@ -91,6 +112,7 @@ for (let i = 0; i < ores.length; i++) {
 let items = {
 
     // Resources
+    space: {name: "Space", size: 0, desc: "You went so far up you went into outer space. Nice job!"},
     air: {name: "Air", size: 0, desc: "Air is the thing you breathe, and it is found everywhere."},
     dirt: {
         name: "Dirt",
@@ -113,8 +135,18 @@ let items = {
             }
         }]
     },
-    log: {name: "Log", size: 1, desc: "Logs can be crafted into wood, which is a base material for many items."},
-    stick: {name: "Stick", size: 0.25, desc: "Sticks are an essential because they can be crafted into tools."},
+    log: {
+        name: "Log",
+        size: 1,
+        desc: "Logs can be crafted into wood, which is a base material for many items.",
+        rarity: "Common"
+    },
+    stick: {
+        name: "Stick",
+        size: 0.25,
+        desc: "Sticks are an essential because they can be crafted into tools.",
+        rarity: "Common"
+    },
     stone: {
         name: "Stone",
         size: 2,
@@ -136,14 +168,18 @@ let items = {
     coal: {name: "Coal", size: 1.5, desc: "Coal is needed to smelt all ores into bars."},
     limonite: {name: "Limonite", size: 3, desc: "Limonite is an iron ore and can be smelted into iron bars."},
     copper: {name: "Copper Ore", size: 3, desc: "Copper ore can be smelted into copper bars."},
-    cassiterite: {name: "Cassiterite", size: 2.5, desc: "Cassiterite is a tin ore and can be smelted into tin bars."},
     chromite: {name: "Chromite", size: 3, desc: "Chromite is a chromium ore and can be smelted into chrome bars."},
+    petrifiedWood: {
+        name: "Petrified Wood",
+        size: 3,
+        desc: "Petrified wood is found underground and can be crafted into regular wood."
+    },
+    cassiterite: {name: "Cassiterite", size: 2.5, desc: "Cassiterite is a tin ore and can be smelted into tin bars."},
     silver: {name: "Silver Ore", size: 3, desc: "Silver ore can be smelted into silver bars."},
     titanite: {name: "Titanite", size: 2, desc: "Titanite is a titanium ore and can be smelted into titanium bars."},
     gold: {name: "Gold Ore", size: 4, desc: "Gold is a soft material and can be smelted into gold bars."},
     hematite: {name: "Hematite", size: 4, desc: "Hematite is an iron ore and can be smelted into heavy iron bars."},
     apatite: {name: "Apatite", size: 1, desc: "Apatite is a somewhat hard gem and has some storage uses."},
-    mercury: {name: "Mercury", size: 5, desc: "Mercury is a poisonous liquid metal."},
     barite: {
         name: "Barite (Barium Ore)",
         size: 1.1,
@@ -206,36 +242,96 @@ let items = {
         size: 6,
         desc: "Iron bars can be crafted into many things, such as tools and storage devices."
     },
-    copperBar: {name: "Copper Bar", size: 6, desc: "Copper bars can be used to make early-game tools."},
-    bronzeBar: {name: "Bronze Bar", size: 7, desc: "Bronze can be used to craft decent tools."},
+    copperBar: {
+        name: "Copper Bar",
+        size: 6,
+        desc: "Copper bars can be used to make early-game tools."
+    },
+    bronzeBar: {
+        name: "Bronze Bar",
+        size: 7,
+        desc: "Bronze can be used to craft decent tools."
+    },
     tinBar: {
         name: "Tin Bar",
         size: 5,
         desc: "Tin can be crafted into tools or the ore can be mixed with copper to make bronze."
     },
-    chromeBar: {name: "Chrome Bar", size: 6, desc: "Everything is chrome in the future!"},
-    silverBar: {name: "Silver Bar", size: 6, desc: "Silver can be made into tools."},
-    titaniumBar: {name: "Titanium Bar", size: 4, desc: "Titanium is a hard metal that can be made into tools."},
-    goldBar: {name: "Gold Bar", size: 8, desc: "Gold has some uses with storage and endgame items."},
-    heavyIronBar: {name: "Heavy Iron Bar", size: 8, desc: "It's iron, but denser."},
-    bariumBar: {name: "Barium Bar", size: 2.2, desc: "Barium is a metal."},
+    chromeBar: {
+        name: "Chrome Bar",
+        size: 6,
+        desc: "Everything is chrome in the future!"
+    },
+    silverBar: {
+        name: "Silver Bar",
+        size: 6,
+        desc: "Silver can be made into tools."
+    },
+    titaniumBar: {
+        name: "Titanium Bar",
+        size: 4,
+        desc: "Titanium is a hard metal that can be made into tools."
+    },
+    goldBar: {
+        name: "Gold Bar",
+        size: 8,
+        desc: "Gold has some uses with storage and endgame items."
+    },
+    heavyIronBar: {
+        name: "Heavy Iron Bar",
+        size: 8,
+        desc: "It's iron, but denser."
+    },
+    bariumBar: {
+        name: "Barium Bar",
+        size: 2.2,
+        desc: "Barium is a metal."
+    },
     flotuBar: {
         name: "Flotu Bar",
         size: 0.6,
         desc: "Flotu is a metal that is almost lighter than air. Can be used to make endgame items."
     },
-    unobtainableBar: {name: "Unobtainable Bar", desc: "The rarest item in the game. Used to craft the Infinity Box."},
-    water: {name: "Water", size: 0, desc: "The most common liquid. It serves no purpose (yet)."},
-    oil: {name: "Oil", size: 0, desc: "This common liquid also serves no purpose (yet)."},
+    unobtainableBar: {
+        name: "Unobtainable Bar",
+        desc: "One of the rarest items in the game. Used to craft the Infinity Box."
+    },
+    water: {
+        name: "Water Bucket", size: 1, desc: "The most common liquid. You can drink it.", extraFunctions: [{
+            name: "Drink", function: () => {
+                addItem("water", -1);
+                addItem("bucket", 1);
+                player.drinkPoints += 100;
+            }
+        }]
+    },
+    oil: {name: "Oil Bucket", size: 1, desc: "This common liquid serves no purpose (yet).", rarity: "Common"},
     lava: {
-        name: "Lava",
-        size: 0,
-        desc: "This liquid found very deep below the surface is hot and serves no purpose, like every other liquid (for now)."
+        name: "Lava Bucket",
+        size: 2,
+        desc: "This liquid found very deep below the surface is hot and can kill you.",
+        extraFunctions: [{
+            name: "Drink", function: () => {
+                die("Why on earth did you think it would be a good idea to drink lava?");
+            }
+        }]
+    },
+    mercury: {name: "Mercury Bucket", size: 5, desc: "Mercury is a poisonous liquid metal."},
+
+    bucket: {
+        name: "Bucket",
+        desc: "Buckets are an essential, as they are needed to pick up liquids.",
+        types: ["bucket"]
     },
 
     // Tools
 
-    stickAxe: {name: "Long Stick", types: ["axe"], durability: 8, recycle: [{id: "stick", count: 2}]},
+    stickAxe: {
+        name: "Long Stick",
+        types: ["axe"],
+        durability: 8,
+        recycle: [{id: "stick", count: 2}]
+    },
     woodAxe: {
         name: "Wood Axe",
         types: ["axe"],
@@ -452,7 +548,9 @@ let items = {
         strength: 10,
         recycle: [{id: "diamond", count: 10}, {id: "topaz", count: 1}, {id: "stick", count: 12}]
     },
-    shoppingBag: {name: "Shopping Bag", desc: "The cheapest storage system. Gives +25 lbs of storage."},
+    shoppingBag: {
+        name: "Shopping Bag", desc: "The cheapest storage system. Gives +25 lbs of storage."
+    },
     box: {
         name: "Box",
         desc: "Easy to obtain storage system, but somewhat effective. Gives +100 lbs of storage."
@@ -465,8 +563,12 @@ let items = {
         name: "Magic Bucket",
         desc: "The magic bucket gives +2k lbs of storage."
     },
-    vault: {name: "Vault", desc: "The vault gives +25k lbs of storage."},
-    chest: {name: "Chest", desc: "The chest gives +150k lbs of storage."},
+    vault: {
+        name: "Vault", desc: "The vault gives +25k lbs of storage."
+    },
+    chest: {
+        name: "Chest", desc: "The chest gives +150k lbs of storage."
+    },
     veryExpensiveEnormousBox: {
         name: "Very Expensive Enormous Box",
         desc: "This box gives +10M lbs of storage."
@@ -475,7 +577,12 @@ let items = {
         name: "Infinity Box",
         desc: "Gives your inventory infinite storage."
     },
-    rocketBoots: {name: "Rocket Boots", desc: "Gives you the ability to fly."},
+    rocketBoots: {
+        name: "Rocket Boots", desc: "Gives you the ability to fly."
+    },
+    fuel: {
+        name: "Fuel", desc: "Basic furnace fuel. Needed to smelt ores."
+    },
 
     apple: {
         name: "Apple",
@@ -483,7 +590,8 @@ let items = {
         types: ["food"],
         foodValue: 10,
         drinkValue: 5,
-        desc: "Apples are currently the only food item in the game. You can eat them to restore some food and drink points."
+        desc: "Apples are currently the only food item in the game. You can eat them to restore some food and drink points.",
+        rarity: "Common"
     },
     steak: {
         name: "Steak",

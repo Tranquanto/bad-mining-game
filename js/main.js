@@ -1,30 +1,49 @@
-let health = 100;
-let foodPoints = 100;
-let drinkPoints = 100;
-let pos = {x: 0, y: 0};
-let liquidLocations = [];
-let oreLocations = [];
-let pickaxe = items.stickPickaxe;
-let axe = items.stickAxe;
-let flight = false;
-let lastSave = localStorage.getItem("lastSave");
-let maxHealth = 100;
-let maxFood = 100;
-let maxDrink = 100;
-let mapSize = 15;
-let frames = 0;
-let settings = {aiTooltips: true};
+let settings = {aiTooltips: false, mapSize: 15};
+let liquids = [];
+let player = {
+    falling: false,
+    health: 100,
+    foodPoints: 100,
+    drinkPoints: 100,
+    maxHealth: 100,
+    maxFood: 100,
+    maxDrink: 100,
+    flight: false,
+    pickaxe: items.stickPickaxe,
+    axe: items.stickAxe,
+    pos: {x: ~~(Math.random() - 0.5 * 10 ** (Math.random() * 6)), y: 1},
+    size: {w: 2, h: 6}
+};
+let debug = {
+    frames: 0,
+    lastSave: localStorage.getItem("lastSave"),
+    liquidLoopIds: [],
+    oreLocations: [],
+    liquidLocations: [],
+    textures: {
+        item: [],
+        block: []
+    },
+    loadTextures: () => {
+        let output = "";
+        for (const key in items) {
+            output += `<img alt='${key}' src='textures/item/${key}.png' onload="debug.textures.item.push('${key}'); document.getElementById('textureProgress').value = (debug.textures.item.length + debug.textures.block.length) / (Object.keys(items).length + ores.length);">`;
+        }
+        document.getElementById("debugTextureLoading").innerHTML = output;
+    }
+}
 
 function addItemsToOres() {
     for (let i = 0; i < ores.length; i++) {
         if (items[ores[i].id] === undefined || items[ores[i].id] === null) {
             items[ores[i].id] = {
                 name: capitalize(camelCaseToRegular(ores[i].id)),
-                size: (ores[i].size === undefined || ores[i].size === null) ? 1 : ores[i].size,
-                types: (ores[i].commonness === undefined || ores[i].commonness === null) ? [] : ["block"]
+                size: ores[i].size === undefined || ores[i].size === null ? 1 : ores[i].size,
+                types: ores[i].commonness === undefined || ores[i].commonness === null ? ["block"] : []
             };
-            if (ores[i].excludeSize) {
-                items[ores[i].id].size = undefined;
+            if (ores[i].excludeSize) items[ores[i].id].size = undefined;
+            if (ores[i].types.includes("liquid")) {
+                name += " Bucket";
             }
         }
         if (ores[i].foundBelow === undefined || ores[i].foundBelow === null) {
@@ -43,9 +62,9 @@ function itemsUpdate() {
         }
     }
     for (let o = 0; o < ores.length; o++) {
-        const minHeight = (ores[o].foundAbove !== -Infinity) ? ores[o].foundAbove : -1000000;
-        const maxHeight = (ores[o].foundBelow !== Infinity) ? ores[o].foundBelow : 1000000;
-        const distanceFrom0 = (Math.abs(ores[o].foundBelow) > Math.abs(ores[o].foundAbove)) ? Math.abs(ores[o].foundAbove) : Math.abs(ores[o].foundBelow);
+        const minHeight = ores[o].foundAbove !== -Infinity ? ores[o].foundAbove : -1000000;
+        const maxHeight = ores[o].foundBelow !== Infinity ? ores[o].foundBelow : 1000000;
+        const distanceFrom0 = Math.abs(ores[o].foundBelow) > Math.abs(ores[o].foundAbove) ? Math.abs(ores[o].foundAbove) : Math.abs(ores[o].foundBelow);
         const overallCommonness = ores[o].commonness * (maxHeight - minHeight + 1) - distanceFrom0;
         let setRarity;
         if (overallCommonness >= 2000000) {
@@ -61,7 +80,7 @@ function itemsUpdate() {
         } else {
             setRarity = "Mythical";
         }
-        if (!(items[ores[o].id].types.includes("block"))) {
+        if (!items[ores[o].id].types.includes("block") && items[ores[o].id].rarity === undefined) {
             items[ores[o].id].rarity = setRarity;
         }
     }
@@ -69,7 +88,7 @@ function itemsUpdate() {
         if (items[recipes[j].output.id].size === undefined || items[recipes[j].output.id].size === null) {
             let size = 0;
             for (let i = 0; i < recipes[j].ingredients.length; i++) {
-                size += items[recipes[j].ingredients[i].id].size * recipes[j].ingredients[i].count / ((recipes[j].output.count !== 0) ? recipes[j].output.count : 1);
+                size += items[recipes[j].ingredients[i].id].size * recipes[j].ingredients[i].count / (recipes[j].output.count !== 0 ? recipes[j].output.count : 1);
             }
             items[recipes[j].output.id].size = size;
         }
@@ -84,7 +103,7 @@ function itemsUpdate() {
                     highestRarity = rarities[items[recipes[j].ingredients[i].id].rarity];
                 }
             }
-            items[recipes[j].output.id].rarity = (highestRarity === 5) ? "Mythical" : (highestRarity === 4) ? "Legendary" : (highestRarity === 3) ? "Epic" : (highestRarity === 2) ? "Rare" : (highestRarity === 1) ? "Uncommon" : (highestRarity === 0) ? "Common" : undefined;
+            items[recipes[j].output.id].rarity = highestRarity === 5 ? "Mythical" : highestRarity === 4 ? "Legendary" : highestRarity === 3 ? "Epic" : highestRarity === 2 ? "Rare" : highestRarity === 1 ? "Uncommon" : highestRarity === 0 ? "Common" : undefined;
         }
     }
     for (let i = 0; i < recipes.length; i++) {
@@ -100,12 +119,12 @@ const healthBar = document.getElementById("healthBar");
 const inventoryGui = document.getElementById("inventory");
 const openInventoryBtn = document.getElementById("openInventory");
 let isInventoryOpen = false;
-oreLocations[1e9] = [];
-oreLocations[1e9][1e9] = "air";
-generateOre(pos.x - 1, pos.y);
-generateOre(pos.x + 1, pos.y);
-generateOre(pos.x, pos.y - 1);
-generateOre(pos.x, pos.y + 1);
+debug.oreLocations[1e9] = [];
+debug.oreLocations[1e9][1e9] = "air";
+generateOre(player.pos.x - 1, player.pos.y);
+generateOre(player.pos.x + 1, player.pos.y);
+generateOre(player.pos.x, player.pos.y - 1);
+generateOre(player.pos.x, player.pos.y + 1);
 
 if (localStorage.getItem("inventoryHTML") !== null) {
     document.getElementById("inventory").innerHTML = localStorage.getItem("inventoryHTML");
@@ -120,6 +139,7 @@ function start() {
     document.getElementById('main').style.display = '';
     document.getElementById('music').play();
     document.getElementById('music').volume = 0.5;
+    reload();
     addItem("airBlock", 100);
 }
 
@@ -150,21 +170,21 @@ function craft(recipe) {
             recipe.output.function();
             addItem("dirt", 0);
         }
-        if (items[recipe.output.id].types.includes("pickaxe") && items[recipe.output.id].strength >= pickaxe.strength) {
-            pickaxe = items[recipe.output.id];
+        if (items[recipe.output.id].types.includes("pickaxe") && items[recipe.output.id].strength >= player.pickaxe.strength) {
+            player.pickaxe = items[recipe.output.id];
         }
-        if (items[recipe.output.id].types.includes("axe") && items[recipe.output.id].durability >= axe.durability) {
-            axe = items[recipe.output.id];
+        if (items[recipe.output.id].types.includes("axe") && items[recipe.output.id].durability >= player.axe.durability) {
+            player.axe = items[recipe.output.id];
         }
     }
 }
 
 function recycle(id) {
     if (items[id].recycle !== undefined) {
+        addItem(id, -1);
         for (let i = 0; i < items[id].recycle.length; i++) {
             addItem(items[id].recycle[i].id, items[id].recycle[i].count);
         }
-        addItem(id, -1);
     }
 }
 
@@ -194,7 +214,7 @@ function updateRecipeBook() {
             for (let c = 0; c < recipe.ingredients.length; c++) {
                 const rarity = items[recipe.ingredients[c].id].rarity;
                 let color = rarityColor(rarity);
-                output += `<p class='recipeIngredient' style="color: ${color};">${items[recipe.ingredients[c].id].name} (${(recipe.ingredients[c].count > 0) ? recipe.ingredients[c].count : "1"})</p>`;
+                output += `<p class='recipeIngredient' style="color: ${color};">${items[recipe.ingredients[c].id].name} (${recipe.ingredients[c].count > 0 ? recipe.ingredients[c].count : "1"})</p>`;
             }
             output += "</button>";
         }
@@ -220,10 +240,10 @@ function isLiquid(x, y) {
     x += 1e9;
     y += 1e9;
     for (let i = 0; i < ores.length; i++) {
-        if (oreLocations[x] === undefined) {
+        if (debug.oreLocations[x] === undefined) {
             return false;
         }
-        if (ores[i].id === oreLocations[x][y]) {
+        if (ores[i].id === debug.oreLocations[x][y]) {
             if (ores[i].types !== undefined) {
                 return ores[i].types.includes("liquid");
             } else {
@@ -233,64 +253,104 @@ function isLiquid(x, y) {
     }
 }
 
+function generateAroundPlayer() {
+    if (debug.oreLocations[player.pos.x + 1e9] === undefined || debug.oreLocations[player.pos.x + 1e9][player.pos.y + 1e9] === undefined || debug.oreLocations[player.pos.x + 1e9] === null || debug.oreLocations[player.pos.x + 1e9][player.pos.y + 1e9] === null) {
+        generateOre(player.pos.x, player.pos.y);
+    }
+    if (debug.oreLocations[player.pos.x + 1e9 - 1] === undefined || debug.oreLocations[player.pos.x + 1e9 - 1][player.pos.y + 1e9] === undefined || debug.oreLocations[player.pos.x + 1e9 - 1] === null || debug.oreLocations[player.pos.x + 1e9 - 1][player.pos.y + 1e9] === null) {
+        generateOre(player.pos.x - 1, player.pos.y);
+    }
+    if (debug.oreLocations[player.pos.x + 1e9 + 1] === undefined || debug.oreLocations[player.pos.x + 1e9 + 1][player.pos.y + 1e9] === undefined || debug.oreLocations[player.pos.x + 1e9 + 1] === null || debug.oreLocations[player.pos.x + 1e9 + 1][player.pos.y + 1e9] === null) {
+        generateOre(player.pos.x + 1, player.pos.y);
+    }
+    if (debug.oreLocations[player.pos.x + 1e9] === undefined || debug.oreLocations[player.pos.x + 1e9][player.pos.y + 1e9 - 1] === undefined || debug.oreLocations[player.pos.x + 1e9] === null || debug.oreLocations[player.pos.x + 1e9][player.pos.y + 1e9 - 1] === null) {
+        generateOre(player.pos.x, player.pos.y - 1);
+    }
+    if (debug.oreLocations[player.pos.x + 1e9] === undefined || debug.oreLocations[player.pos.x + 1e9][player.pos.y + 1e9 + 1] === undefined || debug.oreLocations[player.pos.x + 1e9] === null || debug.oreLocations[player.pos.x + 1e9][player.pos.y + 1e9 + 1] === null) {
+        generateOre(player.pos.x, player.pos.y + 1);
+    }
+}
+
+function checkInventoryFor(id) {
+    if (id[0] === "#") {
+        for (let i = 0; i < inventory.length; i++) {
+            if (items[inventory[i].id].types.includes(id.slice(1)) && inventory[i].count.number() > 0) return inventory[i].id;
+        }
+    } else {
+        for (let i = 0; i < inventory.length; i++) {
+            if (inventory[i].id === id && inventory[i].count.number() > 0) return id;
+        }
+    }
+    return false;
+}
+
+function teleport(x, y) {
+    player.pos.x = x;
+    player.pos.y = y;
+    generateAroundPlayer();
+}
+
 function move(direction) {
     if (direction === "l") {
-        pos.x--;
+        player.pos.x--;
     } else if (direction === "r") {
-        pos.x++;
-    } else if (direction === "u") {
-        pos.y++;
+        player.pos.x++;
+    } else if (direction === "u" && !player.falling && buildBelow(true)) {
+        player.pos.y++;
     } else if (direction === "d") {
-        pos.y--;
+        player.pos.y--;
     }
-    if (oreLocations[pos.x + 1e9] === undefined || oreLocations[pos.x + 1e9][pos.y + 1e9] === undefined || oreLocations[pos.x + 1e9] === null || oreLocations[pos.x + 1e9][pos.y + 1e9] === null) {
-        generateOre(pos.x, pos.y);
-    }
-    if (oreLocations[pos.x + 1e9 - 1] === undefined || oreLocations[pos.x + 1e9 - 1][pos.y + 1e9] === undefined || oreLocations[pos.x + 1e9 - 1] === null || oreLocations[pos.x + 1e9 - 1][pos.y + 1e9] === null) {
-        generateOre(pos.x - 1, pos.y);
-    }
-    if (oreLocations[pos.x + 1e9 + 1] === undefined || oreLocations[pos.x + 1e9 + 1][pos.y + 1e9] === undefined || oreLocations[pos.x + 1e9 + 1] === null || oreLocations[pos.x + 1e9 + 1][pos.y + 1e9] === null) {
-        generateOre(pos.x + 1, pos.y);
-    }
-    if (oreLocations[pos.x + 1e9] === undefined || oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] === undefined || oreLocations[pos.x + 1e9] === null || oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] === null) {
-        generateOre(pos.x, pos.y - 1);
-    }
-    if (oreLocations[pos.x + 1e9] === undefined || oreLocations[pos.x + 1e9][pos.y + 1e9 + 1] === undefined || oreLocations[pos.x + 1e9] === null || oreLocations[pos.x + 1e9][pos.y + 1e9 + 1] === null) {
-        generateOre(pos.x, pos.y + 1);
-    }
+    generateAroundPlayer();
     let canMine = false;
     for (let i = 0; i < ores.length; i++) {
-        if (oreLocations[pos.x + 1e9] !== undefined && oreLocations[pos.x + 1e9] !== null && ores[i].id === oreLocations[pos.x + 1e9][pos.y + 1e9] && pickaxe.strength >= ores[i].hardness) {
+        if (debug.oreLocations[player.pos.x + 1e9] !== undefined && debug.oreLocations[player.pos.x + 1e9] !== null && ores[i].id === debug.oreLocations[player.pos.x + 1e9][player.pos.y + 1e9] && player.pickaxe.strength >= ores[i].hardness) {
             canMine = true;
-            if (oreLocations[pos.x + 1e9][pos.y + 1e9] !== "air" && !isLiquid(pos.x, pos.y)) {
-                addItem(oreLocations[pos.x + 1e9][pos.y + 1e9], 1);
+            let liquidWithBucket = false;
+            let bucketItem = "";
+            if (isLiquid(player.pos.x, player.pos.y)) {
+                bucketItem = checkInventoryFor("#bucket");
+                if (bucketItem) {
+                    liquidWithBucket = true;
+                }
+            } else {
+                liquidWithBucket = true;
+            }
+            if (debug.oreLocations[player.pos.x + 1e9][player.pos.y + 1e9] !== "air" && liquidWithBucket) {
+                if (isLiquid(player.pos.x, player.pos.y)) {
+                    if (bucketItem !== undefined) {
+                        addItem(bucketItem, -1);
+                        addItem(debug.oreLocations[player.pos.x + 1e9][player.pos.y + 1e9], 1);
+                    }
+                } else {
+                    addItem(debug.oreLocations[player.pos.x + 1e9][player.pos.y + 1e9], 1);
+                }
                 for (let i = 0; i < ores.length; i++) {
-                    if (ores[i].id === oreLocations[pos.x + 1e9][pos.y + 1e9]) {
+                    if (ores[i].id === debug.oreLocations[player.pos.x + 1e9][player.pos.y + 1e9]) {
                         if (!(ores[i].deadliness === undefined || ores[i].deadliness === null)) {
-                            health -= ores[i].deadliness;
-                            healthText.innerHTML = `${Math.round(health).toLocaleString()} HP`;
-                            healthBar.style.width = `${health}%`;
-                            if (health <= 0) {
+                            player.health -= ores[i].deadliness;
+                            healthText.innerHTML = `${Math.round(player.health).toLocaleString()} HP`;
+                            healthBar.style.width = `${player.health}%`;
+                            if (player.health <= 0) {
                                 die(`You were killed by ${capitalize(camelCaseToRegular(ores[i].id))}`);
                             }
                         }
                         break;
                     }
                 }
-                oreLocations[pos.x + 1e9][pos.y + 1e9] = "air";
+                debug.oreLocations[player.pos.x + 1e9][player.pos.y + 1e9] = "air";
                 updateRecipeBook();
             }
         }
     }
     if (!canMine) {
         if (direction === "l") {
-            pos.x++;
+            player.pos.x++;
         } else if (direction === "r") {
-            pos.x--;
+            player.pos.x--;
         } else if (direction === "u") {
-            pos.y--;
+            player.pos.y--;
         } else if (direction === "d") {
-            pos.y++;
+            player.pos.y++;
         }
     } else {
         if (direction === "u") {
@@ -298,17 +358,19 @@ function move(direction) {
         }
     }
     updateVision();
-    document.body.style.backgroundColor = `hsl(${193 + Math.abs(pos.y) / 1000}, ${100 + pos.y / 100}%, ${50 - Math.abs(pos.y) / 1000}%)`;
-    document.getElementById("altitude").innerText = `Altitude: ${simplify(pos.y)} ft | Position: ${(pos.x >= 0) ? simplify(pos.x) + " ft" + " east" : simplify(-pos.x) + " ft" + " west"}`;
+    document.body.style.backgroundColor = `hsl(${193 + Math.abs(player.pos.y) / 1000}, ${100 + player.pos.y / 100}%, ${50 - Math.abs(player.pos.y) / 1000}%)`;
+    document.getElementById("altitude").innerText = `Altitude: ${simplify(player.pos.y)} ft | Position: ${player.pos.x >= 0 ? simplify(player.pos.x) + " ft" + " east" : simplify(-player.pos.x) + " ft" + " west"}`;
 }
 
-function buildBelow() {
+function buildBelow(onlyCheck) {
     let placed = false;
-    if (!flight) {
+    if (!player.flight) {
         for (let i = 0; i < inventory.length; i++) {
             if (items[inventory[i].id].types.includes("block") && inventory[i].count.gten(1)) {
-                oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] = inventory[i].id;
-                addItem(inventory[i].id, -1);
+                if (!onlyCheck) {
+                    debug.oreLocations[player.pos.x + 1e9][player.pos.y + 1e9 - 1] = inventory[i].id;
+                    addItem(inventory[i].id, -1);
+                }
                 placed = true;
                 break;
             }
@@ -319,30 +381,31 @@ function buildBelow() {
     return placed;
 }
 
-function updateVision() {
-    liquidLocations = [];
+let updateVision = () => {
+    debug.liquidLocations = [];
     const ctx = document.getElementById("map").getContext("2d");
-    const squareSize = 810 / mapSize;
+    ctx.imageSmoothingEnabled = false;
+    const squareSize = 810 / settings.mapSize;
     ctx.clearRect(0, 0, 810, 810);
     ctx.rect(0, 0, 810, 810);
     ctx.stroke();
-    for (let x = pos.x + 1e9 - (mapSize / 2 - 0.5) - 3; x < pos.x + 1e9 + (mapSize / 2 - 0.5) + 3; x++) {
-        for (let y = pos.y + 1e9 - (mapSize / 2 - 0.5) - 3; y < pos.y + 1e9 + (mapSize / 2 - 0.5) + 3; y++) {
-            if (oreLocations[x] !== undefined && oreLocations[x][y] !== undefined) {
+    for (let x = player.pos.x + 1e9 - (settings.mapSize / 2 - 0.5) - 3; x < player.pos.x + 1e9 + (settings.mapSize / 2 - 0.5) + 3; x++) {
+        for (let y = player.pos.y + 1e9 - (settings.mapSize / 2 - 0.5) - 3; y < player.pos.y + 1e9 + (settings.mapSize / 2 - 0.5) + 3; y++) {
+            if (debug.oreLocations[x] !== undefined && debug.oreLocations[x][y] !== undefined) {
                 for (let i = 0; i < ores.length; i++) {
-                    if (ores[i].id === oreLocations[x][y]) {
+                    if (ores[i].id === debug.oreLocations[x][y]) {
                         ctx.fillStyle = ores[i].color;
                         break;
                     }
                 }
-                ctx.fillRect((x - pos.x - 1e9) * squareSize + 400 - (5 * squareSize / 10), 810 - ((y - pos.y - 1e9) * squareSize + 410 + (5 * squareSize / 10)), squareSize, squareSize);
+                ctx.fillRect((x - player.pos.x - 1e9) * squareSize + 400 - 5 * squareSize / 10, 810 - ((y - player.pos.y - 1e9) * squareSize + 410 + 5 * squareSize / 10), squareSize, squareSize);
                 ctx.fillStyle = "#ff0";
-                ctx.beginPath();
-                ctx.arc(400, 400, squareSize / 2.5, 0, 2 * Math.PI);
-                ctx.fill();
+                const playerImg = new Image();
+                playerImg.src = "./textures/player.png";
+                ctx.drawImage(playerImg, 400 - squareSize / 2, 400 - squareSize / 2, squareSize, squareSize);
             }
-            if (isLiquid(x - 1e9, y - 1e9) && !liquidLocations.includes(`${x - 1e9},${y - 1e9} ♸${oreLocations[x][y]}♸`)) {
-                liquidLocations.push(`${x - 1e9},${y - 1e9} ♸${oreLocations[x][y]}♸`);
+            if (isLiquid(x - 1e9, y - 1e9) && !debug.liquidLocations.includes(`${x - 1e9},${y - 1e9} ♸${debug.oreLocations[x][y]}♸`)) {
+                debug.liquidLocations.push(`${x - 1e9},${y - 1e9} ♸${debug.oreLocations[x][y]}♸`);
             }
         }
     }
@@ -403,12 +466,25 @@ function generateOre(x, y) {
             break;
         }
     }
-    if (oreLocations[x + 1e9] === undefined || oreLocations[x + 1e9] === null) {
-        oreLocations[x + 1e9] = [];
+    if (debug.oreLocations[x + 1e9] === undefined || debug.oreLocations[x + 1e9] === null) {
+        debug.oreLocations[x + 1e9] = [];
     }
-    oreLocations[x + 1e9][y + 1e9] = ore.id;
-    if (isLiquid(x, y) && !liquidLocations.includes(`${x},${y} ♸${oreLocations[x + 1e9][y + 1e9]}♸`)) {
-        liquidLocations.push(`${x},${y} ♸${oreLocations[x + 1e9][y + 1e9]}♸`);
+    debug.oreLocations[x + 1e9][y + 1e9] = ore.id;
+    if (isLiquid(x, y) && !debug.liquidLocations.includes(`${x},${y} ♸${debug.oreLocations[x + 1e9][y + 1e9]}♸`)) {
+        debug.liquidLocations.push(`${x},${y} ♸${debug.oreLocations[x + 1e9][y + 1e9]}♸`);
+    }
+    while (Math.random() > 2 ** (-ore.commonness / 30)) {
+        const x2 = x + ~~(Math.random() * 4 - 2);
+        const y2 = y + ~~(Math.random() * 4 - 2);
+        if (debug.oreLocations[x2 + 1e9] === undefined || debug.oreLocations[x2 + 1e9] === null) {
+            debug.oreLocations[x2 + 1e9] = [];
+        }
+        if (debug.oreLocations[x2 + 1e9] === undefined || debug.oreLocations[x2 + 1e9] === null) {
+            debug.oreLocations[x2 + 1e9] = [];
+        }
+        if (debug.oreLocations[x2 + 1e9][y2 + 1e9] === undefined || debug.oreLocations[x2 + 1e9][y2 + 1e9] === null) {
+            debug.oreLocations[x2 + 1e9][y2 + 1e9] = ore.id;
+        }
     }
 }
 
@@ -426,7 +502,7 @@ function generateLoot(lootTable) {
     }
 }
 
-document.onkeydown = (e) => {
+document.onkeydown = e => {
     if (e.keyCode === 69) {
         if (isInventoryOpen) {
             closeInventory();
@@ -447,25 +523,26 @@ document.onkeydown = (e) => {
 function exportSave() {
     let output = {};
     output.inventory = inventory;
-    output.pickaxe = pickaxe;
-    output.axe = axe;
+    output.pickaxe = player.pickaxe;
+    output.axe = player.axe;
     output.maxSize = maxSize;
-    output.health = health;
-    output.foodPoints = foodPoints;
-    output.drinkPoints = drinkPoints;
-    output.mapSize = mapSize;
-    output.flight = flight;
+    output.health = player.health;
+    output.foodPoints = player.foodPoints;
+    output.drinkPoints = player.drinkPoints;
+    output.mapSize = settings.mapSize;
+    output.flight = player.flight;
     output.items = items;
     output.recipes = recipes;
     output.ores = ores;
+    output.settings = settings;
 
     navigator.clipboard.writeText(btoa(JSON.stringify(output))).then(() => {
         alert("Copied save to clipboard! (Auto-adds modded items, ores, and recipes, but it is still recommended to load mods again before importing save data.");
-        lastSave = Date.now();
+        debug.lastSave = Date.now();
     }, () => {
         alert("Save failed! Try again later, or report it at https://github.com/Dragon77mathbye/bad-mining-game/issues");
     });
-    localStorage.setItem("lastSave", lastSave);
+    localStorage.setItem("lastSave", debug.lastSave);
 }
 
 function importSave() {
@@ -475,21 +552,19 @@ function importSave() {
     for (let i = 0; i < inventory.length; i++) {
         inventory[i].count = new hugeNumber(inventory[i].count);
     }
-    pickaxe = input.pickaxe;
-    axe = input.axe;
+    player.pickaxe = input.pickaxe;
+    player.axe = input.axe;
     maxSize = input.maxSize;
-    health = input.health;
-    foodPoints = input.foodPoints;
-    drinkPoints = input.drinkPoints;
-    mapSize = input.mapSize;
-    flight = input.flight;
+    player.health = input.health;
+    player.foodPoints = input.foodPoints;
+    player.drinkPoints = input.drinkPoints;
+    settings.mapSize = input.mapSize;
+    player.flight = input.flight;
     items = input.items;
     ores = input.ores;
     recipes = input.recipes;
-    addItemsToOres();
-    itemsUpdate();
-    updateRecipeBook();
-    updateInventory();
+    settings = input.settings;
+    reload();
 }
 
 function updateInventory(log) {
@@ -501,7 +576,7 @@ function updateInventory(log) {
     inventory.sort(function (a, b) {
         let textA = a.id.toUpperCase();
         let textB = b.id.toUpperCase();
-        return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+        return textA < textB ? -1 : textA > textB ? 1 : 0;
     });
     for (let i = 0; i < inventory.length; i++) {
         if (Math.round(inventory[i].count.number() * 10000) / 10000 > 0) {
@@ -512,7 +587,7 @@ function updateInventory(log) {
             } else {
                 message = "<p class='clickToDrop'>Click to drop one<br>Right click to drop all</p>";
             }
-            output += `<fieldset class='inventoryItem' onclick='addItem("${inventory[i].id}", -1);' oncontextmenu='addItem("${inventory[i].id}", ${-inventory[i].count.number()}); updateRecipeBook();'><p>${items[inventory[i].id].name}</p>${message}<p class='inventoryItemCount'>${simplify(inventory[i].count)} (${itemSize} lbs | ${(itemSize >= (maxSize * 0.5)) ? "Very Heavy" : (itemSize >= (maxSize * 0.25)) ? "Heavy" : (itemSize >= (maxSize * 0.1)) ? "Medium" : (itemSize >= (maxSize * 0.05)) ? "Light" : (itemSize >= (maxSize * 0.001)) ? "Very Light" : "Weightless"})</p></fieldset>`;
+            output += `<fieldset class='inventoryItem' onclick='addItem("${inventory[i].id}", -1);' oncontextmenu='addItem("${inventory[i].id}", ${-inventory[i].count.number()}); updateRecipeBook();'><p>${items[inventory[i].id].name}</p>${message}<p class='inventoryItemCount'>${simplify(inventory[i].count)} (${itemSize} lbs | ${itemSize >= maxSize * 0.5 ? "Very Heavy" : itemSize >= maxSize * 0.25 ? "Heavy" : itemSize >= maxSize * 0.1 ? "Medium" : itemSize >= maxSize * 0.05 ? "Light" : itemSize >= maxSize * 0.001 ? "Very Light" : "Weightless"})</p></fieldset>`;
         } else {
             inventory[i].count = new hugeNumber(0);
         }
@@ -525,11 +600,11 @@ function die(deathMessage) {
     if (deathMessage === undefined || deathMessage === null) {
         deathMessage = "";
     }
-    health = 100;
-    foodPoints = 100;
-    drinkPoints = 100;
+    player.health = 100;
+    player.foodPoints = 100;
+    player.drinkPoints = 100;
     inventory = [];
-    pos = {x: 0, y: 0};
+    player.pos = {x: 0, y: 0};
     addItem("airBlock", 99);
     document.getElementById("main").style.display = "none";
     document.getElementById("deathMessage").style.display = "";
@@ -539,13 +614,13 @@ function die(deathMessage) {
 }
 
 function godMode() {
-    flight = true;
-    pickaxe.durability = Infinity;
-    pickaxe.strength = Infinity;
-    axe.durability = Infinity;
+    player.flight = true;
+    player.pickaxe.durability = Infinity;
+    player.pickaxe.strength = Infinity;
+    player.axe.durability = Infinity;
     maxSize = Infinity;
-    health = Infinity;
-    foodPoints = Infinity;
+    player.health = Infinity;
+    player.foodPoints = Infinity;
     for (let i = 0; i < Object.keys(items).length; i++) {
         addItem(Object.keys(items)[i], 1e308);
     }
@@ -553,6 +628,7 @@ function godMode() {
 }
 
 function addBlocks(json) {
+    for (let i = 0; i < json.length; i++) if (json[i].types === undefined) json[i].types = [];
     ores = ores.concat(json);
     addItemsToOres();
 }
@@ -578,6 +654,15 @@ function addMaterial(id, power, size, hasOre, hasBar, hasBlock, low, high) {
     if (high === undefined) {
         high = Math.round(-(1.25 ** power));
     }
+    eval(`addItems({${id}: {name: capitalize(camelCaseToRegular(id)), size: size, types: []}});`);
+    eval(`addItems({
+        ${id}Pickaxe: {
+            name: capitalize(camelCaseToRegular(id + "Pickaxe")),
+            strength: hardness < 10 ? hardness + 1 : 10,
+            types: ["pickaxe"]
+        }
+    });`);
+    eval(`addItems({${id}Axe: {name: capitalize(camelCaseToRegular(id + "Axe")), types: ["axe"]}});`);
     if (hasOre) {
         addBlocks([
             {
@@ -589,15 +674,6 @@ function addMaterial(id, power, size, hasOre, hasBar, hasBlock, low, high) {
             }
         ]);
     }
-    eval(`addItems({${id}: {name: capitalize(camelCaseToRegular(id)), size: size}});`);
-    eval(`addItems({
-        ${id}Pickaxe: {
-            name: capitalize(camelCaseToRegular(id + "Pickaxe")),
-            strength: (hardness < 10) ? hardness + 1 : 10,
-            types: ["pickaxe"]
-        }
-    });`);
-    eval(`addItems({${id}Axe: {name: capitalize(camelCaseToRegular(id + "Axe")), types: ["axe"]}});`);
     if (hasBlock) {
         addBlocks([
             {
@@ -605,7 +681,13 @@ function addMaterial(id, power, size, hasOre, hasBar, hasBlock, low, high) {
                 hardness: hardness
             }
         ]);
-        eval(`addItems({${id}Block: {name: capitalize(camelCaseToRegular(id)) + " Block", size: size * 4}});`);
+        eval(`addItems({
+            ${id}Block: {
+                name: capitalize(camelCaseToRegular(id)) + " Block",
+                size: size * 4,
+                types: ["block"]
+            }
+        });`);
         addRecipes([
             {
                 ingredients: [
@@ -747,7 +829,7 @@ function updateCheatSheets() {
         output += `<fieldset class="recipe"><p style="color: ${rarityColor(items[recipe.output.id].rarity)}">${items[String(recipe.output.id)].name} (${recipe.output.count})</p>`;
         for (let c = 0; c < recipe.ingredients.length; c++) {
             const color = rarityColor(items[recipe.ingredients[c].id].rarity);
-            output += `<p class='recipeIngredient' style="color: ${color};">${items[recipe.ingredients[c].id].name} (${(recipe.ingredients[c].count > 0) ? recipe.ingredients[c].count : "1"})</p>`;
+            output += `<p class='recipeIngredient' style="color: ${color};">${items[recipe.ingredients[c].id].name} (${recipe.ingredients[c].count > 0 ? recipe.ingredients[c].count : "1"})</p>`;
         }
         output += `</fieldset>`;
     }
@@ -807,6 +889,9 @@ function reload() {
     itemsUpdate();
     updateCheatSheets();
     updateInventory();
+    liquidUpdate();
+    generateDesc();
+    debug.loadTextures();
 }
 
 async function loadScript(script) {
@@ -855,127 +940,145 @@ function getOreData(id) {
 }
 
 setInterval(() => {
-
-    const isDeadly = getOreData(oreLocations[pos.x + 1e9][pos.y + 1e9]).deadliness;
-    if (isDeadly !== undefined) {
-        health -= isDeadly;
-    }
     // Health System
-    if (health < 100 && foodPoints >= 10) health++;
-    if (health <= 0) die();
-    if (health > maxHealth) health = maxHealth;
+    if (player.health < 100 && player.foodPoints >= 10) player.health++;
+    if (player.health <= 0) die();
+    if (player.health > player.maxHealth) player.health = player.maxHealth;
 
-    if (foodPoints > maxFood) foodPoints = maxFood;
-    if (foodPoints > 0) {
-        foodPoints -= Math.random() * 0.2
+    if (player.foodPoints > player.maxFood) player.foodPoints = player.maxFood;
+    if (player.foodPoints > 0) {
+        player.foodPoints -= Math.random() * 0.2;
     } else {
-        health--;
-        if (health <= 0) die("You starved to death!");
+        player.health--;
+        if (player.health <= 0) die("You starved to death!");
     }
 
-    if (drinkPoints > maxDrink) drinkPoints = maxDrink;
-    if (drinkPoints > 0) {
-        drinkPoints -= Math.random() * 0.3;
+    if (player.drinkPoints > player.maxDrink) player.drinkPoints = player.maxDrink;
+    if (player.drinkPoints > 0) {
+        player.drinkPoints -= Math.random() * 0.3;
     } else {
-        health -= 5;
-        if (health <= 0) die("You died of dehydration!");
+        player.health -= 5;
+        if (player.health <= 0) die("You died of dehydration!");
     }
 
-    healthText.innerHTML = `${Math.round(health).toLocaleString()}/${Math.round(maxHealth).toLocaleString()} HP`;
-    healthBar.style.width = `${health / maxHealth * 100}%`;
-    document.getElementById("food").innerHTML = `${Math.abs(Math.round(foodPoints)).toLocaleString()}/${Math.abs(Math.round(maxFood)).toLocaleString()} FP`;
-    document.getElementById("foodBar").style.width = `${foodPoints / maxFood * 100}%`;
-    document.getElementById("drink").innerHTML = `${Math.abs(Math.round(drinkPoints)).toLocaleString()}/${Math.abs(Math.round(maxDrink)).toLocaleString()} DP`;
-    document.getElementById("drinkBar").style.width = `${drinkPoints / maxDrink * 100}%`;
+    healthText.innerHTML = `${Math.round(player.health).toLocaleString()}/${Math.round(player.maxHealth).toLocaleString()} HP`;
+    healthBar.style.width = `${player.health / player.maxHealth * 100}%`;
+    document.getElementById("food").innerHTML = `${Math.abs(Math.round(player.foodPoints)).toLocaleString()}/${Math.abs(Math.round(player.maxFood)).toLocaleString()} FP`;
+    document.getElementById("foodBar").style.width = `${player.foodPoints / player.maxFood * 100}%`;
+    document.getElementById("drink").innerHTML = `${Math.abs(Math.round(player.drinkPoints)).toLocaleString()}/${Math.abs(Math.round(player.maxDrink)).toLocaleString()} DP`;
+    document.getElementById("drinkBar").style.width = `${player.drinkPoints / player.maxDrink * 100}%`;
 
-    const lastSaveRelative = (String(localStorage.getItem("lastSave")) !== "null") ? (Date.now() - lastSave) / 1000 : "never";
+    const lastSaveRelative = String(localStorage.getItem("lastSave")) !== "null" ? (Date.now() - debug.lastSave) / 1000 : "never";
     document.getElementById("exportSave").innerText = `Export Save (Last saved ${secondsToOtherUnits(lastSaveRelative)} ago)`;
 }, 1000);
 
 // Auto build blocks underneath player if there is air there
 
 setInterval(() => {
-    if (oreLocations[pos.x + 1e9][pos.y + 1e9 - 1] === "air" || isLiquid(pos.x, pos.y - 1)) {
+    if (getOreData(debug.oreLocations[player.pos.x + 1e9][player.pos.y + 1e9 - 1]).types.includes("notSolid") || isLiquid(player.pos.x, player.pos.y - 1)) {
         let placed;
-        if (flight) {
+        if (player.flight) {
             placed = true;
         } else {
             placed = buildBelow();
         }
         if (!placed) {
+            player.falling = true;
             move("d");
         }
+    } else {
+        player.falling = false;
+    }
+    const ore = getOreData(debug.oreLocations[player.pos.x + 1e9][player.pos.y + 1e9]);
+
+    if (ore.deadliness !== undefined) {
+        player.health -= ore.deadliness;
+    }
+    if (ore.onInteract !== undefined) {
+        ore.onInteract();
     }
     updateVision();
 }, 1);
 
-let liquids = [];
-for (let i = 0; i < ores.length; i++) {
-    if (ores[i].types.includes("liquid")) {
-        liquids.push(ores[i]);
+function liquidUpdate() {
+    for (let i = 0; i < debug.liquidLoopIds.length; i++) {
+        clearInterval(debug.liquidLoopIds[i]);
+    }
+    liquids = [];
+    debug.liquidLoopIds = [];
+    for (let i = 0; i < ores.length; i++) {
+        if (ores[i].types.includes("liquid")) {
+            liquids.push(ores[i]);
+        }
+    }
+    for (let i = 0; i < liquids.length; i++) {
+        debug.liquidLoopIds.push(setInterval(() => {
+            for (let j = 0; j < debug.liquidLocations.length; j++) {
+                if (debug.liquidLocations[j].match(RegExp(`♸${liquids[i].id}♸`)) !== null) {
+                    let x = Number(debug.liquidLocations[j].split(",")[0].split(" ")[0]);
+                    let y = Number(debug.liquidLocations[j].split(",")[1].split(" ")[0]);
+
+                    // Adds arrays for the x pos if they don't exist to prevent errors
+
+                    if (debug.oreLocations[x + 1e9 + 1] === undefined) {
+                        debug.oreLocations[x + 1e9 + 1] = [];
+                    }
+                    if (debug.oreLocations[x + 1e9 - 1] === undefined) {
+                        debug.oreLocations[x + 1e9 - 1] = [];
+                    }
+                    if (debug.oreLocations[x + 1e9] === undefined) {
+                        debug.oreLocations[x + 1e9] = [];
+                    }
+
+                    if (debug.oreLocations[x + 1e9][y + 1e9 - 1] === "air") {
+                        // If block below is air, then move liquid down
+                        debug.oreLocations[x + 1e9][y + 1e9 - 1] = liquids[i].id;
+                        debug.oreLocations[x + 1e9][y + 1e9] = "air";
+                        debug.liquidLocations[j] = `${Number(debug.liquidLocations[j].split(",")[0])},${Number(debug.liquidLocations[j].split(",")[1].split(" ")[0]) - 1} ${debug.liquidLocations[j].split(" ")[1]}`;
+                    } else if (debug.oreLocations[x + 1e9 + 1][y + 1e9] === "air" && debug.oreLocations[x + 1e9 - 1][y + 1e9] === "air") {
+                        // If both left and right are air, then keep liquid where it is
+                        debug.liquidLocations.splice(j, 1);
+                    } else if (debug.oreLocations[x + 1e9 + 1][y + 1e9] === "air") {
+                        // If right is air, move liquid right
+                        debug.oreLocations[x + 1e9 + 1][y + 1e9] = liquids[i].id;
+                        debug.oreLocations[x + 1e9][y + 1e9] = "air";
+                        debug.liquidLocations[j] = `${Number(debug.liquidLocations[j].split(",")[0]) + 1},${Number(debug.liquidLocations[j].split(",")[1].split(" ")[0])} ${debug.liquidLocations[j].split(" ")[1]}`;
+                    } else if (debug.oreLocations[x + 1e9 - 1][y + 1e9] === "air") {
+                        // If left is air, move liquid left
+                        debug.oreLocations[x + 1e9 - 1][y + 1e9] = liquids[i].id;
+                        debug.oreLocations[x + 1e9][y + 1e9] = "air";
+                        debug.liquidLocations[j] = `${Number(debug.liquidLocations[j].split(",")[0]) - 1},${Number(debug.liquidLocations[j].split(",")[1].split(" ")[0])} ${debug.liquidLocations[j].split(" ")[1]}`;
+                    } else {
+                        // If it can't move, remove it from the list of liquids to prevent it from updating and prevent some lag
+                        debug.liquidLocations.splice(j, 1);
+                    }
+                    debug.liquidLocations.splice(j, 1);
+                }
+                updateVision();
+            }
+        }, liquids[i].viscosity));
     }
 }
 
+liquidUpdate();
+
 // Liquid Physics
 
-for (let i = 0; i < liquids.length; i++) {
-    setInterval(() => {
-        for (let j = 0; j < liquidLocations.length; j++) {
-            if (liquidLocations[j].match(RegExp(`♸${liquids[i].id}♸`)) !== null) {
-                let x = Number(liquidLocations[j].split(",")[0].split(" ")[0]);
-                let y = Number(liquidLocations[j].split(",")[1].split(" ")[0]);
-
-                // Adds arrays for the x pos if they don't exist to prevent errors
-
-                if (oreLocations[x + 1e9 + 1] === undefined) {
-                    oreLocations[x + 1e9 + 1] = [];
-                }
-                if (oreLocations[x + 1e9 - 1] === undefined) {
-                    oreLocations[x + 1e9 - 1] = [];
-                }
-                if (oreLocations[x + 1e9] === undefined) {
-                    oreLocations[x + 1e9] = [];
-                }
-
-                if (oreLocations[x + 1e9][y + 1e9 - 1] === "air") {
-                    // If block below is air, then move liquid down
-                    oreLocations[x + 1e9][y + 1e9 - 1] = liquids[i].id;
-                    oreLocations[x + 1e9][y + 1e9] = "air";
-                    liquidLocations[j] = `${Number(liquidLocations[j].split(",")[0])},${Number(liquidLocations[j].split(",")[1].split(" ")[0]) - 1} ${liquidLocations[j].split(" ")[1]}`;
-                } else if (oreLocations[x + 1e9 + 1][y + 1e9] === "air" && oreLocations[x + 1e9 - 1][y + 1e9] === "air") {
-                    // If both left and right are air, then keep liquid where it is
-                    liquidLocations.splice(j, 1);
-                } else if (oreLocations[x + 1e9 + 1][y + 1e9] === "air") {
-                    // If right is air, move liquid right
-                    oreLocations[x + 1e9 + 1][y + 1e9] = liquids[i].id;
-                    oreLocations[x + 1e9][y + 1e9] = "air";
-                    liquidLocations[j] = `${Number(liquidLocations[j].split(",")[0]) + 1},${Number(liquidLocations[j].split(",")[1].split(" ")[0])} ${liquidLocations[j].split(" ")[1]}`;
-                } else if (oreLocations[x + 1e9 - 1][y + 1e9] === "air") {
-                    // If left is air, move liquid left
-                    oreLocations[x + 1e9 - 1][y + 1e9] = liquids[i].id;
-                    oreLocations[x + 1e9][y + 1e9] = "air";
-                    liquidLocations[j] = `${Number(liquidLocations[j].split(",")[0]) - 1},${Number(liquidLocations[j].split(",")[1].split(" ")[0])} ${liquidLocations[j].split(" ")[1]}`;
-                } else {
-                    // If it can't move, remove it from the list of liquids to prevent it from updating and prevent some lag
-                    liquidLocations.splice(j, 1);
-                }
-                liquidLocations.splice(j, 1);
-            }
-            updateVision();
-        }
-    }, liquids[i].viscosity);
-}
 
 document.getElementById("map").onmousemove = e => {
-    const squareSize = 810 / mapSize;
+    const squareSize = 810 / settings.mapSize;
     const rect = e.target.getBoundingClientRect();
     const left = e.clientX - rect.left + 5;
     const top = e.clientY - rect.top + 5;
     let ore = "Unknown";
-    if (oreLocations[pos.x + 1e9 - mapSize / 2 + 0.5 + Math.floor(left / squareSize)] !== undefined && oreLocations[pos.x + 1e9 - mapSize / 2 + 0.5 + Math.floor(left / squareSize)][1e9 - (-pos.y - mapSize / 2 + 0.5 + Math.floor(top / squareSize))] !== undefined) {
-        ore = oreLocations[pos.x + 1e9 - mapSize / 2 + 0.5 + Math.floor(left / squareSize)][1e9 - (-pos.y - mapSize / 2 + 0.5 + Math.floor(top / squareSize))];
+    if (debug.oreLocations[player.pos.x + 1e9 - settings.mapSize / 2 + 0.5 + Math.floor(left / squareSize)] !== undefined && debug.oreLocations[player.pos.x + 1e9 - settings.mapSize / 2 + 0.5 + Math.floor(left / squareSize)][1e9 - (-player.pos.y - settings.mapSize / 2 + 0.5 + Math.floor(top / squareSize))] !== undefined) {
+        ore = debug.oreLocations[player.pos.x + 1e9 - settings.mapSize / 2 + 0.5 + Math.floor(left / squareSize)][1e9 - (-player.pos.y - settings.mapSize / 2 + 0.5 + Math.floor(top / squareSize))];
     }
-    mapTooltip((ore !== "Unknown" && items[ore] !== undefined) ? items[ore].name : ore, (ore !== "Unknown" && items[ore] !== undefined) ? (settings.aiTooltips ? items[ore].aiTooltip : items[ore].desc) : "You haven't uncovered this block yet!");
+    let oreData = {types: []};
+    if (items[ore] !== undefined) {
+        oreData = getOreData(ore);
+    }
+    mapTooltip(ore !== "Unknown" && items[ore] !== undefined && !oreData.types.includes("liquid") ? items[ore].name : oreData.types.includes("liquid") ? items[ore].name.slice(0, items[ore].name.length - 7) : ore, ore !== "Unknown" && items[ore] !== undefined ? (settings.aiTooltips ? items[ore].aiTooltip : items[ore].desc) : "You haven't uncovered this block yet!");
 }
 
 document.onmousemove = e => {
@@ -997,109 +1100,151 @@ function mapTooltip(ore, desc) {
 // 1000 lines!! :)
 
 setInterval(() => {
-    frames++;
+    debug.frames++;
 }, 1);
 
 setInterval(() => {
-    document.getElementById("fps").innerText = frames + " FPS";
-    frames = 0;
+    document.getElementById("fps").innerText = `${debug.frames} FPS`;
+    debug.frames = 0;
 }, 1000);
 
 updateCheatSheets();
 
-for (const key in items) {
-    const ore = getOreData(key);
-    let oreDepthText = "";
-    if (ore) {
-        if (ore.foundBelow < -1000000) {
-            oreDepthText = " that can be found extremely deep in the earth.";
-        } else if (ore.foundBelow < -100000) {
-            oreDepthText = " that can be found very deep in the earth.";
-        } else if (ore.foundBelow < -10000) {
-            oreDepthText = " that can be found deep in the earth.";
-        } else if (ore.foundBelow < -1000) {
-            oreDepthText = " that can be found somewhat deep in the earth.";
-        } else if (ore.foundBelow < 1) {
-            oreDepthText = " that can be found below the surface.";
-        } else if (ore.foundAbove < 10) {
-            oreDepthText = " that can be found near the surface.";
-        } else if (ore.foundAbove < 100) {
-            oreDepthText = " that can be found in the sky.";
-        } else if (ore.foundAbove < 1000) {
-            oreDepthText = " that can be found high up in the sky.";
-        } else if (ore.foundAbove < 10000) {
-            oreDepthText = " that can be found very high up in the sky.";
-        } else if (ore.foundAbove !== Infinity && ore.foundBelow !== Infinity) {
-            oreDepthText = " that can be found in space.";
+function generateDesc() {
+    for (const key in items) {
+        const ore = getOreData(key);
+        let oreDepthText = "";
+        if (ore) {
+            if (ore.foundBelow < -1000000) {
+                oreDepthText = " that can be found extremely deep in the earth.";
+            } else if (ore.foundBelow < -100000) {
+                oreDepthText = " that can be found very deep in the earth.";
+            } else if (ore.foundBelow < -10000) {
+                oreDepthText = " that can be found deep in the earth.";
+            } else if (ore.foundBelow < -1000) {
+                oreDepthText = " that can be found somewhat deep in the earth.";
+            } else if (ore.foundBelow < -100) {
+                oreDepthText = " that can be found somewhat close to the surface.";
+            } else if (ore.foundBelow < 1) {
+                oreDepthText = " that can be found below the surface.";
+            } else if (ore.foundAbove < 10) {
+                oreDepthText = " that can be found near the surface.";
+            } else if (ore.foundAbove < 100) {
+                oreDepthText = " that can be found in the sky.";
+            } else if (ore.foundAbove < 1000) {
+                oreDepthText = " that can be found high up in the sky.";
+            } else if (ore.foundAbove < 10000) {
+                oreDepthText = " that can be found very high up in the sky.";
+            } else if (ore.foundAbove !== Infinity && ore.foundBelow !== Infinity) {
+                oreDepthText = " that can be found in space.";
+            } else {
+                oreDepthText = " that cannot be found anywhere in nature.";
+            }
+        }
+        let output = [];
+        if (items[key].rarity !== undefined) {
+            output[0] = `${items[key].name} is a ${items[key].rarity.toLowerCase()} item${oreDepthText}`;
         } else {
-            oreDepthText = " that cannot be found anywhere in nature.";
+            output[0] = `${items[key].name} is an item that does not have a specified rarity.`;
         }
-    }
-    let output = [];
-    if (items[key].rarity !== undefined) {
-        output[0] = `${items[key].name} is a ${items[key].rarity.toLowerCase()} item${oreDepthText}`;
-    } else {
-        output[0] = `${items[key].name} is an item that does not have a specified rarity.`;
-    }
-    let recipeCount = 0;
-    let craftableItems = [];
-    for (let i = 0; i < recipes.length; i++) {
-        for (let j = 0; j < recipes[i].ingredients.length; j++) {
-            if (recipes[i].ingredients[j].id === key) {
+        let recipeCount = 0;
+        let craftableItems = [];
+        for (let i = 0; i < recipes.length; i++) {
+            for (let j = 0; j < recipes[i].ingredients.length; j++) {
+                if (recipes[i].ingredients[j].id === key) {
+                    recipeCount++;
+                    craftableItems.push(items[recipes[i].output.id].name);
+                    break;
+                }
+            }
+        }
+        if (recipeCount > 5) {
+            output[1] = `It can be used to craft ${recipeCount} items, such as ${craftableItems[~~(Math.random() * craftableItems.length)]}.`;
+        } else if (recipeCount > 2) {
+            output[1] = `It can be used to craft ${recipeCount} items: ${craftableItems.join(", ")}.`;
+        } else if (recipeCount === 2) {
+            output[1] = `It can be used to craft ${craftableItems.join(" and ")}.`;
+        } else if (recipeCount === 1) {
+            output[1] = `It can be used to craft ${craftableItems[0]}.`;
+        } else {
+            output[1] = `It has no crafting purposes.`;
+            // "You have no crafting purposes" -GooseterV 2022
+        }
+
+        recipeCount = 0;
+        craftableItems = [];
+
+        for (let i = 0; i < recipes.length; i++) {
+            if (recipes[i].output.id === key) {
                 recipeCount++;
-                craftableItems.push(items[recipes[i].output.id].name);
-                break;
+                craftableItems.push(recipes[i].ingredients);
+            }
+        }
+
+        let materials = [];
+
+        if (craftableItems !== []) {
+            for (let i = 0; i < craftableItems.length; i++) {
+                materials[i] = [];
+                for (let j = 0; j < craftableItems[i].length; j++) {
+                    materials[i][j] = items[craftableItems[i][j].id].name;
+                }
+            }
+        }
+
+        if (recipeCount > 1) {
+            output[2] = "It can also be crafted multiple ways.";
+        } else if (recipeCount === 1) {
+            output[2] = `It can also be crafted with ${materials[0].join(", ")}.`;
+        } else {
+            output[2] = "It cannot be crafted.";
+        }
+
+        if (items[key].types.length > 2) {
+            output[3] = `It is a ${items[key].types.join(", a ")}.`;
+        } else if (items[key].types.length > 0) {
+            output[3] = `It is a ${camelCaseToRegular(items[key].types.join(" and a "))}.`;
+        } else {
+            output[3] = "It is not a special item.";
+        }
+
+        items[key].aiTooltip = output.join(" ");
+    }
+}
+
+function runCommand(command) {
+    let parts = command.split(" ");
+    if (parts[0] === "js") {
+        console.log(command.slice(3));
+        eval(command.slice(3));
+    } else if (parts[0] === "give") {
+        addItem(parts[1], parts[2]);
+    } else if (parts[0].match(/set|setBlock|blockSet/)) {
+        parts[1] = ~~parts[1];
+        parts[2] = ~~parts[2];
+        if (debug.oreLocations[parts[1] + 1e9] === undefined) {
+            debug.oreLocations[parts[1] + 1e9] = [];
+        }
+        debug.oreLocations[parts[1] + 1e9][parts[2] + 1e9] = parts[3];
+    } else if (parts[0].match(/kill|die/)) {
+        die();
+    } else if (parts[0].match(/setFood|food|foodPoints|setFoodPoints/)) {
+        player.foodPoints = Number(parts[1]);
+    } else if (parts[0].match(/setMaxFood|maxFood|maxFoodPoints|setMaxFoodPoints/)) {
+        player.maxFood = Number(parts[1]);
+    } else if (parts[0].match(/setDrink|drink|drinkPoints|setDrinkPoints/)) {
+        player.drinkPoints = Number(parts[1]);
+    } else if (parts[0].match(/setMaxDrink|maxDrink|maxDrinkPoints|setMaxDrinkPoints/)) {
+        player.maxDrink = Number(parts[1]);
+    } else if (parts[0].match(/clear|clearInv|clearInventory/)) {
+        inventory = [];
+        updateInventory();
+        updateRecipeBook();
+    } else if (parts[0].match(/fill|fillBlocks/)) {
+        for (let i = parts[1]; i <= parts[3]; i++) {
+            for (let j = parts[2]; j <= parts[4]; j++) {
+                runCommand(`set ${i} ${j} ${parts[5]}`);
             }
         }
     }
-    if (recipeCount > 5) {
-        output[1] = `It can be used to craft ${recipeCount} items, such as ${craftableItems[~~(Math.random() * craftableItems.length)]}.`;
-    } else if (recipeCount > 2) {
-        output[1] = `It can be used to craft ${recipeCount} items: ${craftableItems.join(", ")}.`;
-    } else if (recipeCount === 2) {
-        output[1] = `It can be used to craft ${craftableItems.join(" and ")}.`;
-    } else if (recipeCount === 1) {
-        output[1] = `It can be used to craft ${craftableItems[0]}.`;
-    } else {
-        output[1] = `It has no crafting purposes.`;
-    }
-
-    recipeCount = 0;
-    craftableItems = [];
-
-    for (let i = 0; i < recipes.length; i++) {
-        if (recipes[i].output.id === key) {
-            recipeCount++;
-            craftableItems.push(recipes[i].ingredients);
-        }
-    }
-
-    let materials = [];
-
-    if (craftableItems !== []) {
-        for (let i = 0; i < craftableItems.length; i++) {
-            materials[i] = [];
-            for (let j = 0; j < craftableItems[i].length; j++) {
-                materials[i][j] = items[craftableItems[i][j].id].name;
-            }
-        }
-    }
-
-    if (recipeCount > 1) {
-        output[2] = "It can also be crafted multiple ways.";
-    } else if (recipeCount === 1) {
-        output[2] = `It can also be crafted with ${materials[0].join(", ")}.`;
-    } else {
-        output[2] = "It cannot be crafted.";
-    }
-
-    if (items[key].types.length > 2) {
-        output[3] = `It is a ${items[key].types.join(", a ")}.`;
-    } else if (items[key].types.length > 0) {
-        output[3] = `It is a ${camelCaseToRegular(items[key].types.join(" and a "))}.`;
-    } else {
-        output[3] = "It is not a special item.";
-    }
-
-    items[key].aiTooltip = output.join(" ");
 }

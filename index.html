@@ -6,6 +6,7 @@
 <body oncontextmenu="return false;">
 <!-- Put a file called "music" (no quotes or file extension) in same folder to add music -->
 <audio id="music" src="music" loop></audio>
+<div id="debugTextureLoading" style="display: none;"></div>
 <div id="controls" style="text-align: center;">
     <button onclick="start();">Play!</button>
 </div>
@@ -94,7 +95,7 @@
                 "<p>Move Left: ← Button</p>\n" +
                 "<p>Move Right: → Button</p>\n" +
                 "<button onClick=\"start();\" style=\"height: 200px; font-size: 48px; border-radius: 400px;\">Play!</button>\n" +
-                "<p>If you see a button that has text like this, \"Blank / Blank\", that means that the left side is for tapping, right side is for holding.</p>";
+                "<p>If you see a button that has text like this, \"Action1 / Action2\", that means that the left side is for tapping, right side is for holding.</p>";
         } else {
             document.getElementById("mobileControls").style.display = "none";
             document.getElementById("controls").innerHTML = "<h1>Controls</h1>\n" +
@@ -104,7 +105,7 @@
                 "<p>Move Left: A / Left Arrow</p>\n" +
                 "<p>Move Right: D / Right Arrow</p>\n" +
                 "<button onClick=\"start();\" style=\"height: 200px; font-size: 48px; border-radius: 400px;\">Play!</button>" +
-                "<p>If you see a button that has text like this, \"Blank / Blank\", that means that the left side is for left click, right side is for right click.</p>";
+                "<p>If you see a button that has text like this, \"Action1 / Action2\", that means that the left side is for left click, right side is for right click.</p>";
         }
     </script>
     <script src="js/toNumberName.js"></script>
@@ -134,8 +135,11 @@
     <label>
         <span id="mapSize">Map Size (15):</span>
         <input type="range" style="width: 90%;" min="1" max="175" value="15" step="2"
-               onchange="mapSize = Number(this.value); document.getElementById('mapSize').innerText = `Map Size (${mapSize}):`;">
+               onchange="settings.mapSize = Number(this.value); document.getElementById('mapSize').innerText = `Map Size (${settings.mapSize}):`;">
     </label>
+    <br>
+    <!-- <input type="text" placeholder='Run commands (type "help" for a list of commands)' id="commandConsole" style="width: 100%; height: 24px;">
+    <button onclick="runCommand(document.getElementById('commandConsole').value)">Run</button> -->
     <div id="uploadMods">
         <h1 style="text-align: center;">Upload Mods</h1>
         <h2 style="text-align: center;">Note: You can load multiple of each type!</h2>
@@ -152,7 +156,8 @@
         <span>Other Scripts: </span>
         <input type="file" accept=".js" onchange="loadScript(this.files[0]); this.value = '';">
     </div>
+    <p>Texture Progress</p>
+    <progress value="0" max="1" id="textureProgress"></progress>
 </div>
-
 </body>
 </html>

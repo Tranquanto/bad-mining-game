@@ -137,3 +137,8 @@ legend {
 .bar {
     float: right;
 }
+
+.itemTexture {
+    image-rendering: pixelated;
+    width: 64px;
+}

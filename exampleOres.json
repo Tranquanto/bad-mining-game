@@ -15,5 +15,21 @@
     "foundBelow": 0,
     "foundAbove": -100000,
     "deadliness": 20
+  },
+  {
+    "__comment": "Viscosity is the number of milliseconds to move to a new block.",
+    "id": "liquidExample",
+    "commonness": 5,
+    "foundBelow": 10000,
+    "foundAbove": 0,
+    "viscosity": 500
+  },
+  {
+    "id": "deadlyLiquidExample",
+    "commonness": 40,
+    "foundBelow": 0,
+    "foundAbove": -100,
+    "viscosity": 3000,
+    "deadliness": 15
   }
 ]
