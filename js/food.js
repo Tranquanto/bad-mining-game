@@ -9,7 +9,7 @@ class food {
         this.cooked = 0;
         setInterval(() => {
             this.temp = (this.temp - 72) * 0.9999 + 72;
-            this.cooked += ((this.temp - 120) > 0) ? (this.temp - 120) / 3000 : 0;
+            this.cooked += this.temp - 120 > 0 ? (this.temp - 120) / 3000 : 0;
         }, 20);
     }
 }

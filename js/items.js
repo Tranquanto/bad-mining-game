@@ -21,7 +21,7 @@ let ores = [
     {id: "log", hardness: 1, commonness: 60, foundBelow: 10, foundAbove: 1, color: "#361e0d"},
     {id: "apple", hardness: 1, commonness: 60, foundBelow: 10, foundAbove: 1, color: "#ff0000"},
     {id: "stick", hardness: 1, commonness: 80, foundBelow: 10, foundAbove: 1, color: "#4a2d18"},
-    {id: "stone", hardness: 2, commonness: 100, foundBelow: 0, foundAbove: -20739840, color: "#474747"},
+    {id: "stone", hardness: 2, commonness: 100, foundBelow: 0, foundAbove: -20739840, color: "#474747", veinSize: 100},
     {id: "granite", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -44000, color: "#7e5d5d"},
     {id: "andesite", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -44000, color: "#ababab"},
     {id: "diorite", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -44000, color: "#dbdbdb"},
