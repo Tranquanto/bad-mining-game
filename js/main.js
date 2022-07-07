@@ -420,7 +420,7 @@ function updateVision() {
     ctx.stroke();
     for (let x = player.pos.x - (settings.mapSize / 2 - 0.5) - 3; x < player.pos.x + (settings.mapSize / 2 - 0.5) + 3; x++) {
         for (let y = player.pos.y - (settings.mapSize / 2 - 0.5) - 3; y < player.pos.y + (settings.mapSize / 2 - 0.5) + 3; y++) {
-            if (debug.oreLocations[x] !== undefined && debug.oreLocations[x][y] !== undefined) {
+            if (debug.oreLocations[x] !== undefined && debug.oreLocations[x] !== null && debug.oreLocations[x][y] !== undefined && debug.oreLocations[x][y] !== null) {
                 let hasImage = false;
                 for (let i = 0; i < ores.length; i++) {
                     if (ores[i].id === debug.oreLocations[x][y].id) {
@@ -506,7 +506,7 @@ function generateOre(x, y) {
     if (debug.oreLocations[x] === undefined || debug.oreLocations[x] === null) {
         debug.oreLocations[x] = [];
     }
-    if (debug.oreLocations[x][y] === undefined) debug.oreLocations[x][y] = {};
+    if (debug.oreLocations[x][y] === undefined || debug.oreLocations[x][y] === null) debug.oreLocations[x][y] = {};
     debug.oreLocations[x][y].id = ore.id;
     if (isLiquid(x, y) && !debug.liquidLocations.includes(`${x},${y} ♸${debug.oreLocations[x][y].id}♸`)) {
         debug.liquidLocations.push(`${x},${y} ♸${debug.oreLocations[x][y].id}♸`);
@@ -552,32 +552,6 @@ function generateLoot(lootTable) {
     }
 }
 
-document.onkeydown = e => {
-    if (e.code === "KeyE") {
-        if (isInventoryOpen) {
-            closeInventory();
-        } else {
-            openInventory();
-        }
-    } else if (e.code === "KeyR") {
-        document.getElementById('recipeCheatSheet').style.display = document.getElementById('recipeCheatSheet').style.display === '' ? 'none' : '';
-        document.getElementById('openRecipeCheatSheet').innerText = document.getElementById('openRecipeCheatSheet').innerText === 'Open Recipe Cheat Sheet' ? 'Close Recipe Cheat Sheet' : 'Open Recipe Cheat Sheet';
-    } else if (e.code === "KeyO") {
-        document.getElementById('oreCheatSheet').style.display = document.getElementById('oreCheatSheet').style.display === '' ? 'none' : '';
-        document.getElementById('openOreCheatSheet').innerText = document.getElementById('openOreCheatSheet').innerText === 'Open Ore Cheat Sheet' ? 'Close Ore Cheat Sheet' : 'Open Ore Cheat Sheet';
-    } else if (e.code === "KeyW" || e.code === "ArrowUp") {
-        move("u");
-    } else if (e.code === "KeyS" || e.code === "ArrowDown") {
-        move("d");
-    } else if (e.code === "KeyA" || e.code === "ArrowLeft") {
-        move("l");
-    } else if (e.code === "KeyD" || e.code === "ArrowRight") {
-        move("r");
-    } else if (e.code === "KeyF") {
-        document.querySelector("#forge").style.top = document.querySelector("#forge").style.top !== "0px" ? "0" : "-100vh";
-    }
-}
-
 function exportSave() {
     let output = {};
     output.inventory = inventory;
@@ -589,7 +563,9 @@ function exportSave() {
     output.ores = ores;
     output.settings = settings;
     output.game = game;
-    output.oreLocations = debug.oreLocations;
+
+    output.oreLocations = Object.assign({}, debug.oreLocations);
+    for (const x in output.oreLocations) output.oreLocations[x] = Object.assign({}, output.oreLocations[x]);
 
     navigator.clipboard.writeText(btoa(JSON.stringify(output))).then(() => {
         alert("Copied save to clipboard! (Auto-adds modded items, ores, and recipes, but it is still recommended to load mods again before importing save data.");
@@ -615,7 +591,8 @@ function importSave() {
     ores = input.ores;
     recipes = input.recipes;
     settings = input.settings;
-    debug.oreLocations = input.oreLocations;
+    debug.oreLocations = Object.assign([], input.oreLocations);
+    for (const x in debug.oreLocations) debug.oreLocations[x] = Object.assign([], debug.oreLocations[x]);
     reload();
 }
 
@@ -639,7 +616,7 @@ function updateInventory(log) {
             } else {
                 message = "<p class='clickToDrop'>Click to drop one<br>Right click to drop all</p>";
             }
-            output += `<fieldset class='inventoryItem' onclick='addItem("${inventory[i].id}", -1);' oncontextmenu='addItem("${inventory[i].id}", ${-inventory[i].count.number()}); updateRecipeBook();'><p>${items[inventory[i].id].name}</p>${message}<p class='inventoryItemCount'>${simplify(inventory[i].count)} (${itemSize} lbs | ${itemSize >= maxSize * 0.5 ? "Very Heavy" : itemSize >= maxSize * 0.25 ? "Heavy" : itemSize >= maxSize * 0.1 ? "Medium" : itemSize >= maxSize * 0.05 ? "Light" : itemSize >= maxSize * 0.001 ? "Very Light" : "Weightless"})</p></fieldset>`;
+            output += `<fieldset class='inventoryItem' onclick='addItem("${inventory[i].id}", -1);' oncontextmenu='addItem("${inventory[i].id}", ${-inventory[i].count.number()}); updateRecipeBook();'><p>${items[inventory[i].id].name}</p>${message}<p class='inventoryItemCount'>${simplify(inventory[i].count)} (${itemSize.toLocaleString()} lbs | ${itemSize >= maxSize * 0.5 ? "Very Heavy" : itemSize >= maxSize * 0.25 ? "Heavy" : itemSize >= maxSize * 0.1 ? "Medium" : itemSize >= maxSize * 0.05 ? "Light" : itemSize >= maxSize * 0.001 ? "Very Light" : "Weightless"})</p></fieldset>`;
         } else {
             inventory[i].count = new hugeNumber(0);
         }
@@ -1187,6 +1164,31 @@ document.getElementById("map").onmousemove = e => {
 document.onmousemove = e => {
     document.getElementById("mapTooltip").style.left = e.pageX + "px";
     document.getElementById("mapTooltip").style.top = e.pageY + "px";
+}
+
+document.onkeydown = e => {
+    if (e.code === "KeyE") {
+        if (isInventoryOpen) {
+            closeInventory();
+        } else {
+            openInventory();
+        }
+    } else if (e.code === "KeyR") {
+        document.getElementById('recipeCheatSheet').style.display = document.getElementById('recipeCheatSheet').style.display === '' ? 'none' : '';
+        document.getElementById('openRecipeCheatSheet').innerText = document.getElementById('openRecipeCheatSheet').innerText === 'Open Recipe Cheat Sheet' ? 'Close Recipe Cheat Sheet' : 'Open Recipe Cheat Sheet';
+    } else if (e.code === "KeyO") {
+        document.getElementById('oreCheatSheet').style.display = document.getElementById('oreCheatSheet').style.display === '' ? 'none' : '';
+        document.getElementById('openOreCheatSheet').innerText = document.getElementById('openOreCheatSheet').innerText === 'Open Ore Cheat Sheet' ? 'Close Ore Cheat Sheet' : 'Open Ore Cheat Sheet';
+    } else if (e.code === "KeyW" || e.code === "ArrowUp") {
+        move("u");
+    } else if (e.code === "KeyS" || e.code === "ArrowDown") {
+        move("d");
+    } else if (e.code === "KeyA" || e.code === "ArrowLeft") {
+        move("l");
+    } else if (e.code === "KeyD" || e.code === "ArrowRight") {
+        move("r");
+    }
+    if (e.code.includes("Arrow")) e.preventDefault();
 }
 
 function mapTooltip(ore, desc) {
