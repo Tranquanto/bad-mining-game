@@ -1,8 +1,11 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500&display=swap'); */
+
 body {
     background-color: hsl(193, 100%, 50%);
-    font-family: sans-serif;
+    font-family: Nunito, sans-serif;
     user-select: none;
     color: white;
+    text-align: center;
 }
 
 button {
@@ -12,7 +15,7 @@ button {
     background-color: white;
     border-style: solid;
     border-color: black;
-    font-family: sans-serif;
+    font-family: inherit;
     transition: background-color 250ms;
     transition-timing-function: ease;
 }
@@ -23,10 +26,9 @@ button:hover {
 }
 
 .inventoryItem, .recipe {
-    width: 180px;
-    min-height: 120px;
-    max-height: 480px;
-    height: fit-content;
+    width: 15vw;
+    height: 40vh;
+    overflow: auto;
     border-color: gray;
     background-color: black;
     color: white;
@@ -34,17 +36,12 @@ button:hover {
     border-width: 3px;
     text-align: center;
     vertical-align: top;
-    float: left;
-    font-family: Arial, sans-serif;
+    display: inline-block;
     transition: background-color 250ms;
 }
 
 .inventoryItem:hover {
     background-color: #222;
-}
-
-.recipe {
-    height: fit-content;
 }
 
 .recipeIngredient {
@@ -53,7 +50,7 @@ button:hover {
 
 .inventoryItemCount {
     position: relative;
-    top: -20%;
+    bottom: 0;
     font-size: 14px;
 }
 
@@ -138,7 +135,55 @@ legend {
     float: right;
 }
 
+#statBars {
+    width: fit-content;
+    text-align: center;
+    background: #222;
+    position: fixed;
+}
+
 .itemTexture {
     image-rendering: pixelated;
     width: 64px;
+}
+
+#inventory, #recipes {
+    text-align: center;
+}
+
+#openOreCheatSheet, #openRecipeCheatSheet {
+    width: 50%;
+    margin: 0;
+    float: left;
+}
+
+::-webkit-scrollbar {
+    width: 24px;
+}
+
+::-webkit-scrollbar-track {
+    background: #222;
+    border-radius: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-color: #222;
+    border-style: solid;
+    border-width: 6px;
+    border-radius: 12px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #444;
+}
+
+#forge {
+    position: absolute;
+    top: -100vh;
+    left: 5vw;
+    width: 90vw;
+    height: 100vh;
+    background: #888;
+    transition: top 1s;
 }

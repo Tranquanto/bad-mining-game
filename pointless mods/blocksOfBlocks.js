@@ -37,43 +37,40 @@ for (let i = 0; i < oresLength; i++) {
         ]);
     }
 }
-const itemLength = Object.keys(items).length;
-for (let i = 0; i < itemLength; i++) {
-    if (items[Object.keys(items)[i]].type !== "hello") {
-        addBlocks([
-            {
-                id: `${camelCase(items[Object.keys(items)[i]].name)}Block`,
-                hardness: (10 * items[Object.keys(items)[i]].size) / (items[Object.keys(items)[i]].size + 2),
-                excludeSize: true
-            }
-        ]);
-        addRecipes([
-            {
-                ingredients: [
-                    {
-                        id: Object.keys(items)[i],
-                        count: 4
-                    }
-                ],
-                output: {
-                    id: `${camelCase(items[Object.keys(items)[i]].name)}Block`,
-                    count: 1
-                }
-            }
-        ]);
-        addRecipes([
-            {
-                ingredients: [
-                    {
-                        id: `${camelCase(items[Object.keys(items)[i]].name)}Block`,
-                        count: 1
-                    }
-                ],
-                output: {
-                    id: Object.keys(items)[i],
+for (const i in items) {
+    addBlocks([
+        {
+            id: `${camelCase(items[i].name)}Block`,
+            hardness: (10 * items[i].size) / (items[i].size + 2),
+            excludeSize: true
+        }
+    ]);
+    addRecipes([
+        {
+            ingredients: [
+                {
+                    id: i,
                     count: 4
                 }
+            ],
+            output: {
+                id: `${camelCase(items[i].name)}Block`,
+                count: 1
             }
-        ]);
-    }
+        }
+    ]);
+    addRecipes([
+        {
+            ingredients: [
+                {
+                    id: `${camelCase(items[i].name)}Block`,
+                    count: 1
+                }
+            ],
+            output: {
+                id: i,
+                count: 4
+            }
+        }
+    ]);
 }

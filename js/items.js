@@ -5,7 +5,7 @@ let ores = [
         commonness: 1e-300,
         foundBelow: Infinity,
         foundAbove: -Infinity,
-        color: "#00000000",
+        color: "#0000",
         types: ["notSolid"]
     },
     {
@@ -14,11 +14,13 @@ let ores = [
         commonness: 100,
         foundBelow: 39000,
         foundAbove: 1,
-        color: "#ffffff00",
+        color: "#fff0",
         types: ["notSolid"]
     },
+    {id: "cloud", hardness: 0.5, commonness: 80, foundBelow: Infinity, foundAbove: 300, veinSize: 25, color: "#ffffff"},
     {id: "dirt", hardness: 0.5, commonness: 90, foundBelow: 0, foundAbove: -20739440, color: "#3d291d"},
     {id: "log", hardness: 1, commonness: 60, foundBelow: 10, foundAbove: 1, color: "#361e0d"},
+    {id: "leaves", hardness: 1, commonness: 60, foundBelow: 10, foundAbove: 1, color: "#5a7a36"},
     {id: "apple", hardness: 1, commonness: 60, foundBelow: 10, foundAbove: 1, color: "#ff0000"},
     {id: "stick", hardness: 1, commonness: 80, foundBelow: 10, foundAbove: 1, color: "#4a2d18"},
     {id: "stone", hardness: 2, commonness: 100, foundBelow: 0, foundAbove: -20739840, color: "#474747", veinSize: 100},
@@ -41,6 +43,8 @@ let ores = [
     {id: "barite", hardness: 6, commonness: 20, foundBelow: -24000, foundAbove: -93300, color: "#a49474"},
     {id: "floacite", hardness: 6, commonness: 5, foundBelow: 3050, foundAbove: 250, color: "#fba7ff"},
     {id: "trimium", hardness: 6, commonness: 12, foundBelow: -10315120, foundAbove: -10315200, color: "#762827"},
+    {id: "quartz", hardness: 7, commonness: 25, foundBelow: 0, foundAbove: -Infinity, color: "#ffcccc"},
+    {id: "chalcedony", hardness: 7, commonness: 10, foundBelow: -1000, foundAbove: -Infinity, color: "#ffffcc"},
     {
         id: "arsenopyrite",
         hardness: 7,
@@ -119,12 +123,15 @@ let items = {
         size: 1,
         desc: "Dirt is a very common material. You can sift through this for some other materials.",
         extraFunctions: [{
-            name: "Sift", function: () => {
+            name: "Sift", function() {
                 addItem("dirt", -1);
                 for (let i = 0; i < 5; i++) {
                     const loot = generateLoot([
                         {id: "stone", weight: 100, count: {min: 0, max: 1, round: 0.1}},
                         {id: "limonite", weight: 10, count: {min: 0, max: 1, round: 0.1}},
+                        {id: "copper", weight: 5, count: {min: 0, max: 1, round: 0.1}},
+                        {id: "geode", weight: 4, count: {min: 1, max: 1, round: 1}},
+                        {id: "silver", weight: 3, count: {min: 0, max: 1, round: 0.1}},
                         {id: "gold", weight: 1, count: {min: 0, max: 1, round: 0.1}},
                         {id: "diamond", weight: 0.1, count: {min: 0, max: 1, round: 0.1}},
                         {id: "trimium", weight: 0.01, count: {min: 0, max: 1, round: 0.1}},
@@ -214,6 +221,29 @@ let items = {
         size: 10,
         desc: "Unobtainium is an extremely rare material that only generates at an altitude of -666. It is needed to craft endgame items."
     },
+    geode: {
+        name: "Geode",
+        size: 1.5,
+        desc: "Smash this open to reveal some resources.",
+        extraFunctions: [{
+            name: "Smash", function() {
+                addItem("geode", -1);
+                addItem("chalcedony", Math.floor(Math.random() * 10) / 10);
+                const loot = generateLoot([
+                    {id: "quartz", weight: 10, count: {min: 0, max: 4, round: 0.1}},
+                    {id: "amethyst", weight: 3, count: {min: 0, max: 4, round: 0.1}},
+                    {id: "garnet", weight: 2.5, count: {min: 0, max: 4, round: 0.1}},
+                    {id: "topaz", weight: 2, count: {min: 0, max: 4, round: 0.1}},
+                    {id: "apatite", weight: 1.5, count: {min: 0, max: 4, round: 0.1}},
+                    {id: "sapphire", weight: 1, count: {min: 0, max: 4, round: 0.1}},
+                    {id: "ruby", weight: 0.5, count: {min: 0, max: 4, round: 0.1}},
+                    {id: "floacite", weight: 0.8, count: {min: 0, max: 4, round: 0.1}},
+                    {id: "diamond", weight: 0.1, count: {min: 0, max: 4, round: 0.1}}
+                ]);
+                addItem(loot[0], loot[1]);
+            }
+        }]
+    },
 
     // Blocks
 
@@ -230,9 +260,9 @@ let items = {
     pumiceBlock: {name: "Pumice Block", types: ["block"], desc: "Pumice blocks can be used for building."},
     airBlock: {
         name: "Air Block",
-        size: 0,
+        size: 0.001,
         types: ["block", "cantDrop"],
-        desc: "Air blocks are your starter blocks. There is no way to obtain them other than starting over or dying. They also weigh absolutely nothing."
+        desc: "Air blocks are your starter blocks. There is no way to obtain them other than starting over or dying. They also weigh next to nothing."
     },
 
     // Other Crafted Items

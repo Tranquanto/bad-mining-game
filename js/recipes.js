@@ -1105,6 +1105,10 @@ let recipes = [
             {
                 id: "diamond",
                 count: 10
+            },
+            {
+                id: "cloud",
+                count: 250
             }
         ],
         output: {
