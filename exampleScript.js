@@ -46,8 +46,8 @@ addBlocks([
         viscosity: 50,
         types: ["liquid"],
         commonness: 20,
-        foundBelow: -10000,
-        foundAbove: -100000,
+        maxY: -10000,
+        minY: -100000,
         color: "#00ff0040"
     }
 ]);

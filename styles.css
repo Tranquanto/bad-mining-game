@@ -1,5 +1,17 @@
 /* @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500&display=swap'); */
 
+@keyframes flash {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
 body {
     background-color: hsl(193, 100%, 50%);
     font-family: Nunito, sans-serif;
@@ -8,21 +20,29 @@ body {
     text-align: center;
 }
 
-button {
+button, #importSaveLabel {
+    color: #000;
     border-radius: 40px;
     height: 40px;
     width: 100%;
     background-color: white;
     border-style: solid;
     border-color: black;
+    border-width: 2px;
+    font-size: 14px;
     font-family: inherit;
     transition: background-color 250ms;
     transition-timing-function: ease;
 }
 
-button:hover {
+button:hover, #importSaveLabel:hover {
     background-color: #c0c0c0;
     border-color: white;
+}
+
+#importSaveLabel {
+    display: table;
+    text-align: center;
 }
 
 .inventoryItem, .recipe {
@@ -65,7 +85,7 @@ fieldset {
 }
 
 legend {
-    color: gray;
+    color: #000;
 }
 
 #respawnBtn {
@@ -178,12 +198,18 @@ legend {
     background: #444;
 }
 
-#forge {
+#gui, #inventory {
     position: absolute;
     top: -100vh;
-    left: 5vw;
-    width: 90vw;
+    left: 0;
+    width: 100vw;
     height: 100vh;
-    background: #888;
+    background: #8886;
     transition: top 1s;
+}
+
+#temperature {
+    animation-duration: 1s;
+    animation-timing-function: step-end;
+    animation-iteration-count: infinite;
 }

@@ -35,12 +35,12 @@ let debug = {
     loadTextures: () => {
         let output = "";
         for (const key in items)
-            output += `<img alt='${key}' src='textures/item/${key}.png' onload="debug.textures.item.push('${key}'); document.getElementById('textureProgress').value = (debug.textures.item.length + debug.textures.block.length) / (Object.keys(items).length + ores.length);">`;
+            output += `<img alt='${key}' src='textures/item/${key}.png' onload="debug.textures.item.push('${key}'); document.getElementById('textureProgress').value = (Array.from(new Set(debug.textures.item)).length + Array.from(new Set(debug.textures.block)).length) / (Object.keys(items).length + ores.length);">`;
         for (const ore of ores)
-            output += `<img alt='${ore.id}' src='textures/block/${ore.id}.png' onload="debug.textures.block.push('${ore.id}'); document.getElementById('textureProgress').value = (debug.textures.item.length + debug.textures.block.length) / (Object.keys(items).length + ores.length);">`;
+            output += `<img alt='${ore.id}' src='textures/block/${ore.id}.png' onload="debug.textures.block.push('${ore.id}'); document.getElementById('textureProgress').value = (Array.from(new Set(debug.textures.item)).length + Array.from(new Set(debug.textures.block)).length) / (Object.keys(items).length + ores.length);">`;
         document.getElementById("debugTextureLoading").innerHTML = output;
     }
-}
+};
 
 function addItemsToOres() {
     for (let i = 0; i < ores.length; i++) {
@@ -58,10 +58,10 @@ function addItemsToOres() {
                 name += " Bucket";
             }
         }
-        if (ores[i].foundBelow === undefined || ores[i].foundBelow === null) {
+        if (ores[i].maxY === undefined || ores[i].maxY === null) {
             ores[i].foundBelow = Infinity;
         }
-        if (ores[i].foundAbove === undefined || ores[i].foundAbove === null) {
+        if (ores[i].minY === undefined || ores[i].minY === null) {
             ores[i].foundAbove = Infinity;
         }
     }
@@ -74,9 +74,9 @@ function itemsUpdate() {
         }
     }
     for (let o = 0; o < ores.length; o++) {
-        const minHeight = ores[o].foundAbove !== -Infinity ? ores[o].foundAbove : -1000000;
-        const maxHeight = ores[o].foundBelow !== Infinity ? ores[o].foundBelow : 1000000;
-        const distanceFrom0 = Math.abs(ores[o].foundBelow) > Math.abs(ores[o].foundAbove) ? Math.abs(ores[o].foundAbove) : Math.abs(ores[o].foundBelow);
+        const minHeight = ores[o].minY !== -Infinity ? ores[o].minY : -1000000;
+        const maxHeight = ores[o].maxY !== Infinity ? ores[o].maxY : 1000000;
+        const distanceFrom0 = Math.abs(ores[o].maxY) > Math.abs(ores[o].minY) ? Math.abs(ores[o].minY) : Math.abs(ores[o].maxY);
         const overallCommonness = ores[o].commonness * (maxHeight - minHeight + 1) - distanceFrom0;
         let setRarity;
         if (overallCommonness >= 2000000) {
@@ -147,17 +147,17 @@ if (localStorage.getItem("recipesHTML") !== null) {
 }
 
 function start() {
-    document.getElementById('controls').style.display = 'none';
-    document.getElementById('main').style.display = '';
-    document.getElementById('music').play();
-    document.getElementById('music').volume = 0.5;
+    document.getElementById("controls").style.display = "none";
+    document.getElementById("main").style.display = "";
+    document.getElementById("music").play();
+    document.getElementById("music").volume = 0.5;
     reload();
     addItem("airBlock", 100);
 }
 
 function openInventory() {
     isInventoryOpen = true;
-    inventoryGui.style.display = "";
+    inventoryGui.style.top = "0";
     document.getElementById("recipes").style.display = "";
     openInventoryBtn.style.display = "none";
     document.getElementById("closeInventory").style.display = "";
@@ -165,7 +165,7 @@ function openInventory() {
 
 function closeInventory() {
     isInventoryOpen = false;
-    inventoryGui.style.display = "none";
+    inventoryGui.style.top = "-100vh";
     document.getElementById("recipes").style.display = "none";
     openInventoryBtn.style.display = "";
     document.getElementById("closeInventory").style.display = "none";
@@ -408,80 +408,63 @@ function buildBelow(onlyCheck) {
     return placed;
 }
 
-function updateVision() {
+function updateVision(x, y) {
     debug.liquidLocations = [];
     const cvs = document.getElementById("map");
     const ctx = cvs.getContext("2d");
     const squareSize = 810 / settings.mapSize;
-    // noinspection SillyAssignmentJS
-    cvs.width = cvs.width;
+    if (x === undefined && y === undefined) {
+        // noinspection SillyAssignmentJS
+        cvs.width = cvs.width;
+    } else {
+        ctx.clearRect((x - player.pos.x) * squareSize + 400 - 5 * squareSize / 10, 810 - ((y - player.pos.y) * squareSize + 410 + 5 * squareSize / 10), squareSize, squareSize);
+    }
     ctx.imageSmoothingEnabled = false;
     ctx.rect(0, 0, 810, 810);
     ctx.stroke();
-    for (let x = player.pos.x - (settings.mapSize / 2 - 0.5) - 3; x < player.pos.x + (settings.mapSize / 2 - 0.5) + 3; x++) {
-        for (let y = player.pos.y - (settings.mapSize / 2 - 0.5) - 3; y < player.pos.y + (settings.mapSize / 2 - 0.5) + 3; y++) {
-            if (debug.oreLocations[x] !== undefined && debug.oreLocations[x] !== null && debug.oreLocations[x][y] !== undefined && debug.oreLocations[x][y] !== null) {
-                let hasImage = false;
-                for (let i = 0; i < ores.length; i++) {
-                    if (ores[i].id === debug.oreLocations[x][y].id) {
-                        ctx.fillStyle = ores[i].color;
-                        break;
-                    }
+
+    function update(x1, y1) {
+        if (debug.oreLocations[x1] !== undefined && debug.oreLocations[x1] !== null && debug.oreLocations[x1][y1] !== undefined && debug.oreLocations[x1][y1] !== null) {
+            let hasImage = false;
+            for (let i = 0; i < ores.length; i++) {
+                if (ores[i].id === debug.oreLocations[x1][y1].id) {
+                    ctx.fillStyle = ores[i].color;
+                    break;
                 }
-                if (debug.textures.block.includes(debug.oreLocations[x][y].id)) hasImage = true;
-                if (!hasImage) {
-                    ctx.fillRect((x - player.pos.x) * squareSize + 400 - 5 * squareSize / 10, 810 - ((y - player.pos.y) * squareSize + 410 + 5 * squareSize / 10), squareSize, squareSize);
-                } else {
-                    const blockImg = new Image();
-                    blockImg.src = `./textures/block/${debug.oreLocations[x][y].id}.png`;
-                    ctx.drawImage(blockImg, (x - player.pos.x) * squareSize + 400 - 5 * squareSize / 10, 810 - ((y - player.pos.y) * squareSize + 410 + 5 * squareSize / 10), squareSize, squareSize);
-                }
-                ctx.fillStyle = "#ff0";
             }
-            if (isLiquid(x, y) && !debug.liquidLocations.includes(`${x},${y} ♸${debug.oreLocations[x][y].id}♸`)) {
-                debug.liquidLocations.push(`${x},${y} ♸${debug.oreLocations[x][y].id}♸`);
+            if (debug.textures.block.includes(debug.oreLocations[x1][y1].id)) hasImage = true;
+            if (!hasImage) {
+                ctx.fillRect((x1 - player.pos.x) * squareSize + 400 - 5 * squareSize / 10, 810 - ((y1 - player.pos.y) * squareSize + 410 + 5 * squareSize / 10), squareSize, squareSize);
+            } else {
+                const blockImg = new Image();
+                blockImg.src = `./textures/block/${debug.oreLocations[x1][y1].id}.png`;
+                ctx.drawImage(blockImg, (x1 - player.pos.x) * squareSize + 400 - 5 * squareSize / 10, 810 - ((y1 - player.pos.y) * squareSize + 410 + 5 * squareSize / 10), squareSize, squareSize);
+            }
+            ctx.fillStyle = "#ff0";
+        } else {
+            generateOre(x1, y1);
+        }
+        for (const e of [{x: -1, y: 0}, {x: 1, y: 0}, {x: 0, y: -1}, {x: 0, y: 1}, {x: 0, y: 0}]) {
+            x1 += e.x;
+            y1 += e.y;
+            if (isLiquid(x1, y1) && !debug.liquidLocations.includes(`${x1},${y1} ♸${debug.oreLocations[x1][y1].id}♸`)) {
+                debug.liquidLocations.push(`${x1},${y1} ♸${debug.oreLocations[x1][y1].id}♸`);
             }
         }
+    }
+
+    if (x === undefined && y === undefined) {
+        for (let x1 = player.pos.x - (settings.mapSize / 2 - 0.5) - 3; x1 < player.pos.x + (settings.mapSize / 2 - 0.5) + 3; x1++) {
+            for (let y1 = player.pos.y - (settings.mapSize / 2 - 0.5) - 3; y1 < player.pos.y + (settings.mapSize / 2 - 0.5) + 3; y1++) {
+                update(x1, y1);
+            }
+        }
+    } else {
+        update(x, y);
     }
     const playerImg = new Image();
     playerImg.src = "./textures/player.png";
     ctx.drawImage(playerImg, 400 - squareSize / 2, 400 - squareSize / 2, squareSize, squareSize);
-}
-
-function capitalize(word) {
-    const allWords = word.split(" ");
-    for (let i = 0; i < allWords.length; i++) {
-        const firstLetter = allWords[i].slice(0, 1);
-        allWords[i] = firstLetter.toUpperCase() + allWords[i].slice(1);
-    }
-    return allWords.join(" ");
-}
-
-function uncapitalize(word) {
-    const allWords = word.split(" ");
-    for (let i = 0; i < allWords.length; i++) {
-        const firstLetter = allWords[i].slice(0, 1);
-        allWords[i] = firstLetter.toLowerCase() + allWords[i].slice(1);
-    }
-    return allWords.join(" ");
-}
-
-function camelCase(string) {
-    const allWords1 = string.split(" ");
-    for (let i = 1; i < allWords1.length; i++) {
-        allWords1[i] = capitalize(allWords1[i]);
-    }
-    return allWords1.join("");
-}
-
-function camelCaseToRegular(string) {
-    while (/[A-Z]/.test(string)) {
-        const index = string.match(/[A-Z]/).index;
-        const part1 = string.slice(0, index);
-        const part2 = string.slice(index);
-        string = `${uncapitalize(part1)} ${uncapitalize(part2)}`;
-    }
-    return string;
 }
 
 function generateOre(x, y) {
@@ -489,7 +472,7 @@ function generateOre(x, y) {
     let possibleOres = [];
     let maxCommonness = 0;
     for (let o = 0; o < ores.length; o++) {
-        if (y >= ores[o].foundAbove && y <= ores[o].foundBelow) {
+        if (y >= ores[o].minY && y <= ores[o].maxY) {
             const possibleOreLength = possibleOres.length;
             possibleOres.push(ores[o]);
             maxCommonness += ores[o].commonness;
@@ -520,7 +503,7 @@ function generateOre(x, y) {
     let radius = 1;
     for (let i = 0; i < number; i++) {
         if (ore.replaceableOres === undefined || ore.replaceableOres === null) {
-            ore.replaceableOres = ["stone", "air"];
+            ore.replaceableOres = [];
         }
         const x2 = x + ~~(Math.random() * radius - radius / 2);
         const y2 = y + ~~(Math.random() * radius - radius / 2);
@@ -558,26 +541,24 @@ function exportSave() {
     output.player = player;
     output.maxSize = maxSize;
     output.mapSize = settings.mapSize;
-    output.items = items;
-    output.recipes = recipes;
-    output.ores = ores;
+    // output.items = items;
+    // output.recipes = recipes;
+    // output.ores = ores;
     output.settings = settings;
     output.game = game;
 
     output.oreLocations = Object.assign({}, debug.oreLocations);
     for (const x in output.oreLocations) output.oreLocations[x] = Object.assign({}, output.oreLocations[x]);
 
-    navigator.clipboard.writeText(btoa(JSON.stringify(output))).then(() => {
-        alert("Copied save to clipboard! (Auto-adds modded items, ores, and recipes, but it is still recommended to load mods again before importing save data.");
-        debug.lastSave = Date.now();
-    }, () => {
-        alert("Save failed! Try again later, or report it at https://github.com/Dragon77mathbye/bad-mining-game/issues");
-    });
+    const date = Date().split(" ");
+    date.splice(5);
+
+    download(`save-${date.join("_")}.bmgsave`, btoa(JSON.stringify(output)));
     localStorage.setItem("lastSave", debug.lastSave);
 }
 
-function importSave() {
-    const save = prompt("Save?");
+async function importSave(file) {
+    const save = await file.text();
     let input = JSON.parse(atob(save));
     inventory = input.inventory;
     for (let i = 0; i < inventory.length; i++) {
@@ -587,42 +568,17 @@ function importSave() {
     game = input.game;
     maxSize = input.maxSize;
     settings.mapSize = input.mapSize;
-    items = input.items;
-    ores = input.ores;
-    recipes = input.recipes;
+    // items = input.items;
+    // ores = input.ores;
+    // recipes = input.recipes;
     settings = input.settings;
     debug.oreLocations = Object.assign([], input.oreLocations);
     for (const x in debug.oreLocations) debug.oreLocations[x] = Object.assign([], debug.oreLocations[x]);
     reload();
 }
 
-function updateInventory(log) {
-    let totalSize = new hugeNumber(0);
-    for (let i = 0; i < inventory.length; i++) {
-        totalSize = totalSize.add(inventory[i].count.multiply(items[String(inventory[i].id)].size));
-    }
-    let output = "";
-    inventory.sort(function (a, b) {
-        let textA = a.id.toUpperCase();
-        let textB = b.id.toUpperCase();
-        return textA < textB ? -1 : textA > textB ? 1 : 0;
-    });
-    for (let i = 0; i < inventory.length; i++) {
-        if (Math.round(inventory[i].count.number() * 10000) / 10000 > 0) {
-            const itemSize = simplify(inventory[i].count.number() * items[String(inventory[i].id)].size);
-            let message;
-            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                message = "<p class='clickToDrop'>Tap to drop one<br>Hold to drop all</p>";
-            } else {
-                message = "<p class='clickToDrop'>Click to drop one<br>Right click to drop all</p>";
-            }
-            output += `<fieldset class='inventoryItem' onclick='addItem("${inventory[i].id}", -1);' oncontextmenu='addItem("${inventory[i].id}", ${-inventory[i].count.number()}); updateRecipeBook();'><p>${items[inventory[i].id].name}</p>${message}<p class='inventoryItemCount'>${simplify(inventory[i].count)} (${itemSize.toLocaleString()} lbs | ${itemSize >= maxSize * 0.5 ? "Very Heavy" : itemSize >= maxSize * 0.25 ? "Heavy" : itemSize >= maxSize * 0.1 ? "Medium" : itemSize >= maxSize * 0.05 ? "Light" : itemSize >= maxSize * 0.001 ? "Very Light" : "Weightless"})</p></fieldset>`;
-        } else {
-            inventory[i].count = new hugeNumber(0);
-        }
-    }
-    if (log) console.log(totalSize);
-    document.getElementById("inventory").innerHTML = `<legend>Inventory (${simplify(totalSize, true, 0)} / ${simplify(maxSize)} lbs full)</legend>${output}<div style='clear: both'></div>`;
+function updateInventory() {
+    addItem("air", 0);
 }
 
 function die(deathMessage) {
@@ -656,203 +612,6 @@ function godMode() {
     updateRecipeBook();
 }
 
-function addBlocks(json) {
-    for (let i = 0; i < json.length; i++) if (json[i].types === undefined) json[i].types = [];
-    ores = ores.concat(json);
-    addItemsToOres();
-}
-
-function addItems(json) {
-    const keys = Object.keys(json);
-    for (let i = 0; i < keys.length; i++) {
-        items[keys[i]] = json[keys[i]];
-    }
-}
-
-function addRecipes(json) {
-    recipes = recipes.concat(json);
-    itemsUpdate();
-}
-
-function addMaterial({id, power, size, hasOre, hasBar, hasBlock, low, high, oreColor, blockColor}) {
-    const hardness = power / 10;
-    const recipeCost = Math.round(power / 16);
-    if (low === undefined) {
-        low = -20000000;
-    }
-    if (high === undefined) {
-        high = Math.round(-(1.25 ** power));
-    }
-    eval(`addItems({${id}: {name: capitalize(camelCaseToRegular(id)), size: size, types: []}});`);
-    eval(`addItems({
-        ${id}Pickaxe: {
-            name: capitalize(camelCaseToRegular(id + "Pickaxe")),
-            strength: hardness < 10 ? hardness + 1 : 10,
-            types: ["pickaxe"]
-        }
-    });`);
-    eval(`addItems({${id}Axe: {name: capitalize(camelCaseToRegular(id + "Axe")), types: ["axe"]}});`);
-    if (hasOre) {
-        addBlocks([
-            {
-                id: id,
-                commonness: 100 - power,
-                hardness: hardness,
-                foundAbove: low,
-                foundBelow: high,
-                color: oreColor
-            }
-        ]);
-    }
-    if (hasBlock) {
-        addBlocks([
-            {
-                id: `${id}Block`,
-                hardness: hardness,
-                color: blockColor
-            }
-        ]);
-        eval(`addItems({
-            ${id}Block: {
-                name: capitalize(camelCaseToRegular(id)) + " Block",
-                size: size * 4,
-                types: ["block"]
-            }
-        });`);
-        addRecipes([
-            {
-                ingredients: [
-                    {
-                        id: id,
-                        count: 4
-                    }
-                ],
-                output: {
-                    id: `${id}Block`,
-                    count: 1
-                }
-            },
-            {
-                ingredients: [
-                    {
-                        id: `${id}Block`,
-                        count: 1
-                    }
-                ],
-                output: {
-                    id: id,
-                    count: 4
-                }
-            }
-        ]);
-    }
-    if (hasBar) {
-        eval(`addItems({${id}Bar: {name: capitalize(camelCaseToRegular(id + "Bar")), size: size * 2}});`);
-        addRecipes([
-            {
-                ingredients: [
-                    {
-                        id: id,
-                        count: 2
-                    },
-                    {
-                        id: "coal",
-                        count: Math.floor(recipeCost / 2)
-                    }
-                ],
-                output: {
-                    id: `${id}Bar`,
-                    count: 1
-                }
-            },
-            {
-                ingredients: [
-                    {
-                        id: `${id}Bar`,
-                        count: recipeCost
-                    },
-                    {
-                        id: "stick",
-                        count: Math.round(recipeCost * 0.75)
-                    }
-                ],
-                output: {
-                    id: `${id}Pickaxe`,
-                    count: 1
-                }
-            },
-            {
-                ingredients: [
-                    {
-                        id: `${id}Bar`,
-                        count: recipeCost
-                    },
-                    {
-                        id: "stick",
-                        count: Math.round(recipeCost * 0.75)
-                    }
-                ],
-                output: {
-                    id: `${id}Axe`,
-                    count: 1
-                }
-            }
-        ]);
-    } else {
-        addRecipes([
-            {
-                ingredients: [
-                    {
-                        id: id,
-                        count: recipeCost
-                    },
-                    {
-                        id: "stick",
-                        count: Math.round(recipeCost * 0.75)
-                    }
-                ],
-                output: {
-                    id: `${id}Pickaxe`,
-                    count: 1
-                }
-            },
-            {
-                ingredients: [
-                    {
-                        id: id,
-                        count: recipeCost
-                    },
-                    {
-                        id: "stick",
-                        count: Math.round(recipeCost * 0.75)
-                    }
-                ],
-                output: {
-                    id: `${id}Axe`,
-                    count: 1
-                }
-            }
-        ]);
-    }
-    reload();
-}
-
-function rename(id, name) {
-    items[id].name = name;
-}
-
-function changeId(oldId, newId) {
-    items[newId] = items[oldId];
-    delete items[oldId];
-    for (let i = 0; i < recipes.length; i++) {
-        for (let j = 0; j < recipes[i].ingredients.length; j++) {
-            if (recipes[i].ingredients[j].id === oldId) {
-                recipes[i].ingredients[j].id = newId;
-            }
-        }
-    }
-}
-
 function updateCheatSheets() {
     let output = "<legend>Recipe Cheat Sheet</legend>";
     for (let i = 0; i < recipes.length; i++) {
@@ -870,12 +629,12 @@ function updateCheatSheets() {
     for (let i = 0; i < ores.length; i++) {
         if (ores[i].commonness !== undefined && ores[i].commonness !== null) {
             let heightRange;
-            if (ores[i].foundAbove === -Infinity) {
-                heightRange = `Below ${ores[i].foundBelow} ft`;
-            } else if (ores[i].foundBelow === Infinity) {
-                heightRange = `Above ${ores[i].foundAbove} ft`;
+            if (ores[i].minY === -Infinity) {
+                heightRange = `Below ${ores[i].maxY} ft`;
+            } else if (ores[i].maxY === Infinity) {
+                heightRange = `Above ${ores[i].minY} ft`;
             } else {
-                heightRange = `${ores[i].foundAbove} ft to ${ores[i].foundBelow} ft`;
+                heightRange = `${ores[i].minY} ft to ${ores[i].maxY} ft`;
             }
             output += `<fieldset class="recipe" style='background: ${ores[i].color}; color: ${oppositeColor({hex: ores[i].color})};'><p><b><u>${items[ores[i].id].name}</u></b></p><p>Hardness: ${ores[i].hardness}</p><p>Commonness: ${ores[i].commonness}</p><p>Obtainable Height Range: ${heightRange}</p></fieldset>`;
         }
@@ -1022,11 +781,13 @@ setInterval(() => {
         tempColor = "#7c2eda";
     }
 
-    if (player.temperature > 100) {
+    if (player.temperature > 100 && !checkInventoryFor("heatProtection")) {
         player.bodyTemperature += (player.temperature - player.bodyTemperature) / 1000;
-    } else if (player.temperature < 40) {
+    } else if (player.temperature < 40 && !checkInventoryFor("coldProtection")) {
         player.bodyTemperature += ((player.temperature + 58.6) - player.bodyTemperature) / 1000;
     }
+
+    document.querySelector("#temperature").style.animationName = player.temperature > 140 || player.temperature < 0 ? "flash" : "";
 
     document.querySelector("#temperature").innerHTML = `Environment ${player.temperature.toLocaleString(undefined, {maximumFractionDigits: 2})}°F<br>Body ${player.bodyTemperature.toLocaleString(undefined, {maximumFractionDigits: 2})}°F`;
     document.querySelector("#temperature").style.color = tempColor;
@@ -1061,13 +822,13 @@ setInterval(() => {
 // Auto build blocks underneath player if there is air there
 
 setInterval(() => {
-    const ore = getOreData(debug.oreLocations[player.pos.x][player.pos.y].id);
+    const ore = getOreData((debug.oreLocations[player.pos.x][player.pos.y] || "space").id);
 
     if (ore.deadliness !== undefined) {
         player.health -= ore.deadliness;
     }
-    if (ore.onInteract !== undefined) {
-        ore.onInteract();
+    if (ore.onTouch !== undefined) {
+        ore.onTouch();
     }
 }, 250);
 
@@ -1086,8 +847,10 @@ function liquidUpdate() {
         debug.liquidLoopIds.push(setInterval(() => {
             for (let j = 0; j < debug.liquidLocations.length; j++) {
                 if (debug.liquidLocations[j].match(RegExp(`♸${liquids[i].id}♸`)) !== null) {
-                    let x = Number(debug.liquidLocations[j].split(",")[0].split(" ")[0]);
-                    let y = Number(debug.liquidLocations[j].split(",")[1].split(" ")[0]);
+                    let x = Number(debug.liquidLocations[j].split(",")[0].split(" ")[0]),
+                        y = Number(debug.liquidLocations[j].split(",")[1].split(" ")[0]),
+                        newX = x,
+                        newY = y;
 
                     // Adds arrays for the x pos if they don't exist to prevent errors
 
@@ -1103,12 +866,14 @@ function liquidUpdate() {
 
                     function l() {
                         debug.oreLocations[x - 1][y] = {id: liquids[i].id};
+                        newX--;
                         debug.oreLocations[x][y].id = "air";
                         debug.liquidLocations[j] = `${Number(debug.liquidLocations[j].split(",")[0]) - 1},${Number(debug.liquidLocations[j].split(",")[1].split(" ")[0])} ${debug.liquidLocations[j].split(" ")[1]}`;
                     }
 
                     function r() {
                         debug.oreLocations[x + 1][y] = {id: liquids[i].id};
+                        newX++;
                         debug.oreLocations[x][y].id = "air";
                         debug.liquidLocations[j] = `${Number(debug.liquidLocations[j].split(",")[0]) + 1},${Number(debug.liquidLocations[j].split(",")[1].split(" ")[0])} ${debug.liquidLocations[j].split(" ")[1]}`;
                     }
@@ -1116,6 +881,7 @@ function liquidUpdate() {
                     if (debug.oreLocations[x][y - 1] && debug.oreLocations[x][y - 1].id === "air") {
                         // If block below is air, then move liquid down
                         debug.oreLocations[x][y - 1] = {id: liquids[i].id};
+                        newY--;
                         debug.oreLocations[x][y].id = "air";
                         debug.liquidLocations[j] = `${Number(debug.liquidLocations[j].split(",")[0])},${Number(debug.liquidLocations[j].split(",")[1].split(" ")[0]) - 1} ${debug.liquidLocations[j].split(" ")[1]}`;
                     } else if (debug.oreLocations[x + 1][y] && debug.oreLocations[x - 1][y] && debug.oreLocations[x + 1][y].id === "air" && debug.oreLocations[x - 1][y].id === "air") {
@@ -1127,13 +893,11 @@ function liquidUpdate() {
                     } else if (debug.oreLocations[x - 1][y] && debug.oreLocations[x - 1][y].id === "air") {
                         // If left is air, move liquid left
                         l();
-                    } else {
-                        // If it can't move, remove it from the list of liquids to prevent it from updating and prevent some lag
-                        debug.liquidLocations.splice(j, 1);
                     }
                     debug.liquidLocations.splice(j, 1);
+                    updateVision(newX, newY);
+                    updateVision(x, y);
                 }
-                updateVision();
             }
         }, liquids[i].viscosity));
     }
@@ -1143,28 +907,51 @@ liquidUpdate();
 
 // Liquid Physics
 
-
-document.getElementById("map").onmousemove = e => {
+function oreAtMouse(e) {
     const a = Number(document.getElementById("map").style.zoom);
     const squareSize = 810 * a / settings.mapSize;
     const rect = e.target.getBoundingClientRect();
     const left = e.clientX - rect.left * a + 5;
     const top = e.clientY - rect.top * a + 5;
-    let ore = "Unknown";
+    let ore = "Unknown", x, y;
     if (debug.oreLocations[player.pos.x - settings.mapSize / 2 + 0.5 + Math.floor(left / squareSize)] !== undefined && debug.oreLocations[player.pos.x - settings.mapSize / 2 + 0.5 + Math.floor(left / squareSize)][-(-player.pos.y - settings.mapSize / 2 + 0.5 + Math.floor(top / squareSize))] !== undefined) {
-        ore = debug.oreLocations[player.pos.x - settings.mapSize / 2 + 0.5 + Math.floor(left / squareSize)][-(-player.pos.y - settings.mapSize / 2 + 0.5 + Math.floor(top / squareSize))].id;
+        x = player.pos.x - settings.mapSize / 2 + 0.5 + Math.floor(left / squareSize);
+        y = -(-player.pos.y - settings.mapSize / 2 + 0.5 + Math.floor(top / squareSize));
+        ore = debug.oreLocations[x][y].id;
     }
+    return {ore, x, y};
+}
+
+document.getElementById("map").onmousemove = e => {
+    let ore = oreAtMouse(e).ore;
     let oreData = {types: []};
     if (items[ore] !== undefined) {
         oreData = getOreData(ore);
     }
     mapTooltip(ore !== "Unknown" && items[ore] !== undefined && !oreData.types.includes("liquid") ? items[ore].name : oreData.types.includes("liquid") ? items[ore].name.slice(0, items[ore].name.length - 7) : ore, ore !== "Unknown" && items[ore] !== undefined ? (settings.aiTooltips ? items[ore].aiTooltip : items[ore].desc) : "You haven't uncovered this block yet!");
-}
+};
 
-document.onmousemove = e => {
+document.querySelector("#map").addEventListener("mousedown", e => {
+    let data = oreAtMouse(e);
+    const {ore, x, y} = data;
+    if (e.button === 2) {
+        if (getOreData(ore).onInteract) getOreData(ore).onInteract();
+    }
+    if (e.button === 0 && player.pickaxe.strength >= getOreData(ore).hardness && !isLiquid(x, y)) {
+        addItem(ore, 1);
+        debug.oreLocations[x][y].id = "air";
+        updateVision(x, y);
+    }
+});
+
+document.addEventListener("mousemove", e => {
     document.getElementById("mapTooltip").style.left = e.pageX + "px";
     document.getElementById("mapTooltip").style.top = e.pageY + "px";
-}
+});
+
+window.addEventListener("beforeunload", e => {
+    (e || window.event).returnValue = true;
+});
 
 document.onkeydown = e => {
     if (e.code === "KeyE") {
@@ -1174,11 +961,11 @@ document.onkeydown = e => {
             openInventory();
         }
     } else if (e.code === "KeyR") {
-        document.getElementById('recipeCheatSheet').style.display = document.getElementById('recipeCheatSheet').style.display === '' ? 'none' : '';
-        document.getElementById('openRecipeCheatSheet').innerText = document.getElementById('openRecipeCheatSheet').innerText === 'Open Recipe Cheat Sheet' ? 'Close Recipe Cheat Sheet' : 'Open Recipe Cheat Sheet';
+        document.getElementById("recipeCheatSheet").style.display = document.getElementById("recipeCheatSheet").style.display === "" ? "none" : "";
+        document.getElementById("openRecipeCheatSheet").innerText = document.getElementById("openRecipeCheatSheet").innerText === "Open Recipe Cheat Sheet" ? "Close Recipe Cheat Sheet" : "Open Recipe Cheat Sheet";
     } else if (e.code === "KeyO") {
-        document.getElementById('oreCheatSheet').style.display = document.getElementById('oreCheatSheet').style.display === '' ? 'none' : '';
-        document.getElementById('openOreCheatSheet').innerText = document.getElementById('openOreCheatSheet').innerText === 'Open Ore Cheat Sheet' ? 'Close Ore Cheat Sheet' : 'Open Ore Cheat Sheet';
+        document.getElementById("oreCheatSheet").style.display = document.getElementById("oreCheatSheet").style.display === "" ? "none" : "";
+        document.getElementById("openOreCheatSheet").innerText = document.getElementById("openOreCheatSheet").innerText === "Open Ore Cheat Sheet" ? "Close Ore Cheat Sheet" : "Open Ore Cheat Sheet";
     } else if (e.code === "KeyW" || e.code === "ArrowUp") {
         move("u");
     } else if (e.code === "KeyS" || e.code === "ArrowDown") {
@@ -1189,7 +976,7 @@ document.onkeydown = e => {
         move("r");
     }
     if (e.code.includes("Arrow")) e.preventDefault();
-}
+};
 
 function mapTooltip(ore, desc) {
     if (desc === undefined) {
@@ -1203,6 +990,8 @@ function mapTooltip(ore, desc) {
 }
 
 // 1000 lines!! :)
+// I should really split up my code
+// This is impossible to navigate
 
 setInterval(() => {
     debug.frames++;
@@ -1220,27 +1009,27 @@ function generateDesc() {
         const ore = getOreData(key);
         let oreDepthText = "";
         if (ore) {
-            if (ore.foundBelow < -1000000) {
+            if (ore.maxY < -1000000) {
                 oreDepthText = " that can be found extremely deep in the earth.";
-            } else if (ore.foundBelow < -100000) {
+            } else if (ore.maxY < -100000) {
                 oreDepthText = " that can be found very deep in the earth.";
-            } else if (ore.foundBelow < -10000) {
+            } else if (ore.maxY < -10000) {
                 oreDepthText = " that can be found deep in the earth.";
-            } else if (ore.foundBelow < -1000) {
+            } else if (ore.maxY < -1000) {
                 oreDepthText = " that can be found somewhat deep in the earth.";
-            } else if (ore.foundBelow < -100) {
+            } else if (ore.maxY < -100) {
                 oreDepthText = " that can be found somewhat close to the surface.";
-            } else if (ore.foundBelow < 1) {
+            } else if (ore.maxY < 1) {
                 oreDepthText = " that can be found below the surface.";
-            } else if (ore.foundAbove < 10) {
+            } else if (ore.minY < 10) {
                 oreDepthText = " that can be found near the surface.";
-            } else if (ore.foundAbove < 100) {
+            } else if (ore.minY < 100) {
                 oreDepthText = " that can be found in the sky.";
-            } else if (ore.foundAbove < 1000) {
+            } else if (ore.minY < 1000) {
                 oreDepthText = " that can be found high up in the sky.";
-            } else if (ore.foundAbove < 10000) {
+            } else if (ore.minY < 10000) {
                 oreDepthText = " that can be found very high up in the sky.";
-            } else if (ore.foundAbove !== Infinity && ore.foundBelow !== Infinity) {
+            } else if (ore.minY !== Infinity && ore.maxY !== Infinity) {
                 oreDepthText = " that can be found in space.";
             } else {
                 oreDepthText = " that cannot be found anywhere in nature.";
@@ -1370,27 +1159,4 @@ help (Shows this message)
 
 function resizeCanvas() {
     document.getElementById("map").style.zoom = `${(window.innerHeight < window.innerWidth ? window.innerHeight : window.innerWidth) / 900}`;
-}
-
-function oppositeColor({rgb, hex}) {
-    if (rgb) {
-        const cols = rgb.replaceAll(/[a-z(),]/g, "").split(" ");
-        return `rgb(${255 - cols[0]}, ${255 - cols[1]}, ${255 - cols[2]})`;
-    } else if (hex) {
-        const cols = [];
-        cols[0] = parseInt(hex.slice(1, 3), 16);
-        cols[1] = parseInt(hex.slice(3, 5), 16);
-        cols[2] = parseInt(hex.slice(5, 7), 16);
-
-        function a(b) {
-            const c = (255 - b).toString(16);
-            if (c.length === 1) {
-                return `0${c}`;
-            } else {
-                return c;
-            }
-        }
-
-        return `#${a(cols[0])}${a(cols[1])}${a(cols[2])}`;
-    }
 }

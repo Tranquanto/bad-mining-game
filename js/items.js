@@ -3,8 +3,8 @@ let ores = [
         id: "space",
         hardness: 0,
         commonness: 1e-300,
-        foundBelow: Infinity,
-        foundAbove: -Infinity,
+        maxY: Infinity,
+        minY: -Infinity,
         color: "#0000",
         types: ["notSolid"]
     },
@@ -12,54 +12,55 @@ let ores = [
         id: "air",
         hardness: 0,
         commonness: 100,
-        foundBelow: 39000,
-        foundAbove: 1,
+        maxY: 39000,
+        minY: 1,
         color: "#fff0",
         types: ["notSolid"]
     },
-    {id: "cloud", hardness: 0.5, commonness: 80, foundBelow: Infinity, foundAbove: 300, veinSize: 25, color: "#ffffff"},
-    {id: "dirt", hardness: 0.5, commonness: 90, foundBelow: 0, foundAbove: -20739440, color: "#3d291d"},
-    {id: "log", hardness: 1, commonness: 60, foundBelow: 10, foundAbove: 1, color: "#361e0d"},
-    {id: "leaves", hardness: 1, commonness: 60, foundBelow: 10, foundAbove: 1, color: "#5a7a36"},
-    {id: "apple", hardness: 1, commonness: 60, foundBelow: 10, foundAbove: 1, color: "#ff0000"},
-    {id: "stick", hardness: 1, commonness: 80, foundBelow: 10, foundAbove: 1, color: "#4a2d18"},
-    {id: "stone", hardness: 2, commonness: 100, foundBelow: 0, foundAbove: -20739840, color: "#474747", veinSize: 100},
-    {id: "granite", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -44000, color: "#7e5d5d"},
-    {id: "andesite", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -44000, color: "#ababab"},
-    {id: "diorite", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -44000, color: "#dbdbdb"},
-    {id: "pumice", hardness: 2, commonness: 70, foundBelow: 0, foundAbove: -44000, color: "#a19d3d"},
-    {id: "talc", hardness: 2, commonness: 40, foundBelow: -3, foundAbove: -10000000, color: "#607054"},
-    {id: "coal", hardness: 2, commonness: 60, foundBelow: 0, foundAbove: -Infinity, color: "#281f1b"},
-    {id: "limonite", hardness: 3, commonness: 50, foundBelow: -5, foundAbove: -Infinity, color: "#9b5632"},
-    {id: "copper", hardness: 3, commonness: 45, foundBelow: -38, foundAbove: -Infinity, color: "#ff7300"},
-    {id: "chromite", hardness: 3, commonness: 50, foundBelow: -250, foundAbove: -13300, color: "#a1fff2"},
-    {id: "petrifiedWood", hardness: 3, commonness: 5, foundBelow: -500, foundAbove: -35000, color: "#856b4b"},
-    {id: "cassiterite", hardness: 4, commonness: 45, foundBelow: -64, foundAbove: -Infinity, color: "#a4b7bb"},
-    {id: "silver", hardness: 4, commonness: 40, foundBelow: -210, foundAbove: -900, color: "#beffff"},
-    {id: "titanite", hardness: 4, commonness: 42, foundBelow: -1600, foundAbove: -3700000, color: "#7496f5"},
-    {id: "gold", hardness: 4, commonness: 30, foundBelow: -4100, foundAbove: -5300, color: "#ffd500"},
-    {id: "hematite", hardness: 5, commonness: 40, foundBelow: -16000, foundAbove: -18000, color: "#25004d"},
-    {id: "apatite", hardness: 5, commonness: 40, foundBelow: -24000, foundAbove: -24000, color: "#7332c2"},
-    {id: "barite", hardness: 6, commonness: 20, foundBelow: -24000, foundAbove: -93300, color: "#a49474"},
-    {id: "floacite", hardness: 6, commonness: 5, foundBelow: 3050, foundAbove: 250, color: "#fba7ff"},
-    {id: "trimium", hardness: 6, commonness: 12, foundBelow: -10315120, foundAbove: -10315200, color: "#762827"},
-    {id: "quartz", hardness: 7, commonness: 25, foundBelow: 0, foundAbove: -Infinity, color: "#ffcccc"},
-    {id: "chalcedony", hardness: 7, commonness: 10, foundBelow: -1000, foundAbove: -Infinity, color: "#ffffcc"},
+    {id: "cloud", hardness: 0.5, commonness: 80, maxY: Infinity, minY: 300, veinSize: 25, color: "#ffffff"},
+    {id: "dirt", hardness: 0.5, commonness: 90, maxY: 0, minY: -20739440, color: "#3d291d"},
+    {id: "log", hardness: 1, commonness: 6, maxY: 10, minY: 1, color: "#361e0d", veinSize: 5},
+    {id: "leaves", hardness: 1, commonness: 6, maxY: 10, minY: 1, color: "#5a7a36", veinSize: 10},
+    {id: "apple", hardness: 1, commonness: 2, maxY: 10, minY: 1, color: "#ff0000", veinSize: 1},
+    {id: "stick", hardness: 1, commonness: 6, maxY: 10, minY: 1, color: "#4a2d18"},
+    {id: "stone", hardness: 2, commonness: 1000, maxY: 0, minY: -20739840, color: "#474747", veinSize: 40},
+    {id: "granite", hardness: 2, commonness: 70, maxY: 0, minY: -44000, color: "#7e5d5d"},
+    {id: "andesite", hardness: 2, commonness: 70, maxY: 0, minY: -44000, color: "#ababab"},
+    {id: "diorite", hardness: 2, commonness: 70, maxY: 0, minY: -44000, color: "#dbdbdb"},
+    {id: "pumice", hardness: 2, commonness: 70, maxY: 0, minY: -44000, color: "#a19d3d"},
+    {id: "talc", hardness: 2, commonness: 40, maxY: -3, minY: -10000000, color: "#607054"},
+    {id: "coal", hardness: 2, commonness: 60, maxY: 0, minY: -Infinity, color: "#281f1b"},
+    {id: "limonite", hardness: 3, commonness: 50, maxY: -5, minY: -Infinity, color: "#9b5632"},
+    {id: "copper", hardness: 3, commonness: 45, maxY: -38, minY: -Infinity, color: "#ff7300"},
+    {id: "chromite", hardness: 3, commonness: 50, maxY: -250, minY: -13300, color: "#a1fff2"},
+    {id: "petrifiedWood", hardness: 3, commonness: 5, maxY: -500, minY: -35000, color: "#856b4b"},
+    {id: "cassiterite", hardness: 4, commonness: 45, maxY: -64, minY: -Infinity, color: "#a4b7bb"},
+    {id: "silver", hardness: 4, commonness: 40, maxY: -210, minY: -900, color: "#beffff"},
+    {id: "titanite", hardness: 4, commonness: 42, maxY: -1600, minY: -3700000, color: "#7496f5"},
+    {id: "gold", hardness: 4, commonness: 30, maxY: -4100, minY: -5300, color: "#ffd500"},
+    {id: "hematite", hardness: 5, commonness: 40, maxY: -16000, minY: -18000, color: "#25004d"},
+    {id: "apatite", hardness: 5, commonness: 40, maxY: -24000, minY: -24000, color: "#7332c2"},
+    {id: "barite", hardness: 6, commonness: 20, maxY: -24000, minY: -93300, color: "#a49474"},
+    {id: "floacite", hardness: 6, commonness: 5, maxY: 3050, minY: 250, color: "#fba7ff"},
+    {id: "trimium", hardness: 6, commonness: 12, maxY: -10315120, minY: -10315200, color: "#762827"},
+    {id: "quartz", hardness: 7, commonness: 25, maxY: 0, minY: -Infinity, color: "#ffcccc"},
+    {id: "chalcedony", hardness: 7, commonness: 10, maxY: -1000, minY: -Infinity, color: "#ffffcc"},
+    {id: "amethyst", hardness: 7, commonness: 3, maxY: 0, minY: 100, color: "#c878ff"},
     {
         id: "arsenopyrite",
         hardness: 7,
         commonness: 15,
-        foundBelow: -12000,
-        foundAbove: -12036,
+        maxY: -12000,
+        minY: -12036,
         deadliness: 25,
         color: "#ffe462"
     },
-    {id: "garnet", hardness: 7, commonness: 4, foundBelow: -13000, foundAbove: -19291, color: "#ff2626d0"},
-    {id: "topaz", hardness: 8, commonness: 4, foundBelow: -20000, foundAbove: -813213, color: "#ff9900b0"},
-    {id: "sapphire", hardness: 8, commonness: 3, foundBelow: -24000, foundAbove: -3000000, color: "#4f4fffb0"},
-    {id: "ruby", hardness: 9, commonness: 1, foundBelow: -38000, foundAbove: -6000000, color: "#ff0040b0"},
-    {id: "diamond", hardness: 10, commonness: 0.21, foundBelow: -90000, foundAbove: -Infinity, color: "#7cdcffb0"},
-    {id: "unobtainium", hardness: 10, commonness: 0.001, foundBelow: -666, foundAbove: -666, color: "#ff00ff"},
+    {id: "garnet", hardness: 7, commonness: 4, maxY: -13000, minY: -19291, color: "#ff2626d0"},
+    {id: "topaz", hardness: 8, commonness: 4, maxY: -20000, minY: -813213, color: "#ff9900b0"},
+    {id: "sapphire", hardness: 8, commonness: 3, maxY: -24000, minY: -3000000, color: "#4f4fffb0"},
+    {id: "ruby", hardness: 9, commonness: 1, maxY: -38000, minY: -6000000, color: "#ff0040b0"},
+    {id: "diamond", hardness: 10, commonness: 0.21, maxY: -90000, minY: -Infinity, color: "#7cdcffb0"},
+    {id: "unobtainium", hardness: 10, commonness: 0.001, maxY: -666, minY: -666, color: "#ff00ff"},
 
     {id: "wood", hardness: 1, color: "#573218"},
     {id: "stoneBlock", hardness: 2, color: "#646464"},
@@ -68,28 +69,30 @@ let ores = [
     {id: "dioriteBlock", hardness: 2, color: "#e8e8e8"},
     {id: "pumiceBlock", hardness: 2, color: "#d5d059"},
     {id: "airBlock", hardness: 0, color: "#ffffff60"},
+
+    {id: "furnace", hardness: 1, color: "#5d3c2b"},
     // Viscosity = milliseconds to move to a new block
     {
         id: "water",
         types: ["liquid"],
         viscosity: 200,
         commonness: 60,
-        foundBelow: 1,
-        foundAbove: -1000000,
+        maxY: 1,
+        minY: -1000000,
         color: "#005ac0",
         onInteract: () => {
-            player.drinkPoints++;
+            player.drinkPoints += 100;
         }
     },
-    {id: "oil", types: ["liquid"], viscosity: 300, commonness: 30, foundBelow: 20, foundAbove: -300, color: "#31302c"},
+    {id: "oil", types: ["liquid"], viscosity: 300, commonness: 30, maxY: -50, minY: -300, color: "#31302c"},
     {
         id: "lava",
         types: ["liquid"],
         viscosity: 1500,
         commonness: 10,
-        foundBelow: -6000,
-        foundAbove: -1000000,
-        deadliness: 0.4,
+        maxY: -6000,
+        minY: -1000000,
+        deadliness: 15,
         color: "#ff4d00"
     },
     {
@@ -97,9 +100,9 @@ let ores = [
         types: ["liquid"],
         viscosity: 150,
         commonness: 25,
-        foundBelow: -10,
-        foundAbove: -30,
-        deadliness: 0.5,
+        maxY: -10,
+        minY: -30,
+        deadliness: 5,
         color: "#d9d5bc"
     }
 ];
@@ -146,6 +149,12 @@ let items = {
         name: "Log",
         size: 1,
         desc: "Logs can be crafted into wood, which is a base material for many items.",
+        rarity: "Common"
+    },
+    leaves: {
+        name: "Leaves",
+        size: 0.05,
+        desc: "The plural form of 'leaf'",
         rarity: "Common"
     },
     stick: {
@@ -264,6 +273,10 @@ let items = {
         types: ["block", "cantDrop"],
         desc: "Air blocks are your starter blocks. There is no way to obtain them other than starting over or dying. They also weigh next to nothing."
     },
+    furnace: {
+        name: "Furnace",
+        desc: "A furnace is used to smelt ores into bars."
+    },
 
     // Other Crafted Items
 
@@ -335,7 +348,7 @@ let items = {
             }
         }]
     },
-    oil: {name: "Oil Bucket", size: 1, desc: "This common liquid serves no purpose (yet).", rarity: "Common"},
+    oil: {name: "Oil Bucket", size: 1, desc: "This common liquid can be used as fuel.", rarity: "Common"},
     lava: {
         name: "Lava Bucket",
         size: 2,
@@ -630,5 +643,7 @@ let items = {
         foodValue: 30,
         needsToBeCooked: true,
         desc: "Steaks are a food that needs to be cooked to be able to nourish you. However, once cooked, they fill a lot of food points."
-    }
+    },
+    coldProtection: {name: "Cold Protection", size: 20, desc: "Protects you from the cold."},
+    heatProtection: {name: "Heat Protection", size: 20, desc: "Protects you from the heat."}
 };

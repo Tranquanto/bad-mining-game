@@ -583,6 +583,18 @@ let recipes = [
     {
         ingredients: [
             {
+                id: "petrifiedWood",
+                count: 1
+            }
+        ],
+        output: {
+            id: "wood",
+            count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
                 id: "stone",
                 count: 4
             }
@@ -1195,6 +1207,78 @@ let recipes = [
             function: () => {
                 addItem("bucket");
             }
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "stone",
+                count: 20
+            },
+            {
+                id: "wood",
+                count: 10
+            },
+            {
+                id: "coal",
+                count: 4
+            },
+            {
+                id: "copper",
+                count: 3
+            }
+        ],
+        output: {
+            id: "furnace",
+            count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "fuel",
+                count: 10
+            },
+            {
+                id: "quartz",
+                count: 20
+            },
+            {
+                id: "andesite",
+                count: 10
+            },
+            {
+                id: "titaniumBar",
+                count: 5
+            }
+        ],
+        output: {
+            id: "coldProtection",
+            count: 1
+        }
+    },
+    {
+        ingredients: [
+            {
+                id: "fuel",
+                count: 10
+            },
+            {
+                id: "chalcedony",
+                count: 20
+            },
+            {
+                id: "diorite",
+                count: 10
+            },
+            {
+                id: "flotuBar",
+                count: 5
+            }
+        ],
+        output: {
+            id: "heatProtection",
+            count: 1
         }
     }
 ];

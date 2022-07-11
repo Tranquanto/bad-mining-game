@@ -10,4 +10,4 @@ mine
 
 craft tools to mine stronger ores
 
-this was one of my very old projects, around the time I started learning to code html/js/css (2018) and I decided to remake it for some reason
+this was one of my old projects and I decided to remake it for some reason
