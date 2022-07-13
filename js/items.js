@@ -166,7 +166,7 @@ let items = {
     stone: {
         name: "Stone",
         size: 2,
-        desc: "Stone is a very common block; it is likely the most common one, and it can be crafted into blocks for building."
+        desc: "It's not a sponge. It's NOT A SPONGE."
     },
     granite: {
         name: "Granite",

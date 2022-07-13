@@ -41,6 +41,7 @@ let debug = {
         document.getElementById("debugTextureLoading").innerHTML = output;
     }
 };
+let buildMode = {enabled: false, id: "airBlock"};
 
 function addItemsToOres() {
     for (let i = 0; i < ores.length; i++) {
@@ -129,7 +130,6 @@ function itemsUpdate() {
 const healthText = document.getElementById("health");
 const healthBar = document.getElementById("healthBar");
 const inventoryGui = document.getElementById("inventory");
-const openInventoryBtn = document.getElementById("openInventory");
 let isInventoryOpen = false;
 debug.oreLocations[0] = [];
 generateOre(player.pos.x - 1, player.pos.y);
@@ -158,17 +158,22 @@ function start() {
 function openInventory() {
     isInventoryOpen = true;
     inventoryGui.style.top = "0";
-    document.getElementById("recipes").style.display = "";
-    openInventoryBtn.style.display = "none";
+    document.getElementById("recipes").style.top = "0";
+    document.getElementById("openInventory").style.display = "none";
     document.getElementById("closeInventory").style.display = "";
+    document.querySelector("#map").style.filter = "blur(0.25vw)";
+    document.querySelector("#statBars").style.filter = "blur(0.25vw)";
 }
 
 function closeInventory() {
     isInventoryOpen = false;
-    inventoryGui.style.top = "-100vh";
-    document.getElementById("recipes").style.display = "none";
-    openInventoryBtn.style.display = "";
+    inventoryGui.style.top = "100vh";
+    document.getElementById("recipes").style.top = "100vh";
+    document.querySelector("#map").style.filter = "blur(0)";
+    document.querySelector("#statBars").style.filter = "blur(0)";
+    document.getElementById("openInventory").style.display = "";
     document.getElementById("closeInventory").style.display = "none";
+    document.querySelector("#itemMenu").style.display = "none";
 }
 
 function craft(recipe) {
@@ -233,7 +238,17 @@ function updateRecipeBook() {
         }
     }
 
-    document.getElementById("recipes").innerHTML = "<legend>Recipe Book</legend>" + String(output).replace("undefined", "");
+    const arrow = document.createElement("img");
+    arrow.src = "textures/gui/arrow.png";
+    arrow.alt = "arrow";
+    arrow.className = "leftArrow";
+    arrow.addEventListener("click", () => {
+        document.querySelector("#inventory").style.left = "0";
+        document.querySelector("#recipes").style.left = "100vw";
+    });
+
+    document.getElementById("recipes").innerHTML = `<span>Crafting</span><br>${String(output).replace("undefined", "")}`;
+    document.querySelector("#recipes").append(arrow);
 }
 
 function checkForIngredients(recipe, inv) {
@@ -304,80 +319,34 @@ function teleport(x, y) {
 
 function move(direction) {
     player.lastDirection = direction;
+    const {x, y} = player.pos;
+
     if (direction === "l") {
-        player.pos.x--;
-    } else if (direction === "r") {
-        player.pos.x++;
-    } else if (direction === "u" && !player.falling && buildBelow(true)) {
-        player.pos.y++;
-    } else if (direction === "d") {
-        player.pos.y--;
-    }
-    generateAroundPlayer();
-    let canMine = false;
-    for (let i = 0; i < ores.length; i++) {
-        if (debug.oreLocations[player.pos.x] !== undefined && debug.oreLocations[player.pos.x] !== null && ores[i].id === debug.oreLocations[player.pos.x][player.pos.y].id && player.pickaxe.strength >= ores[i].hardness) {
-            canMine = true;
-            let liquidWithBucket = false;
-            let bucketItem = "";
-            if (isLiquid(player.pos.x, player.pos.y)) {
-                bucketItem = checkInventoryFor("#bucket");
-                if (bucketItem) {
-                    liquidWithBucket = true;
-                }
-            } else {
-                liquidWithBucket = true;
-            }
-            if (debug.oreLocations[player.pos.x][player.pos.y].id !== "air" && liquidWithBucket) {
-                if (isLiquid(player.pos.x, player.pos.y)) {
-                    if (bucketItem !== undefined) {
-                        addItem(bucketItem, -1);
-                        addItem(debug.oreLocations[player.pos.x][player.pos.y].id, 1);
-                    }
-                } else {
-                    addItem(debug.oreLocations[player.pos.x][player.pos.y].id, 1);
-                }
-                for (let i = 0; i < ores.length; i++) {
-                    if (ores[i].id === debug.oreLocations[player.pos.x][player.pos.y].id) {
-                        if (!(ores[i].deadliness === undefined || ores[i].deadliness === null)) {
-                            player.health -= ores[i].deadliness;
-                            healthText.innerHTML = `${Math.round(player.health).toLocaleString()} HP`;
-                            healthBar.style.width = `${player.health}%`;
-                            if (player.health <= 0) {
-                                die(`You were killed by ${capitalize(camelCaseToRegular(ores[i].id))}`);
-                            }
-                        }
-                        break;
-                    }
-                }
-                debug.oreLocations[player.pos.x][player.pos.y] = {id: "air"};
-                updateRecipeBook();
-            }
-        }
-    }
-    if (!canMine) {
-        if (direction === "l") {
-            player.pos.x++;
-        } else if (direction === "r") {
+        if (!isSolid(x - 1, y)) {
             player.pos.x--;
-        } else if (direction === "u") {
-            player.pos.y--;
-        } else if (direction === "d") {
+        } else if (!isSolid(x - 1, y + 1) && !isSolid(x, y + 1)) {
+            player.pos.x--;
             player.pos.y++;
         }
-    } else {
-        if (direction === "u") {
-            buildBelow();
+    } else if (direction === "r") {
+        if (!isSolid(x + 1, y)) {
+            player.pos.x++;
+        } else if (!isSolid(x + 1, y + 1) && !isSolid(x, y + 1)) {
+            player.pos.x++;
+            player.pos.y++;
+        }
+    } else if (direction === "u" && !player.falling) {
+        if (!isSolid(x, y + 1)) {
+            player.pos.y++;
+        }
+    } else if (direction === "d") {
+        if (!isSolid(x, y - 1)) {
+            player.pos.y--;
         }
     }
+    generateAroundPlayer();
     if (getOreData(debug.oreLocations[player.pos.x][player.pos.y - 1].id).types.includes("notSolid") || isLiquid(player.pos.x, player.pos.y - 1)) {
-        let placed;
-        if (player.flight) {
-            placed = true;
-        } else {
-            placed = buildBelow();
-        }
-        if (!placed) {
+        if (!player.flight) {
             player.falling = true;
             move("d");
         }
@@ -417,7 +386,7 @@ function updateVision(x, y) {
         // noinspection SillyAssignmentJS
         cvs.width = cvs.width;
     } else {
-        ctx.clearRect((x - player.pos.x) * squareSize + 400 - 5 * squareSize / 10, 810 - ((y - player.pos.y) * squareSize + 410 + 5 * squareSize / 10), squareSize, squareSize);
+        ctx.clearRect((x - player.pos.x) * squareSize + 405 - 5 * squareSize / 10, 810 - ((y - player.pos.y) * squareSize + 405 + 5 * squareSize / 10), squareSize, squareSize);
     }
     ctx.imageSmoothingEnabled = false;
     ctx.rect(0, 0, 810, 810);
@@ -434,11 +403,11 @@ function updateVision(x, y) {
             }
             if (debug.textures.block.includes(debug.oreLocations[x1][y1].id)) hasImage = true;
             if (!hasImage) {
-                ctx.fillRect((x1 - player.pos.x) * squareSize + 400 - 5 * squareSize / 10, 810 - ((y1 - player.pos.y) * squareSize + 410 + 5 * squareSize / 10), squareSize, squareSize);
+                ctx.fillRect((x1 - player.pos.x) * squareSize + 405 - 5 * squareSize / 10, 810 - ((y1 - player.pos.y) * squareSize + 405 + 5 * squareSize / 10), squareSize, squareSize);
             } else {
                 const blockImg = new Image();
                 blockImg.src = `./textures/block/${debug.oreLocations[x1][y1].id}.png`;
-                ctx.drawImage(blockImg, (x1 - player.pos.x) * squareSize + 400 - 5 * squareSize / 10, 810 - ((y1 - player.pos.y) * squareSize + 410 + 5 * squareSize / 10), squareSize, squareSize);
+                ctx.drawImage(blockImg, (x1 - player.pos.x) * squareSize + 405 - 5 * squareSize / 10, 810 - ((y1 - player.pos.y) * squareSize + 405 + 5 * squareSize / 10), squareSize, squareSize);
             }
             ctx.fillStyle = "#ff0";
         } else {
@@ -464,7 +433,7 @@ function updateVision(x, y) {
     }
     const playerImg = new Image();
     playerImg.src = "./textures/player.png";
-    ctx.drawImage(playerImg, 400 - squareSize / 2, 400 - squareSize / 2, squareSize, squareSize);
+    ctx.drawImage(playerImg, 405 - squareSize / 2, 405 - squareSize / 2, squareSize, squareSize);
 }
 
 function generateOre(x, y) {
@@ -590,7 +559,7 @@ function die(deathMessage) {
     player.drinkPoints = 100;
     inventory = [];
     player.pos = {x: 0, y: 0};
-    addItem("airBlock", 99);
+    addItem("airBlock", 100);
     document.getElementById("main").style.display = "none";
     document.getElementById("deathMessage").style.display = "";
     document.getElementById("deathMessageText").innerHTML = deathMessage;
@@ -604,10 +573,14 @@ function godMode() {
     player.pickaxe.strength = Infinity;
     player.axe.durability = Infinity;
     maxSize = Infinity;
+    player.maxHealth = Infinity;
+    player.maxFood = Infinity;
+    player.maxDrink = Infinity;
     player.health = Infinity;
     player.foodPoints = Infinity;
+    player.drinkPoints = Infinity;
     for (let i = 0; i < Object.keys(items).length; i++) {
-        addItem(Object.keys(items)[i], 1e308);
+        addItem(Object.keys(items)[i], 1e12);
     }
     updateRecipeBook();
 }
@@ -709,7 +682,7 @@ function secondsToOtherUnits(n) {
             return `${Math.floor(n / 60)} min`;
         } else if (n < 172800) {
             return `${Math.floor(n / 3600)} hr`;
-        } else if (n < 315576000) {
+        } else if (n < 31557600) {
             return `${Math.floor(n / 86400)} d`;
         } else {
             return `${Math.floor(n / 31557600)} yr`;
@@ -911,8 +884,8 @@ function oreAtMouse(e) {
     const a = Number(document.getElementById("map").style.zoom);
     const squareSize = 810 * a / settings.mapSize;
     const rect = e.target.getBoundingClientRect();
-    const left = e.clientX - rect.left * a + 5;
-    const top = e.clientY - rect.top * a + 5;
+    const left = e.clientX - rect.left * a;
+    const top = e.clientY - rect.top * a;
     let ore = "Unknown", x, y;
     if (debug.oreLocations[player.pos.x - settings.mapSize / 2 + 0.5 + Math.floor(left / squareSize)] !== undefined && debug.oreLocations[player.pos.x - settings.mapSize / 2 + 0.5 + Math.floor(left / squareSize)][-(-player.pos.y - settings.mapSize / 2 + 0.5 + Math.floor(top / squareSize))] !== undefined) {
         x = player.pos.x - settings.mapSize / 2 + 0.5 + Math.floor(left / squareSize);
@@ -924,17 +897,18 @@ function oreAtMouse(e) {
 
 document.getElementById("map").onmousemove = e => {
     let ore = oreAtMouse(e).ore;
-    let oreData = {types: []};
-    if (items[ore] !== undefined) {
-        oreData = getOreData(ore);
-    }
-    mapTooltip(ore !== "Unknown" && items[ore] !== undefined && !oreData.types.includes("liquid") ? items[ore].name : oreData.types.includes("liquid") ? items[ore].name.slice(0, items[ore].name.length - 7) : ore, ore !== "Unknown" && items[ore] !== undefined ? (settings.aiTooltips ? items[ore].aiTooltip : items[ore].desc) : "You haven't uncovered this block yet!");
+    mapTooltip(ore, ore !== "Unknown" && items[ore] !== undefined ? (settings.aiTooltips ? items[ore].aiTooltip : items[ore].desc) : "You haven't uncovered this block yet!");
 };
 
 document.querySelector("#map").addEventListener("mousedown", e => {
     let data = oreAtMouse(e);
     const {ore, x, y} = data;
     if (e.button === 2) {
+        if (buildMode.enabled && inventory[inventory.map(g => g.id).indexOf(buildMode.id)].count.gten(1) && !isSolid(x, y) && !(player.pos.x === x && player.pos.y === y)) {
+            debug.oreLocations[x][y].id = buildMode.id;
+            addItem(buildMode.id, -1);
+            updateVision(x, y);
+        }
         if (getOreData(ore).onInteract) getOreData(ore).onInteract();
     }
     if (e.button === 0 && player.pickaxe.strength >= getOreData(ore).hardness && !isLiquid(x, y)) {
@@ -974,16 +948,28 @@ document.onkeydown = e => {
         move("l");
     } else if (e.code === "KeyD" || e.code === "ArrowRight") {
         move("r");
+    } else if (e.code === "KeyZ") {
+        buildMode.enabled = !buildMode.enabled;
+        buildText();
     }
     if (e.code.includes("Arrow")) e.preventDefault();
 };
+
+function buildText() {
+    document.querySelector("#buildModeActive").innerHTML = buildMode.enabled ? `You are in build mode<br>Block: ${items[buildMode.id].name} x${simplify(inventory[inventory.map(g => g.id).indexOf(buildMode.id)].count)}` : "";
+}
 
 function mapTooltip(ore, desc) {
     if (desc === undefined) {
         desc = "No description yet";
     }
+    let oreData = {types: []};
+    if (items[ore] !== undefined) {
+        oreData = getOreData(ore);
+    }
     let output = "";
-    output += `<p><b>${ore}</b></p>`;
+    output += `<p><b>${ore !== "Unknown" && items[ore] !== undefined && !oreData.types.includes("liquid") ? items[ore].name : oreData.types.includes("liquid") ? items[ore].name.slice(0, items[ore].name.length - 7) : ore}</b></p>`;
+    if (debug.textures.item.includes(ore)) output += `<img alt="${ore}" src="textures/item/${ore}.png" width="64">`;
     output += `<p style="color: #ccc;"><i>${desc}</i></p>`;
     document.getElementById("mapTooltip").style.display = "";
     document.getElementById("mapTooltip").innerHTML = output;
@@ -1010,34 +996,34 @@ function generateDesc() {
         let oreDepthText = "";
         if (ore) {
             if (ore.maxY < -1000000) {
-                oreDepthText = " that can be found extremely deep in the earth.";
+                oreDepthText = " that can be found extremely deep in the earth";
             } else if (ore.maxY < -100000) {
-                oreDepthText = " that can be found very deep in the earth.";
+                oreDepthText = " that can be found very deep in the earth";
             } else if (ore.maxY < -10000) {
-                oreDepthText = " that can be found deep in the earth.";
+                oreDepthText = " that can be found deep in the earth";
             } else if (ore.maxY < -1000) {
-                oreDepthText = " that can be found somewhat deep in the earth.";
+                oreDepthText = " that can be found somewhat deep in the earth";
             } else if (ore.maxY < -100) {
-                oreDepthText = " that can be found somewhat close to the surface.";
+                oreDepthText = " that can be found somewhat close to the surface";
             } else if (ore.maxY < 1) {
-                oreDepthText = " that can be found below the surface.";
+                oreDepthText = " that can be found below the surface";
             } else if (ore.minY < 10) {
-                oreDepthText = " that can be found near the surface.";
+                oreDepthText = " that can be found near the surface";
             } else if (ore.minY < 100) {
-                oreDepthText = " that can be found in the sky.";
+                oreDepthText = " that can be found in the sky";
             } else if (ore.minY < 1000) {
-                oreDepthText = " that can be found high up in the sky.";
+                oreDepthText = " that can be found high up in the sky";
             } else if (ore.minY < 10000) {
-                oreDepthText = " that can be found very high up in the sky.";
+                oreDepthText = " that can be found very high up in the sky";
             } else if (ore.minY !== Infinity && ore.maxY !== Infinity) {
-                oreDepthText = " that can be found in space.";
+                oreDepthText = " that can be found in space";
             } else {
-                oreDepthText = " that cannot be found anywhere in nature.";
+                oreDepthText = " that cannot be found anywhere in nature";
             }
         }
         let output = [];
         if (items[key].rarity !== undefined) {
-            output[0] = `${items[key].name} is a ${items[key].rarity.toLowerCase()} item${oreDepthText}`;
+            output[0] = `${items[key].name} is a ${items[key].rarity.toLowerCase()} item${oreDepthText}.`;
         } else {
             output[0] = `${items[key].name} is an item that does not have a specified rarity.`;
         }

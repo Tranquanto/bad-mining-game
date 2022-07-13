@@ -33,9 +33,87 @@ function addItem(id, count) {
 
         const div = document.createElement("div");
 
-        for (let i = 0; i < inventory.length; i++) {
+        function reloadMenu(i) {
+            const menu = document.querySelector("#itemMenu");
+            let d = 0;
+            document.querySelector("#itemMenu").innerHTML = "";
+            document.querySelector("#itemMenu").setAttribute("data-slot", i);
+            if (!items[inventory[i].id].types.includes("cantDrop")) {
+                menu.append(document.createElement("button"));
+                menu.children[0].innerText = "Drop / Drop All";
+                menu.children[0].addEventListener("click", () => {
+                    addItem(inventory[i].id, -1);
+                });
+                menu.children[0].addEventListener("contextmenu", () => {
+                    addItem(inventory[i].id, -inventory[i].count.number());
+                });
+                d++;
+            }
+            const y = getOreData(inventory[i].id);
+            if (y) {
+                menu.append(document.createElement("button"));
+                menu.children[d].innerText = "Build";
+                menu.children[d].addEventListener("click", () => {
+                    buildMode.enabled = true;
+                    buildMode.id = inventory[i].id;
+                    buildText();
+                    closeInventory();
+                });
+            }
+            if (items[inventory[i].id].foodValue !== undefined) {
+                menu.append(document.createElement("button"));
+                menu.children[d].innerText = "Consume";
+                menu.children[d].addEventListener("click", () => {
+                    if (!items[inventory[i].id].needsToBeCooked) {
+                        player.foodPoints += items[inventory[i].id].foodValue;
+                        player.drinkPoints += items[inventory[i].id].drinkValue;
+                        addItem(inventory[i].id, -1);
+                    } else {
+                        if (items[inventory[i].id].cooked >= 80 && items[inventory[i].id].cooked <= 120) {
+                            player.foodPoints += items[inventory[i].id].foodValue;
+                            player.drinkPoints += items[inventory[i].id].drinkValue;
+                            addItem(inventory[i].id, -1);
+                        } else {
+                            player.health -= 10;
+                            if (player.health <= 0) die("You died of food poisoning!");
+                        }
+                    }
+                });
+                d++;
+            }
+
+            if (items[inventory[i].id].recycle) {
+                menu.append(document.createElement("button"));
+                menu.children[d].innerText = "Recycle";
+                menu.children[d].addEventListener("click", () => {
+                    recycle(inventory[i].id);
+                });
+                d++;
+            }
+
+            if (items[inventory[i].id].extraFunctions !== undefined) {
+                for (let j = 0; j < items[inventory[i].id].extraFunctions.length; j++) {
+                    const btn = document.createElement("button");
+                    btn.addEventListener("click", () => {
+                        items[inventory[i].id].extraFunctions[j].function();
+                    });
+                    btn.innerText = items[inventory[i].id].extraFunctions[j].name;
+                    menu.append(btn);
+                }
+            }
+            return false;
+        }
+
+        for (const i in inventory) {
+            if (inventory[i].count.number() <= 0) {
+                document.querySelector("#itemMenu").style.display = "none";
+                document.querySelector("#itemMenu").removeAttribute("data-slot");
+                inventory.splice(i, 1);
+                continue;
+            }
+            inventory[i].count.mul = Math.round(inventory[i].count.mul * 1e6) / 1e6;
             if (Math.round(inventory[i].count.number() * 10000) / 10000 > 0) {
-                const itemSize = simplify(inventory[i].count.number() * items[String(inventory[i].id)].size);
+                const itemSize = inventory[i].count.number() * items[String(inventory[i].id)].size;
                 let message;
                 if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
                     message = "<p class='clickToDrop'>Tap to drop one<br>Hold to drop all</p>";
@@ -48,88 +126,53 @@ function addItem(id, count) {
                 const elem = document.createElement("div");
                 let c = 0;
                 elem.className = "inventoryItem";
+                elem.setAttribute("data-slot", i);
                 elem.title = items[inventory[i].id].desc !== undefined && !settings.aiTooltips ? items[inventory[i].id].desc : items[inventory[i].id].aiTooltip;
                 elem.append(document.createElement("p"));
                 elem.children[0].style.color = color;
                 elem.children[0].innerText = items[inventory[i].id].name;
-                if (debug.textures.item.includes(inventory[i].id)) {
-                    elem.append(document.createElement("img"));
-                    elem.children[1].alt = items[inventory[i].id].name;
-                    elem.children[1].className = "itemTexture";
-                    elem.children[1].src = `textures/item/${inventory[i].id}.png`;
-                    c++;
-                }
+                elem.append(document.createElement("img"));
+                elem.children[1].alt = items[inventory[i].id].name;
+                elem.children[1].className = "itemTexture";
+                elem.children[1].src = debug.textures.item.includes(inventory[i].id) ? `textures/item/${inventory[i].id}.png` : "../question_dark.png";
+                c++;
                 elem.append(document.createElement("p"));
                 elem.append(document.createElement("p"));
                 elem.children[1 + c].append(document.createElement("i"));
                 elem.children[1 + c].children[0].style.color = "#ccc";
                 elem.children[2 + c].className = "inventoryItemCount";
-                elem.children[2 + c].innerText = `${simplify(inventory[i].count)} (${itemSize.toLocaleString()} lbs | ${itemSize >= maxSize * 0.5 ? "Very Heavy" : itemSize >= maxSize * 0.25 ? "Heavy" : itemSize >= maxSize * 0.1 ? "Medium" : itemSize >= maxSize * 0.05 ? "Light" : itemSize >= maxSize * 0.001 ? "Very Light" : "Weightless"})`;
-
-                if (!items[inventory[i].id].types.includes("cantDrop")) {
-                    elem.append(document.createElement("button"));
-                    elem.children[3 + c].innerText = "Drop / Drop All";
-                    elem.children[3 + c].addEventListener("click", () => {
-                        addItem(inventory[i].id, -1);
-                    });
-                    elem.children[3 + c].addEventListener("contextmenu", () => {
-                        addItem(inventory[i].id, -inventory[i].count.number());
-                    });
-                    c++;
-                }
-
-                if (items[inventory[i].id].foodValue !== undefined) {
-                    elem.append(document.createElement("button"));
-                    elem.children[3 + c].innerText = "Consume";
-                    elem.children[3 + c].addEventListener("click", () => {
-                        if (!items[inventory[i].id].needsToBeCooked) {
-                            player.foodPoints += items[inventory[i].id].foodValue;
-                            player.drinkPoints += items[inventory[i].id].drinkValue;
-                            addItem(inventory[i].id, -1);
-                        } else {
-                            if (items[inventory[i].id].cooked >= 80 && items[inventory[i].id].cooked <= 120) {
-                                player.foodPoints += items[inventory[i].id].foodValue;
-                                player.drinkPoints += items[inventory[i].id].drinkValue;
-                                addItem(inventory[i].id, -1);
-                            } else {
-                                player.health -= 10;
-                                if (player.health <= 0) die("You died of food poisoning!");
-                            }
-                        }
-                    });
-                    c++;
-                }
-
-                if (items[inventory[i].id].recycle) {
-                    elem.append(document.createElement("button"));
-                    elem.children[3 + c].addEventListener("click", () => {
-                        recycle(inventory[i].id);
-                    });
-                    c++;
-                }
-
-                if (items[inventory[i].id].extraFunctions !== undefined) {
-                    for (let j = 0; j < items[inventory[i].id].extraFunctions.length; j++) {
-                        const btn = document.createElement("button");
-                        btn.addEventListener("click", () => {
-                            items[inventory[i].id].extraFunctions[j].function();
-                        });
-                        btn.innerText = items[inventory[i].id].extraFunctions[j].name;
-                        elem.append(btn);
-                    }
-                }
+                elem.children[2 + c].innerText = `${simplify(inventory[i].count)} (${simplify(itemSize)} lbs | ${simplify(itemSize / totalSize.number() * 100)}%)`;
 
                 div.append(elem);
+
+                elem.addEventListener("contextmenu", e => {
+                    reloadMenu(i);
+                    document.querySelector("#itemMenu").style.display = "";
+                    document.querySelector("#itemMenu").style.left = `${e.clientX}px`;
+                    document.querySelector("#itemMenu").style.top = `${e.clientY}px`;
+                });
+
+                const arrow = document.createElement("img");
+                arrow.src = "textures/gui/arrow.png";
+                arrow.alt = "arrow";
+                arrow.className = "rightArrow";
+                arrow.addEventListener("click", () => {
+                    document.querySelector("#inventory").style.left = "-100vw";
+                    document.querySelector("#recipes").style.left = "0";
+                });
+                div.append(arrow);
             } else {
                 inventory[i].count = new hugeNumber(0);
             }
         }
+        reloadMenu(document.querySelector("#itemMenu").getAttribute("data-slot") || "0");
         document.getElementById("openInventory").style.backgroundColor = "";
         document.getElementById("closeInventory").style.backgroundColor = "";
         document.querySelector("#inventory").innerHTML = `<span>Inventory (${simplify(totalSize)} / ${simplify(maxSize)} lbs full)</span><br>`;
         document.querySelector("#invSize").innerHTML = `<span>${simplify(totalSize)} / ${simplify(maxSize)} lbs</span>`;
         document.querySelector("#inventory").append(div);
-        const t = document.createElement("div"); t.style.clear = "both";
+        const t = document.createElement("div");
+        t.style.clear = "both";
         document.querySelector("#inventory").append(t);
         if (totalSize.number() >= maxSize) {
             document.getElementById("openInventory").style.backgroundColor = "darkred";
@@ -137,6 +180,7 @@ function addItem(id, count) {
         }
     }
     updateRecipeBook();
+    buildText();
 }
 
 function simplify(n) {

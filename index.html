@@ -52,21 +52,20 @@
     <br>
     <span id="fps" style="float: right; margin-top: -8px;">0 FPS</span>
     <br>
-    <fieldset id="vision" style="text-align: center;">
-        <canvas width="810" height="810" id="map" style="transition: filter 1s;" onmouseout="document.getElementById('mapTooltip').style.display = 'none';"></canvas>
-        <div id="mapTooltip" style="background: #00000080; color: white; width: 240px; min-height: 180px; border-style: solid; border-width: 4px; position: absolute; pointer-events: none; display: none; opacity: 0.8;">
-            <br>
-            <p><b>Error</b></p>
-            <p style="color: #ccc;"><i>If you are reading this text, something went wrong! Report it at <a href="https://www.github.com/Dragon77mathbye/bad-mining-game/issues"></a></i></p>
-        </div>
-    </fieldset>
+    <canvas width="810" height="810" id="map" onmouseout="document.getElementById('mapTooltip').style.display = 'none';"></canvas>
+    <p><b id="buildModeActive"></b></p>
+    <div id="mapTooltip" style="background: #00000080; color: white; width: 240px; min-height: 180px; border-style: solid; border-width: 4px; position: absolute; pointer-events: none; display: none; opacity: 0.8;">
+        <br>
+        <p><b>Error</b></p>
+        <p style="color: #ccc;"><i>If you are reading this text, something went wrong! Report it at
+            <a href="https://www.github.com/Dragon77mathbye/bad-mining-game/issues"></a></i></p>
+    </div>
     <button onclick="navigateTo('options');">Options</button>
     <button onclick="openInventory();" id="openInventory">Open Inventory</button>
     <button onclick="closeInventory();" id="closeInventory" style="display: none;">Close Inventory</button>
-    <div id="inventory"></div>
-    <fieldset id="recipes" style="display: none;">
-        <legend>Recipe Book</legend>
-    </fieldset>
+    <div id="inventory"><img src="textures/gui/arrow.png" alt="Right Arrow" class="rightArrow"></div>
+    <div id="recipes"></div>
+    <div id="itemMenu"></div>
     <!--<fieldset id="counter"></fieldset>
     <fieldset id="oven"></fieldset>
     <fieldset id="fridge"></fieldset>-->
